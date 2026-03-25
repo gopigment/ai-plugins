@@ -1,0 +1,8 @@
+{
+  "name": "pigment",
+  "description": "Analyze business data and build planning models in your Pigment workspace",
+  "version": "1.0.0",
+  "author": {
+    "name": "Pigment"
+  }
+}

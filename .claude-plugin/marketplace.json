@@ -1,0 +1,20 @@
+{
+  "$schema": "https://code.claude.com/schemas/marketplace.json",
+  "name": "pigment",
+  "version": "1.0.0",
+  "description": "Analyze business data and build planning models in your Pigment workspace",
+  "owner": {
+    "name": "Pigment"
+  },
+  "plugins": [
+    {
+      "name": "pigment",
+      "description": "Analyze business data and build planning models in your Pigment workspace",
+      "source": "./",
+      "version": "1.0.0",
+      "author": {
+        "name": "Pigment"
+      }
+    }
+  ]
+}
