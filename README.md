@@ -15,7 +15,7 @@ Enable MCP in your Pigment workspace: **Settings > Integrations > MCP**. See the
 Install the Pigment plugin by running the following command in the agent chat:
 
 ```
-/add-plugin gopigment/ai-plugins
+/add-plugin pigment
 ```
 
 ### Claude Code
