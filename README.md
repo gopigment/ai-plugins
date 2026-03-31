@@ -12,18 +12,22 @@ Enable MCP in your Pigment workspace: **Settings > Integrations > MCP**. See the
 
 ### Cursor
 
-Install the Pigment plugin by running the following command in the agent chat:
-
-```
-/add-plugin pigment
-```
+1. Go to [Cursor plugins](https://cursor.com/dashboard/plugins)
+2. Import `https://github.com/gopigment/ai-plugins` as a marketplace
+3. Add Pigment plugin to Cursor from the plugins page, or open Cursor and run `/add-plugin pigment` in a new chat
 
 ### Claude Code
 
-Add the Pigment marketplace and install the plugin:
+#### Desktop App
+
+1. Go to **Customize**, select **Add plugin**, then **Add marketplace** and paste `https://github.com/gopigment/ai-plugins`
+2. Install Pigment plugin
+
+#### Terminal CLI
 
 ```
 /plugin marketplace add gopigment/ai-plugins
+
 /plugin install pigment@pigment
 ```
 
