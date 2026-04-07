@@ -84,4 +84,4 @@ Skills are domain-knowledge files loaded automatically by Cursor and Claude Code
 
 ## Support
 
-If you run into any issues, contact us at [Pigment Support](https://support.pigment.com/en/support).
+If you run into any issues, contact us at [Pigment Support](https://support.pigment.com/).
