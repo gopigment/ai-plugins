@@ -272,18 +272,7 @@ Planning metric structures, understanding multi-dimensional relationships, desig
 
 Also see: [./modeling_principles.md](./modeling_principles.md) - Section 8 (MS rules for Speed)
 
-### 6. Centralized Reporting Metrics
-
-**Tasks**:
-
-- "What is a Centralized Reporting Metric (Nexus)?"
-- "How do I design a P&L or Balance Sheet aggregation metric?"
-- "Where should the final reporting metric live?"
-- "Push/Pull and Centralized Reporting Metrics?"
-
-**Read**: [../solving-specific-use-cases/finance_nexus_financial_statements.md](../solving-specific-use-cases/finance_nexus_financial_statements.md)
-
-### 7. Access Rights (Design and Rules)
+### 6. Access Rights (Design and Rules)
 
 **Tasks**:
 
@@ -297,7 +286,7 @@ Also see: [./modeling_principles.md](./modeling_principles.md) - Section 8 (MS r
 
 For formula syntax (ACCESSRIGHTS, IFDEFINED): [../writing-pigment-formulas/functions_security.md](../writing-pigment-formulas/functions_security.md). For AR performance: [../optimizing-pigment-performance/performance_access_rights.md](../optimizing-pigment-performance/performance_access_rights.md).
 
-### 8. Auditing a Pigment App
+### 7. Auditing a Pigment App
 
 **Tasks**:
 
@@ -310,7 +299,7 @@ For formula syntax (ACCESSRIGHTS, IFDEFINED): [../writing-pigment-formulas/funct
 
 For detailed formula checks use writing-pigment-formulas; for performance use optimizing-pigment-performance; for boards use designing-pigment-boards.
 
-### 9. Application Cleaning
+### 8. Application Cleaning
 
 **Tasks**:
 
@@ -321,7 +310,7 @@ For detailed formula checks use writing-pigment-formulas; for performance use op
 
 **Read**: [./modeling_application_cleaning.md](./modeling_application_cleaning.md)
 
-### 10. Architecture Design
+### 9. Architecture Design
 
 **Tasks**:
 
@@ -332,7 +321,7 @@ For detailed formula checks use writing-pigment-formulas; for performance use op
 
 **Read**: [./modeling_architecture_design.md](./modeling_architecture_design.md)
 
-### 11. List Subsets (sublists)
+### 10. List Subsets (sublists)
 
 **Tasks**:
 
@@ -343,7 +332,7 @@ For detailed formula checks use writing-pigment-formulas; for performance use op
 
 **Read**: [./modeling_subsets.md](./modeling_subsets.md) - When to recommend vs avoid, data-loss warnings, decision checklist, safe patterns (STORE/CALC, dropdown UX on parent, remap to parent). Tool: create_sublist exists; update/delete not yet exposed—design guidance applies regardless.
 
-### 12. Test & Deploy (when used)
+### 11. Test & Deploy (when used)
 
 **Tasks**:
 
@@ -354,7 +343,7 @@ For detailed formula checks use writing-pigment-formulas; for performance use op
 
 **Read**: [./modeling_principles.md](./modeling_principles.md) - Section 4 (baseline: no direct item reference) and Section 9 (When Test & Deploy is used: Rules 1 & 2, context, enforcement).
 
-### 13. Segmentation (tiered / banded lookup)
+### 12. Segmentation (tiered / banded lookup)
 
 **Tasks**:
 
@@ -365,19 +354,6 @@ For detailed formula checks use writing-pigment-formulas; for performance use op
 **Read**: [./modeling_segmentation_tiered_lookup.md](./modeling_segmentation_tiered_lookup.md) - Pattern with IF + REMOVE FIRSTNONBLANK/LASTNONBLANK, floor/ceiling variants, dimension order, best practices.
 
 For modifier syntax (REMOVE, FIRSTNONBLANK, LASTNONBLANK): [../writing-pigment-formulas/formula_modifiers.md](../writing-pigment-formulas/formula_modifiers.md).
-
-### 14. FX / Currency conversion
-
-**Tasks**:
-
-- "How do I set up FX rates?" / "Currency conversion in P&L or Balance Sheet?"
-- "Reporting currency vs local vs group currency?"
-- "When to use AVG rate vs END rate?"
-- "What is Push_DH_FX_* and how does the FX Hub work?"
-- "Triangulation for currency pairs?"
-- "Entity currency mapping for multi-currency consolidation?"
-
-**Read**: [../solving-specific-use-cases/fx_currency_conversion.md](../solving-specific-use-cases/fx_currency_conversion.md)
 
 ---
 
@@ -409,7 +385,6 @@ Once model designed, move to formula writing.
 | Modifiers (syntax)                       | [formula_modifiers.md](../writing-pigment-formulas/formula_modifiers.md)                                     |
 | Scenarios vs Versions                    | [modeling_scenarios_and_versions.md](./modeling_scenarios_and_versions.md)                                   |
 | Performance                              | [modeling_performance_considerations.md](./modeling_performance_considerations.md)                           |
-| Centralized Reporting Metrics            | [finance_nexus_financial_statements.md](../solving-specific-use-cases/finance_nexus_financial_statements.md) |
 | Access Rights (design, rules, debug)     | [modeling_access_rights.md](./modeling_access_rights.md)                                                     |
 | App audit (modeling, UX, governance)     | [modeling_application_auditing.md](./modeling_application_auditing.md)                                       |
 | Application cleaning (deletion workflow) | [modeling_application_cleaning.md](./modeling_application_cleaning.md)                                       |
@@ -417,7 +392,6 @@ Once model designed, move to formula writing.
 | Test & Deploy (when used)               | [modeling_principles.md](./modeling_principles.md) - Section 9                                               |
 | List Subsets (when to use, risks, patterns) | [modeling_subsets.md](./modeling_subsets.md)                                                             |
 | Segmentation (tiered / banded lookup)   | [modeling_segmentation_tiered_lookup.md](./modeling_segmentation_tiered_lookup.md)                         |
-| FX / Currency conversion (Hub pattern)  | [fx_currency_conversion.md](../solving-specific-use-cases/fx_currency_conversion.md)                       |
 | What the agent cannot do (UI only)      | `skill:agent-capabilities-and-behavior`    |
 
 ---
@@ -431,14 +405,12 @@ Once model designed, move to formula writing.
 - [./modeling_time_and_calendars.md](./modeling_time_and_calendars.md) - Calendar configuration and time dimensions
 - [./modeling_scenarios_and_versions.md](./modeling_scenarios_and_versions.md) - Planning cycles
 - [./modeling_performance_considerations.md](./modeling_performance_considerations.md) - Performance
-- [../solving-specific-use-cases/finance_nexus_financial_statements.md](../solving-specific-use-cases/finance_nexus_financial_statements.md) - Centralized reporting metric pattern for P&L/Balance Sheet and reporting aggregation
 - [./modeling_access_rights.md](./modeling_access_rights.md) - Access Rights design, Apply/Ignore rules, patterns, debugging, governance
 - [./modeling_application_auditing.md](./modeling_application_auditing.md) - Audit app (modeling, formulas, folders, boards, governance, cleanup) and report with severity
 - [./modeling_application_cleaning.md](./modeling_application_cleaning.md) - Deletion-only application cleaning, unused definitions, mandatory order, boards by usage
 - [./modeling_architecture_design.md](./modeling_architecture_design.md) - Pigment architecture design across 5 pillars
 - [./modeling_subsets.md](./modeling_subsets.md) - List subsets: when to use vs avoid, data-loss risks, decision checklist, safe patterns (STORE/CALC, dropdown on parent, remap to parent)
 - [./modeling_segmentation_tiered_lookup.md](./modeling_segmentation_tiered_lookup.md) - Tiered/banded lookup: assign items to bands/tiers from thresholds on a dimension (IF + REMOVE FIRSTNONBLANK/LASTNONBLANK)
-- [../solving-specific-use-cases/fx_currency_conversion.md](../solving-specific-use-cases/fx_currency_conversion.md) - FX currency conversion: Hub app, FX_01/FX_02/Push_DH_FX_* layers, AVG vs END, reporting currency, entity mapping
 - `skill:agent-capabilities-and-behavior` - What the agent cannot do (UI only)
 ---
 

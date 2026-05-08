@@ -286,8 +286,6 @@ For comprehensive guidance on View capabilities, see:
 
 Design data to flow towards a central consolidation point that combines Actuals and Planning data for reporting on Boards. Reference the correct Block directly and use the dependency diagram to maintain clarity and simplicity.
 
-For comprehensive guidance on financial statement modeling and data flow patterns, see [Core P&L reporting (Nexus pattern)](../solving-specific-use-cases/finance_nexus_financial_statements.md).
-
 #### MG06 - Block Usage: Proper Role Assignment
 
 Understanding Block roles is key in deciding which type of Block to use and when to use it. For definitions and characteristics of each block, see [modeling_fundamentals §2 - Building Blocks](./modeling_fundamentals.md#2-pigment-modeling-building-blocks).
