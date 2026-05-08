@@ -30,10 +30,12 @@ Purpose: Compare actual vs budget revenue by product line over time
 
 ## Step 2: Retrieve and Evaluate Existing Views
 
-Retrieve all Views for the Block using `get_block_views`. **Pass your display intent** using the `display_intent` parameter:
-- `Kpi` — for single-value KPI display
+Retrieve all Views for the Block using `tool:get_block_views`. **Pass your display intent** using the `display_intent` parameter:
+- `Kpi` — for single-value KPI display (Metric and Table blocks only)
 - `Grid` — for table/grid display with rows and columns
-- `Chart` — for chart/data visualization (optionally specify `chart_type`: Bar, Line, Pie, Waterfall, Org, Geo)
+- `Chart` — for chart/data visualization (optionally specify `chart_type`: Bar, Line, Pie, Waterfall, Org, Geo, Combined) (Metric and Table blocks only)
+
+**List blocks only support Grid display.** When calling `tool:get_block_views` for a List, use `display_intent: Grid` or omit it. Do not pass `Kpi`, `Chart`, or any `chart_type` — the API will return an error.
 
 When a `display_intent` is provided, results are sorted by compatibility and limited to the top relevant Views. Focus your evaluation on the top results.
 

@@ -2,15 +2,28 @@
 
 ## What They Are
 
-Board Pages are **default filters applied at the Board level**. They define the analytical context for the entire Board and are **automatically used by all View widgets**, unless they opt-out.
+Board Pages are **default filters applied at the Board level**. They define the analytical context users expect when opening the Board. **Which widgets actually follow a given Board Page depends on each widget’s View**, not on the Board alone.
 
-**Key rule:** Board Pages come from the Pages of the Views you add to the Board. You cannot add to or remove Page Selectors from the Board Pages. You can only configure the default values of each Board Page.
+### Board-to-Widget Page Compatibility Rule (critical)
 
-After you set the Board Pages default values, Users will be able to select different values for each Board Page. The Views that did not opt-out will automatically adjust their data display to match the selected values.
+A board-level page selector on dimension **D** affects **only** widgets whose underlying View has a **compatible** page on **D**:
+
+- A **simple Page** on D (`dimensionId` = D’s ID), or
+- A **Grouping Page** whose `listPropertyPath` resolves to D (see **Board Pages and Grouping Pivots in a View's Pages** below).
+
+To make **one** board-level selector (e.g. Year) drive **multiple** widgets together, **every** target widget’s View must include that same page (or a compatible grouping page on D). If a View has no Year in Pages (e.g. only Version, or no time page at all), the board’s Year selector **does not** filter that widget’s data.
+
+**Workflow implication:** Before relying on Board Pages, **verify or edit each widget View** so Pages align with the dimensions you want at board level. Creating the Board first and only then discovering mismatched Views is a common source of “the board filter does nothing.”
+
+**Key rule (configuration):** Board Page **selectors** come from the union of Pages on the Views you add to the Board. You cannot invent a new Page selector on the Board that no View has. You **can** configure **default selected items** for each Board Page at board level (default modalities / page configurations)—for example, default Year to FY26.
+
+After defaults are set, users can change Board Page selections; widgets whose Views are linked and compatible will update accordingly.
 
 ### Unlinking a Page at the Widget Level
 
-Widgets can opt-out of each Board Page by **Unlinking** their corresponding Page. For example, if the Board has a Board Page for `Year`, the Widgets can opt-out of it by unlinking their `Year` Page. Unlinking a Page means that the Widget's View will no longer be affected by the Board Page and will keep displaying the same data, regardless of the Board Page selected values. Its corresponding Page will appear as a regular Page and can be edited independently of the Board Page.
+Widgets whose Views **do** have a compatible page can still opt out of the Board Page by **Unlinking** that page. For example, if the Board has a Board Page for `Year`, a widget can unlink its `Year` Page so it is no longer driven by the board-level Year selector; that page then behaves as a normal view-level page.
+
+**Note:** “No effect from the board Year selector” is different from unlinking: if the View never had a compatible Year page, the board Year filter **never** applied to that widget—unlinking is not required to explain that behavior.
 
 ### Page Selector Visibility
 
@@ -119,8 +132,10 @@ Board Pages:
 - Version=Actuals
 - Scenario=Default
 
-Note: Widgets showing Views without these Dimensions will simply
-ignore the Board-level filters.
+Note: A Board Page only affects widgets whose Views have a compatible
+page on that dimension. Widgets whose Views lack Year / Version / Scenario
+in Pages are not filtered by those board-level selectors—align Views first
+if you need every widget to follow the same board context.
 ```
 
 ---

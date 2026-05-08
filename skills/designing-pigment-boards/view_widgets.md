@@ -4,7 +4,9 @@ When creating or editing View Widgets on a Board, each widget must point to a Vi
 
 ## Display Modes
 
-See [display_modes.md](../creating-and-editing-pigment-views/display_modes.md) for display mode definitions.
+See [view_display_modes.md](../creating-and-editing-pigment-views/view_display_modes.md) for display mode definitions.
+
+**Board-level page filters:** If the Board should drive several widgets with the same page selector (e.g. Year = FY25), **each** underlying View must include a **compatible** page on that dimension. Otherwise the board selector will not filter that widget. See **[board_pages.md](./board_pages.md)** (Board-to-Widget Page Compatibility Rule).
 
 **⚠️ CRITICAL Display Type / Block Type Rules:**
 
@@ -22,7 +24,7 @@ Create the View Widget pointing directly to the existing View. No override neede
 
 ### Case 2: The View needed an edit (a Draft View was created)
 
-Must read and follow the [creating-and-editing-pigment-views](../creating-and-editing-pigment-views/SKILL.md) skill to create and edit a Draft View.
+Must read and follow the `skill:creating-and-editing-pigment-views` skill to create and edit a Draft View.
 
 Then:
 

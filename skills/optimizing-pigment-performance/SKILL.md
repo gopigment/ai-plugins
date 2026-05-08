@@ -18,8 +18,8 @@ metadata:
 
 1. **Read this file first** - Understand available resources and when to use them
 2. **Identify relevant topics** - Match your task to any of the supporting documents
-3. **Read supporting files** - Use `read_file` or `grep` to access detailed documentation
-4. **Explore as needed** - Use `ls`, `grep`, or `glob` to discover additional resources in this directory (some might not be explicitly mentioned in this file)
+3. **Read supporting files** - Use `tool:read_file` or `tool:grep` to access detailed documentation
+4. **Explore as needed** - Use `tool:ls`, `tool:grep`, or `tool:glob` to discover additional resources in this directory (some might not be explicitly mentioned in this file)
 
 # Optimizing Pigment Performance
 

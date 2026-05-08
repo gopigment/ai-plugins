@@ -2,7 +2,7 @@
 
 Dimensional transformations using modifiers for aggregation (N→1 or N→none) and allocation (1→N or none→N).
 
-**Key Concept**: Modifiers are used for dimensional transformations and require square brackets with a colon: `[BY: ...]`, `[REMOVE: ...]`, `[KEEP: ...]`, `[ADD: ...]`, `[SELECT: ...]`, `[FILTER: ...]`, `[EXCLUDE: ...]`.
+**Key Concept**: Modifiers are used for dimensional transformations and require square brackets with a colon: `[BY: ...]`, `[REMOVE: ...]`, `[KEEP: ...]`, `[ADD: ...]`, `[SELECT: ...]`, `[FILTER: ...]`, `[EXCLUDE: ...]`, `[TOPARENTLIST: ...]`, `[TOSUBSET: ...]`.
 
 **Conditionals style**: When to use FILTER/EXCLUDE vs IF, canonical patterns (separate FILTERs, EXCLUDE not FILTER: NOT), and case-style branching with IFBLANK → [formula_conditionals_style.md](./formula_conditionals_style.md).
 
@@ -31,6 +31,8 @@ To verify dimensional alignment, trace how dimensions change through each operat
 | `[KEEP: X, Y]`   | Keeps only X and Y                  | `/*Prod,Reg,Mo*/[KEEP: Prod]` → `/*Prod*/`      |
 | `[SELECT: cond]` | Filters AND removes dimension       | `/*Prod,Mo*/[SELECT: Mo."Jan"]` → `/*Prod*/`    |
 | `[FILTER: cond]` | Filters, keeps all dimensions       | `/*Prod,Mo*/[FILTER: Mo."Jan"]` → `/*Prod,Mo*/` |
+| `[TOPARENTLIST: Subset]` | Subset dimension → parent list (1:1; parent items outside subset → blank) | `/*Subset,Mo*/` → `/*Parent,Mo*/` |
+| `[TOSUBSET: Subset]`     | Parent dimension → subset (1:1; filters to subset members only)           | `/*Parent,Mo*/` → `/*Subset,Mo*/` |
 
 **Combining Expressions** (union rule):
 
@@ -91,6 +93,29 @@ Lists can have **properties of type "Dimension"** that reference other dimension
 'Monthly Revenue'[BY: Month.Quarter][BY: Quarter.Year]
 'City Revenue'[BY: City.Country][BY: Country.Region]
 ```
+
+---
+
+## TOPARENTLIST and TOSUBSET (list subsets)
+
+Use these when a metric is on a **list subset** dimension and you need the same values on the **parent list** (or the reverse). They perform a **1:1 dimensional remap** (each subset item maps to its parent item); they **do not aggregate or allocate**, so you do **not** specify `SUM`, `BY CONSTANT`, etc.
+
+- **TOPARENTLIST** — subset dimension → parent dimension. Parent items not in the subset become **blank** on the result.
+- **TOSUBSET** — parent dimension → subset dimension. Data on parent items **outside** the subset is **dropped** from the result.
+
+**Syntax** (spaces around `:` are optional in the product docs):
+
+```pigment
+'Metric on Subset'[TOPARENTLIST: 'My Subset']
+'Metric on Parent'[TOSUBSET: 'My Subset']
+```
+
+**When to prefer these vs `[BY: ...]` on a mapping property**
+
+- Prefer **TOPARENTLIST** / **TOSUBSET** for the straight subset ↔ parent remap of the **same** list’s items (natural 1:1 identity between subset row and parent row).
+- Keep **`[BY: Parent.'Subset Mapping']`** (or similar) when you need a **custom** mapping, multiple subsets feeding one structure, or other shapes the subset modifiers do not cover — see [List Subsets](../modeling-pigment-applications/modeling_subsets.md).
+
+The compiler enforces valid combinations (e.g. the expression must be dimensioned by the subset for TOPARENTLIST with that subset, and structural rules about which dimensions may appear together). If a formula is rejected, read the error and fall back to an explicit mapping + `BY` pattern when appropriate.
 
 ---
 

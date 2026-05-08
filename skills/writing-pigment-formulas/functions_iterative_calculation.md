@@ -141,7 +141,16 @@ When the configuration is created, the allowed metrics can reference each other 
 
 PREVIOUSOF returns the referenced metric value shifted by one period along the iteration dimension. It is equivalent to `Metric[SELECT: IterationDimension - 1]` but **does not trigger** the circular reference error.
 
-**Implementation rule**: Before using PREVIOUSOF(), you must set up a **calculation cycle (iterative calculation configuration)** and select all metrics that are part of the cycle. There is no AI tool to create or modify iterative calculation configurations. Always confirm with the user that the configuration is set up before applying formulas with PREVIOUSOF.
+**Implementation rule**: Before using PREVIOUSOF(), you must set up a **calculation cycle (iterative calculation configuration)** and select all metrics that are part of the cycle.
+
+**Programmatic workflow for PREVIOUSOF:**
+
+1. Call `tool:list_cycles` to check if a cycle already exists for the target metrics.
+2. If no cycle exists, identify all metrics in the dependency chain and the iteration dimension.
+3. Create any metrics that do not exist yet (they must exist before being added to the cycle).
+4. Call `tool:create_cycle` with a descriptive name, the iteration dimension ID, and all metric IDs.
+5. Only after the cycle is created, write PREVIOUSOF formulas on the participating metrics.
+6. If you need to add or remove metrics from an existing cycle, use `tool:update_cycle`.
 
 **Allowed metrics**:
 
@@ -160,6 +169,15 @@ PREVIOUSOF returns the referenced metric value shifted by one period along the i
 ---
 
 ## 7. How to Create an Iterative Calculation Configuration
+
+### Programmatic (via tools)
+
+1. Ensure all participating metrics exist (create them first if needed).
+2. Identify the iteration dimension UUID (typically a time dimension like Month).
+3. Call `tool:create_cycle` with `cycleName`, `iterativeDimensionId`, and `metricIds` (all metrics in the chain).
+4. Write PREVIOUSOF formulas on the participating metrics.
+
+### Manual (via UI)
 
 1. Go to **Application Settings**.
 2. Click **Calculations**.
@@ -295,7 +313,7 @@ When using an iterative calculation configuration, Pigment builds a base formula
 ## 15. Practical Decision Framework
 
 - **Loop in a single metric** → use `PREVIOUS()`.
-- **Loop across multiple metrics** → use `PREVIOUSOF()` and create an iterative calculation configuration first.
+- **Loop across multiple metrics** → use `PREVIOUSOF()` and create an iterative calculation configuration first using `tool:create_cycle`.
 - Use PREVIOUS/PREVIOUSOF **only** for true metric-level circular dependencies; Pigment does not support cell-level circulars.
 - **Prefer non-iterative logic** when possible (performance); use CUMULATE, offset-based patterns, or the Opening Balance rewrite (§9) where applicable.
 - Choose the iterating dimension **as short as possible**; consider subsets if you only need a portion.

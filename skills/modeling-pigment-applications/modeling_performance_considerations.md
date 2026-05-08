@@ -4,7 +4,7 @@
 
 Performance considerations should be part of modeling decisions from the start. This guide covers dimensional design, table management, and architectural patterns that affect performance.
 
-For comprehensive performance optimization guidance including formula optimization, sparsity management, and troubleshooting slow calculations, see the [Performance Optimization Skill](../optimizing-pigment-performance/SKILL.md).
+For comprehensive performance optimization guidance including formula optimization, sparsity management, and troubleshooting slow calculations, see the `skill:optimizing-pigment-performance`.
 
 ## Dimension Growth Impact
 
@@ -48,5 +48,5 @@ Here, `IsValidCombination` is TRUE only for valid product-region pairs. The form
 
 ## See Also
 
-- [Performance Optimization Skill](../optimizing-pigment-performance/SKILL.md)
+- `skill:optimizing-pigment-performance`
 - [Modeling Principles](./modeling_principles.md)

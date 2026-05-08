@@ -16,6 +16,8 @@ Functions for date manipulation, time period calculations, and temporal operatio
 | **Period Functions** | INPERIOD, DAYSINPERIOD, PRORATA, MONTHTODATE, QUARTERTODATE, YEARTODATE |
 | **Temporal**         | PREVIOUS, PREVIOUSOF, FILLFORWARD                                       |
 
+> **Converting a date to a dimension member (Month, Quarter, Year)?** Use `TIMEDIM(Date, TimeDimension)` from [functions_lookup.md](./functions_lookup.md). TIMEDIM returns a **dimension element** (not a Date value), which is required when mapping transaction dates into time dimensions via the BY modifier or when creating Dimension-typed properties. Prefer TIMEDIM over STARTOFMONTH when the result must be a Month dimension member rather than a plain Date.
+
 ---
 
 ## Date Functions Reference

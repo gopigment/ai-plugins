@@ -18,8 +18,8 @@ metadata:
 
 1. **Read this file first** - Understand available resources and when to use them
 2. **Identify relevant topics** - Match your task to any of the supporting documents
-3. **Read supporting files** - Use `read_file` or `grep` to access detailed documentation
-4. **Explore as needed** - Use `ls`, `grep`, or `glob` to discover additional resources in this directory (some might not be explicitly mentioned in this file)
+3. **Read supporting files** - Use `tool:read_file` or `tool:grep` to access detailed documentation
+4. **Explore as needed** - Use `tool:ls`, `tool:grep`, or `tool:glob` to discover additional resources in this directory (some might not be explicitly mentioned in this file)
 
 # Writing Pigment Formulas
 
@@ -37,7 +37,7 @@ ONLY Pigment syntax exists when writing formulas.
 - **Aggregate data** - Rolling up from transaction lists or detailed dimensions
 - **Perform time-series calculations** - YTD, rolling averages, sequential logic
 - **Use functions** - CUMULATE, SHIFT, ITEM, MATCH, TIMEDIM, etc.
-- **Use modifiers** - BY, ADD, REMOVE, SELECT, FILTER, EXCLUDE
+- **Use modifiers** - BY, ADD, REMOVE, SELECT, FILTER, EXCLUDE, TOPARENTLIST, TOSUBSET
 - **Debug syntax** - Troubleshooting formula errors
 - **Test and validate formulas** - Verifying formula correctness and expected behavior
 - **Transform dimensions** - Changing dimensional structure of calculations
@@ -71,6 +71,11 @@ Do not rely on SKILL.md summaries alone — open and read the full document for 
 | Property access | Dot notation with quotes      | `'Product'.'Category'`, `'Employee'.'Department'` |
 | Dimension items | Double quotes after dimension | `Month."Jan 25"`, `Country."France"`              |
 | String values   | Double quotes                 | `"Active"`, `"Completed"`                         |
+
+**Cross-app references:** 
+- A block from another application can only be referenced if it has been shared through a Library and that Library is activated in the current application. 
+- The syntax is `'APPLICATION_NAME'::'BLOCK_NAME'`. 
+- If the block name is unique across all activated libraries the application prefix may be omitted, but always use the full form for clarity.
 
 **Dimension items and default property:**
 
@@ -197,32 +202,25 @@ Before delivering any formula:
 
 ### Quick Validation
 
-- `validate_formula` - Validate formula syntax WITHOUT applying it to any block
-  - Use for: Checking syntax before calling `generate_metric_formula` or `create_or_update_dimension_formula`
+- `tool:validate_formula` - Validate formula syntax WITHOUT applying it to any block
+  - Use for: Checking syntax before calling `tool:update_list_property_formula`
   - Use for: Ensuring formula syntax is correct before including in user messages
   - Input: `formula` (the Pigment formula text)
   - Returns: Validation result with error highlighting and hints if invalid
   - **Limitations**:
     - Do NOT use with formulas containing `Previous` or `PreviousOf` functions
 
-### Formula Generation (Expert System)
-
-- `generate_metric_formula` - Generate/validate formulas for metrics (requires `metric_id` and `prompt`)
-- `generate_list_property_formula` - Generate/validate formulas for list properties (requires `list_id` and `prompt`)
-
 **Recommended Workflow**:
 
 1. **Draft formula** - Write your formula based on requirements
-2. **Validate** - Use `validate_formula` to check syntax
+2. **Validate** - Use `tool:validate_formula` to check syntax
 3. **Fix errors** - Iterate until formula is valid
-4. **Apply** - Use `create_or_update_formula` or `update_list_property_formula`
-
-**Alternative**: For complex formulas, use `generate_metric_formula` or `generate_list_property_formula` which combine generation and validation.
+4. **Apply** - Use `tool:create_or_update_formula` or `tool:update_list_property_formula`
 
 **How to apply**: After validation, use:
 
-- Metrics: `create_or_update_formula` with the formula
-- List properties: `update_list_property_formula` with the formula
+- Metrics: `tool:create_or_update_formula` with the formula
+- List properties: `tool:update_list_property_formula` with the formula
 
 ---
 
@@ -258,7 +256,7 @@ Formulas produce results that must match the target metric or property type:
 | --------------------------------- | -------------------------------------------------------------------- |
 | Formula Writing Process           | [formula_writing_workflow.md](./formula_writing_workflow.md)         |
 | **Conditionals style (IFBLANK, FILTER/EXCLUDE vs IF)** | [formula_conditionals_style.md](./formula_conditionals_style.md) |
-| Modifiers (BY, ADD, FILTER, etc.) | [formula_modifiers.md](./formula_modifiers.md)                       |
+| Modifiers (BY, ADD, FILTER, TOPARENTLIST, TOSUBSET, etc.) | [formula_modifiers.md](./formula_modifiers.md)                       |
 | BY with mapping metrics (->)      | [formula_by_mapping_arrow.md](./formula_by_mapping_arrow.md)         |
 | Lookup Functions                  | [functions_lookup.md](./functions_lookup.md)                         |
 | Numeric Functions                 | [functions_numeric.md](./functions_numeric.md)                       |
@@ -275,6 +273,8 @@ Formulas produce results that must match the target metric or property type:
 ### Most Common Functions & Modifiers
 
 - **BY** → [./formula_modifiers.md](./formula_modifiers.md) - Aggregate or allocate; **BY with mapping metrics (`->`)** → [./formula_by_mapping_arrow.md](./formula_by_mapping_arrow.md)
+- **TOPARENTLIST** → [./formula_modifiers.md](./formula_modifiers.md#toparentlist-and-tosubset-list-subsets) — subset dimension → parent (1:1 remap; parent items outside the subset are blank)
+- **TOSUBSET** → [./formula_modifiers.md](./formula_modifiers.md#toparentlist-and-tosubset-list-subsets) — parent dimension → subset (1:1 remap; parent rows outside the subset are dropped)
 - **CUMULATE** → [./functions_numeric.md](./functions_numeric.md) - Running totals (use instead of PREVIOUSOF + value)
 - **FILTER** → [./formula_modifiers.md](./formula_modifiers.md) - Include data by condition
 - **EXCLUDE** → [./formula_modifiers.md](./formula_modifiers.md) - Remove data by condition
@@ -312,6 +312,8 @@ Formulas produce results that must match the target metric or property type:
 **Forecasting Functions**: [./functions_forecasting.md](./functions_forecasting.md) - FORECAST_ETS, FORECAST_LINEAR, SIMPLE_EXPONENTIAL_SMOOTHING, DOUBLE_EXPONENTIAL_SMOOTHING, SEASONAL_LINEAR_REGRESSION, STANDARD_NORMAL_DISTRIBUTION
 
 **Security Functions**: [./functions_security.md](./functions_security.md) - ACCESSRIGHTS, RESETACCESSRIGHTS
+
+**List subset ↔ parent remap (1:1, no aggregator)**: [./formula_modifiers.md](./formula_modifiers.md#toparentlist-and-tosubset-list-subsets) — TOPARENTLIST, TOSUBSET
 
 ---
 
@@ -370,7 +372,7 @@ All generated formulas must include `//` comments for readability and maintainab
 'Fixed Cost' + 'Variable Cost'
 ```
 
-Comments must be included in the formula string passed to `create_or_update_formula` or `generate_metric_formula`.
+Comments must be included in the formula string passed to `tool:create_or_update_formula` or `tool:update_list_property_formula`.
 
 ---
 

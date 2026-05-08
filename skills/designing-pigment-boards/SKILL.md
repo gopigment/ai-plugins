@@ -20,8 +20,8 @@ metadata:
 
 1. **Read this file first** - Understand available resources and when to use them
 2. **Identify relevant topics** - Match your task to any of the supporting documents
-3. **Read supporting files** - Use `read_file` or `grep` to access detailed documentation
-4. **Explore as needed** - Use `ls`, `grep`, or `glob` to discover additional resources in this directory (some might not be explicitly mentioned in this file)
+3. **Read supporting files** - Use `tool:read_file` or `tool:grep` to access detailed documentation
+4. **Explore as needed** - Use `tool:ls`, `tool:grep`, or `tool:glob` to discover additional resources in this directory (some might not be explicitly mentioned in this file)
 
 # Pigment Board Design Knowledge Base
 
@@ -61,7 +61,7 @@ When doing the following tasks, you MUST read these documents:
 - When you decide you need a View:
   - Must read: [relevant_views.md](./relevant_views.md)
   - **CRITICAL**: You must read and apply the View Widget guidelines: [view_widgets.md](./view_widgets.md)
-  - MUST check first if an existing View can be used before creating one using `get_block_views` tool.
+  - MUST check first if an existing View can be used before creating one using `tool:get_block_views`.
 
 ---
 
@@ -155,6 +155,8 @@ Follow this 4-step workflow when creating a Board:
    - Other dimensional filters as needed
    - See **[board_pages.md](./board_pages.md)** for detailed guidance
 
+4. **Before treating Board Pages as “shared filters” for every widget**, verify that **each View you intend to place on the Board** includes a **compatible** page for every dimension you will set at board level (e.g. if the board should filter by Year, each View must have Year in Pages—or a grouping page that resolves to Year—see **board_pages.md**). If a View is missing that dimension in Pages, **edit or create the View first**; the board cannot force a dimension onto a View that does not expose it in Pages.
+
 ### Step 2: Create Board Structure
 
 1. Create a board with (in board settings):
@@ -170,7 +172,7 @@ Follow this 4-step workflow when creating a Board:
 
 1. **Identify Blocks** you want to visualize based on board purpose
 
-2. **Use `get_block_views` tool** for each Block:
+2. **Use `tool:get_block_views`** for each Block:
    - Find existing Views on the Blocks
    - Review View descriptions and display modes (Grid, Chart, KPI, etc.)
    - Select Views that match your analytical intent
@@ -179,15 +181,16 @@ Follow this 4-step workflow when creating a Board:
 
 ### Step 4: Update Board Pages
 
-1. Use `update_board` tool to set Board Pages (filters)
+1. Use `tool:update_board` to set Board Pages (filters)
 2. Apply the Time, Version, Scenario, and other filters you defined in Step 1
-3. All View widgets will inherit these board-level filters
+3. Set **default selected items** for each Board Page at board level (e.g. default Year to FY25 / 2025 when that is the intended analytical context)
+4. Confirm each View widget is **linked** to the Board Pages you care about (widgets do not “inherit” a dimension the View never had in Pages—see **board_pages.md**, Board-to-Widget Page Compatibility Rule)
 
 **Key Points:**
 
-- Plan Board Pages in Step 1, but apply them in Step 4 (after Views are added)
-- Only define filters for dimensions that exist in your metrics
-- All View widgets inherit Board Pages by default
+- Plan Board Pages in Step 1, but apply defaults and selections in Step 4 (after Views are added)
+- Only define Board Page selectors for dimensions that at least one View exposes; for **every** widget that should follow a board-level filter, that widget’s View must include a compatible page on that dimension
+- View widgets **link** to Board Pages when their View has a matching page; they do not automatically receive filters for dimensions absent from the View’s Pages
 
 ---
 

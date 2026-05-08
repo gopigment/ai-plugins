@@ -2,7 +2,7 @@
 
 **Apply these patterns to EVERY formula before delivery.**
 
-This checklist ensures formulas are performant. Do NOT skip this step. For detailed explanations, see the [Performance Optimization Skill](../optimizing-pigment-performance/SKILL.md).
+This checklist ensures formulas are performant. Do NOT skip this step. For detailed explanations, see the `skill:optimizing-pigment-performance`.
 
 ---
 
