@@ -195,13 +195,14 @@ Agent must:
 
 ---
 
-### 🛡️ Warning 2 — Subset ↔ Parent remapping is never automatic
+### 🛡️ Warning 2 — Subset and parent are different dimensions (remap explicitly)
 
-- Parent list and subset are treated as **distinct dimensions**.
-- Rolling data **up** from subset to parent (or combining multiple subsets) requires:
-    - explicit **mapping properties** and
-    - explicit `[BY: ...]` **modifiers** in formulas.
-- The agent must not assume that a subset metric can be dropped anywhere a parent‑dimension metric is expected.
+- Parent list and subset are **distinct dimensions** in structures and formulas. A metric dimensioned by the subset is **not** interchangeable with one on the parent until you **remap** dimensions.
+- For the common case — same list, natural 1:1 between subset item and parent item — use the native modifiers (no aggregator):
+    - **TOPARENTLIST** — expression on the **subset** → same values on the **parent** (parent items not in the subset are **blank**).
+    - **TOSUBSET** — expression on the **parent** → same values on the **subset** (parent rows outside the subset are **dropped**).
+- When you need a **custom** mapping, **several subsets** feeding one block, or the compiler rejects the subset modifiers for your structure, use explicit **mapping properties** and **`[BY: ...]`** (see Patterns B and C below).
+- The agent must not assume a subset‑dimension metric can be used where a parent‑dimension metric is expected **without** `TOPARENTLIST`, `TOSUBSET`, or an equivalent `BY` mapping.
 
 ---
 
@@ -300,20 +301,15 @@ Use when:
 **Implementation (high-level)**
 
 1. Have a Parent list (e.g. `Supplier`) and a Subset (e.g. `Supplier_Subset`).
-2. Create on the Parent list a property of type **Dimension** (or equivalent mapping structure) that points to the subset (or vice versa, depending on direction):
-    - Example:
 
-        ```
-        'Subset Mapping' = ITEM('Supplier'.Name, 'Supplier_Subset'.Name)
-        ```
-
-3. When a user picks a value using the subset (e.g. `Selected Supplier (Subset)` metric dimensioned by `Supplier_Subset`), realign it back to the parent:
-    - Example parent metric:
+2. When a user picks a value using the subset (e.g. `Selected Supplier (Subset)` metric dimensioned by `Supplier_Subset`), realign it back to the parent using the native remap TOPARENTLIST modifier:
 
         ```
         'Selected Supplier on Parent' =
-          'Selected Supplier (Subset)'[BY: 'Supplier'.'Subset Mapping']
+          'Selected Supplier (Subset)'[TOPARENTLIST: 'Supplier_Subset']
         ```
+
+        See [TOPARENTLIST and TOSUBSET](../writing-pigment-formulas/formula_modifiers.md#toparentlist-and-tosubset-list-subsets). 
 
 **Why this is safer**
 
@@ -333,28 +329,21 @@ Use when:
 
 **Steps**
 
-1. On the **Parent list**, create a mapping property (type **Dimension**) pointing from parent to subset.
-    - For example, mapping by Name:
-
-        ```
-        'Subset Mapping' = ITEM('Parent'.Name, 'Subset'.Name)
-        ```
-
-2. Use `[BY: ...]` to pull subset metric data back to parent:
+1. **Use TOPARENTLIST** when a single metric on the subset must appear on the parent with natural 1:1 item identity:
 
     ```
     'Metric on Parent' =
-      'Metric on Subset'[BY: 'Parent'.'Subset Mapping']
+      'Metric on Subset'[TOPARENTLIST: 'Subset']
     ```
 
-3. If different subsets map into the same parent, centralize mappings and avoid duplicating this structure in many places.
+    See [TOPARENTLIST and TOSUBSET](../writing-pigment-formulas/formula_modifiers.md#toparentlist-and-tosubset-list-subsets).
+   
+2. If different subsets map into the same parent, centralize mappings and avoid duplicating this structure in many places.
 
 **Agent guidance**
 
-- Always aim for **reusable mapping metrics/properties** rather than many one‑off mapping formulas.
-- Whenever the agent introduces a subset that will feed parent‑level reporting, it should:
-    - Create or reuse a **single mapping property**, and
-    - Use that property consistently in `[BY: ...]` modifiers.
+- Prefer **TOPARENTLIST** / **TOSUBSET** for straight subset ↔ parent remaps when the compiler allows them (see [formula_modifiers.md](../writing-pigment-formulas/formula_modifiers.md#toparentlist-and-tosubset-list-subsets)).
+- For custom or multi‑subset shapes, aim for **reusable mapping metrics/properties** rather than many one‑off mapping formulas, and use **`[BY: ...]`** consistently.
 
 ---
 
@@ -363,13 +352,13 @@ Use when:
 - Treat every subset as **its own dimension shape** with:
     - Separate data storage,
     - Non‑reversible deletion behavior on membership changes,
-    - No automatic remapping to parent.
+    - No implicit interchange with the parent dimension — use **TOPARENTLIST**, **TOSUBSET**, or mapping + **BY** when you need both shapes in formulas.
 - Default patterns:
     - For **security or filtering** → use security/filters, not subsets.
     - For **small input lists with changing membership** → prefer a **regular list**.
-    - For **mirror dimensions** or **targeted iterative performance** → subsets are often appropriate, with explicit mapping.
+    - For **mirror dimensions** or **targeted iterative performance** → subsets are often appropriate; remap subset ↔ parent with **TOPARENTLIST** / **TOSUBSET** or explicit **BY** mapping as needed.
     - For **dropdown UX** → use subsets only as the selection dimension, store data on the parent.
 - When proposing subsets, always:
     - Surface the **data loss warning**,
-    - Explain the need for **explicit mapping**,
+    - Explain the need for an **explicit dimensional remap** (TOPARENTLIST / TOSUBSET or mapping + BY),
     - And, if manual inputs are involved, recommend **Pattern A** or an alternative design.

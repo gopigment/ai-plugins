@@ -18,8 +18,8 @@ metadata:
 
 1. **Read this file first** - Understand available resources and when to use them
 2. **Identify relevant topics** - Match your task to any of the supporting documents
-3. **Read supporting files** - Use `read_file` or `grep` to access detailed documentation
-4. **Explore as needed** - Use `ls`, `grep`, or `glob` to discover additional resources in this directory (some might not be explicitly mentioned in this file)
+3. **Read supporting files** - Use `tool:read_file` or `tool:grep` to access detailed documentation
+4. **Explore as needed** - Use `tool:ls`, `tool:grep`, or `tool:glob` to discover additional resources in this directory (some might not be explicitly mentioned in this file)
 
 # Modeling Pigment Applications
 
@@ -40,6 +40,7 @@ Read this skill when:
 - Designing a complete **Pigment architecture** (dimensional structure, UX, data, governance, planning cycle)
 - Ensuring **Test & Deploy safety** (formula item references, dimension connectivity, deployment-safe modeling)
 - **Creating or using List Subsets** (when to use vs filters/other list, data-loss risks, mirror dimensions, safe patterns)
+- Designing **FX / currency conversion** (Hub app, rate types, entity mapping, AVG vs END, triangulation)
 
 **Always read this skill before designing or modifying Pigment application structure.**
 
@@ -52,7 +53,7 @@ Read this skill when:
 - [ ] Understand what you're building (dimension, metric, table, calendar, etc.)
 - [ ] Clarify business purpose and usage
 - [ ] Identify obvious dependencies (e.g., metrics need dimension lists first)
-- [ ] Check if prerequisites exist (dimensions, properties, source metrics)
+- [ ] Check if prerequisites exist (dimensions, properties, source metrics)—resolve them in the **workspace** with **`tool:search`** not only by reading this documentation
 
 **If unclear** → Ask user for clarification
 
@@ -67,7 +68,6 @@ Read this skill when:
 ### Step 3: Model with CRUD in Mind
 
 - [ ] **Choose the target folder** before creating the block: list existing Blocks folders, pick the folder that matches the block type and purpose (see [Working with Folders](./modeling_working_with_folders.md) – Placing new blocks). Never create in "No Folder".
-- [ ] For **structural or risky changes** (e.g. rewriting a formula, changing metric dimensions, changing an existing board): consider a copy-first approach (duplicate metric or board, or create new property with " test" suffix). Offer the user the choice when the change is high-impact.
 - [ ] Create prerequisite components first (e.g., dimension lists before metrics)
 - [ ] Follow Pigment Modeling Best Practices standards
 - [ ] Apply naming conventions from the Quick Naming Rules section below
@@ -131,6 +131,7 @@ that style.
 - Dimensions vs properties (strategic usage, hierarchies)
 - Metric and property types (Number/Date/Text/Dimension/Boolean)
 - Metrics vs transaction lists (when to use each)
+- Dimension list vs Transaction list (TL is not a structural dimension of a metric; correct BY pattern and anti-pattern)
 - Sparsity principles and performance implications
 - IFDEFINED vs ISBLANK patterns
 
@@ -156,12 +157,16 @@ that style.
 
 **Covers**:
 
+- **Three-tier naming framework**: Understanding Technical Name, Friendly Name, and Display Name
+  - *Technical Name* — System reference for formulas and APIs (not shown to users)
+  - *Friendly Name* — Default UI name
+  - *Display Name* — Localizable, user-friendly name shown in agents conversation and UI
 - Character rules and sort order
 - Two-prefix system for metrics
 - Conventions for all element types (applications, folders, dimensions, metrics, tables, boards, views)
 - Anti-patterns to avoid
 
-**Critical** - Consistent naming improves auditability and simplifies formulas
+**Critical** - Consistent naming improves auditability and simplifies formulas. Understanding the three-tier framework helps agents and modelers distinguish between technical references and user-facing presentations.
 
 ---
 
@@ -211,6 +216,9 @@ that style.
 - "How to name folders?"
 - "What characters are allowed in names?"
 - "How to use the two-prefix system?"
+- "What's the difference between technical name, friendly name, and display name?"
+- "When should I set display names for blocks?"
+- "How do display names support multi-language models?"
 
 **Read**: [./modeling_naming_conventions.md](./modeling_naming_conventions.md)
 
@@ -240,8 +248,6 @@ Planning metric structures, understanding multi-dimensional relationships, desig
 
 **Read**: [./modeling_principles.md](./modeling_principles.md) - Section 5
 
-Also see: [../integrating-pigment-data/data_import_csv.md](../integrating-pigment-data/data_import_csv.md)
-
 **Setting Up Planning Cycles**:
 
 - "Use native scenarios or version dimension?"
@@ -266,16 +272,7 @@ Also see: [../integrating-pigment-data/data_import_csv.md](../integrating-pigmen
 
 Also see: [./modeling_principles.md](./modeling_principles.md) - Section 8 (MS rules for Speed)
 
-### 6. Centralized Reporting Metrics
-
-**Tasks**:
-
-- "What is a Centralized Reporting Metric (Nexus)?"
-- "How do I design a P&L or Balance Sheet aggregation metric?"
-- "Where should the final reporting metric live?"
-- "Push/Pull and Centralized Reporting Metrics?"
-
-### 7. Access Rights (Design and Rules)
+### 6. Access Rights (Design and Rules)
 
 **Tasks**:
 
@@ -289,7 +286,7 @@ Also see: [./modeling_principles.md](./modeling_principles.md) - Section 8 (MS r
 
 For formula syntax (ACCESSRIGHTS, IFDEFINED): [../writing-pigment-formulas/functions_security.md](../writing-pigment-formulas/functions_security.md). For AR performance: [../optimizing-pigment-performance/performance_access_rights.md](../optimizing-pigment-performance/performance_access_rights.md).
 
-### 8. Auditing a Pigment App
+### 7. Auditing a Pigment App
 
 **Tasks**:
 
@@ -302,7 +299,7 @@ For formula syntax (ACCESSRIGHTS, IFDEFINED): [../writing-pigment-formulas/funct
 
 For detailed formula checks use writing-pigment-formulas; for performance use optimizing-pigment-performance; for boards use designing-pigment-boards.
 
-### 9. Application Cleaning
+### 8. Application Cleaning
 
 **Tasks**:
 
@@ -313,7 +310,7 @@ For detailed formula checks use writing-pigment-formulas; for performance use op
 
 **Read**: [./modeling_application_cleaning.md](./modeling_application_cleaning.md)
 
-### 10. Architecture Design
+### 9. Architecture Design
 
 **Tasks**:
 
@@ -324,7 +321,7 @@ For detailed formula checks use writing-pigment-formulas; for performance use op
 
 **Read**: [./modeling_architecture_design.md](./modeling_architecture_design.md)
 
-### 11. List Subsets (sublists)
+### 10. List Subsets (sublists)
 
 **Tasks**:
 
@@ -335,7 +332,7 @@ For detailed formula checks use writing-pigment-formulas; for performance use op
 
 **Read**: [./modeling_subsets.md](./modeling_subsets.md) - When to recommend vs avoid, data-loss warnings, decision checklist, safe patterns (STORE/CALC, dropdown UX on parent, remap to parent). Tool: create_sublist exists; update/delete not yet exposed—design guidance applies regardless.
 
-### 12. Test & Deploy (when used)
+### 11. Test & Deploy (when used)
 
 **Tasks**:
 
@@ -346,7 +343,7 @@ For detailed formula checks use writing-pigment-formulas; for performance use op
 
 **Read**: [./modeling_principles.md](./modeling_principles.md) - Section 4 (baseline: no direct item reference) and Section 9 (When Test & Deploy is used: Rules 1 & 2, context, enforcement).
 
-### 13. Segmentation (tiered / banded lookup)
+### 12. Segmentation (tiered / banded lookup)
 
 **Tasks**:
 
@@ -379,6 +376,7 @@ Once model designed, move to formula writing.
 | Topic                                    | File                                                                                                         |
 | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
 | Fundamentals                             | [modeling_fundamentals.md](./modeling_fundamentals.md)                                                       |
+| Dimension list vs Transaction list (metric structure, BY pattern) | [modeling_fundamentals.md](./modeling_fundamentals.md) - Section 2.3 |
 | Dimensions & Hierarchies                 | [modeling_dimensions_and_hierarchies.md](./modeling_dimensions_and_hierarchies.md)                           |
 | Folder Structure                         | [modeling_principles.md](./modeling_principles.md) - Section 1                                               |
 | Naming Conventions                       | [modeling_naming_conventions.md](./modeling_naming_conventions.md)                                           |
@@ -387,7 +385,6 @@ Once model designed, move to formula writing.
 | Modifiers (syntax)                       | [formula_modifiers.md](../writing-pigment-formulas/formula_modifiers.md)                                     |
 | Scenarios vs Versions                    | [modeling_scenarios_and_versions.md](./modeling_scenarios_and_versions.md)                                   |
 | Performance                              | [modeling_performance_considerations.md](./modeling_performance_considerations.md)                           |
-| Centralized Reporting Metrics            | See section 6 above                                                                                         |
 | Access Rights (design, rules, debug)     | [modeling_access_rights.md](./modeling_access_rights.md)                                                     |
 | App audit (modeling, UX, governance)     | [modeling_application_auditing.md](./modeling_application_auditing.md)                                       |
 | Application cleaning (deletion workflow) | [modeling_application_cleaning.md](./modeling_application_cleaning.md)                                       |
@@ -395,7 +392,7 @@ Once model designed, move to formula writing.
 | Test & Deploy (when used)               | [modeling_principles.md](./modeling_principles.md) - Section 9                                               |
 | List Subsets (when to use, risks, patterns) | [modeling_subsets.md](./modeling_subsets.md)                                                             |
 | Segmentation (tiered / banded lookup)   | [modeling_segmentation_tiered_lookup.md](./modeling_segmentation_tiered_lookup.md)                         |
-| What the agent cannot do (UI only)      | [SKILL.md](../agent-capabilities-and-behavior/SKILL.md)                                                    |
+| What the agent cannot do (UI only)      | `skill:agent-capabilities-and-behavior`    |
 
 ---
 
@@ -414,6 +411,7 @@ Once model designed, move to formula writing.
 - [./modeling_architecture_design.md](./modeling_architecture_design.md) - Pigment architecture design across 5 pillars
 - [./modeling_subsets.md](./modeling_subsets.md) - List subsets: when to use vs avoid, data-loss risks, decision checklist, safe patterns (STORE/CALC, dropdown on parent, remap to parent)
 - [./modeling_segmentation_tiered_lookup.md](./modeling_segmentation_tiered_lookup.md) - Tiered/banded lookup: assign items to bands/tiers from thresholds on a dimension (IF + REMOVE FIRSTNONBLANK/LASTNONBLANK)
+- `skill:agent-capabilities-and-behavior` - What the agent cannot do (UI only)
 ---
 
 ## Cross-References
@@ -438,6 +436,5 @@ Once model designed, move to formula writing.
 - **Architecture first** - Dimensional structure is the most critical decision; design architecture before building; challenge any metric structure with more than 5 dimensions
 - **Test & Deploy safety** - See Modeling Principles section 4 (baseline: no direct item reference) and section 9 (when T&D is used: both rules, context, enforcement)
 - **Folder placement** - Never create blocks in "No Folder". Always choose the appropriate folder from the application's Blocks folders (see [Working with Folders](./modeling_working_with_folders.md) – Placing new blocks); use block type and purpose (e.g. dimension → Dimensions folder, PUSH_/PULL_ → Library, DATA_ → Data Loads or themed Data) to decide.
-- **Safe modeling** - For structural or risky changes (formula rewrite, metric structure, existing board), prefer copy-first: duplicate metric or board, or create new property with " test" suffix. Boards have no undo — when changing an existing board, ask if the user wants a copy first.
-- **Tool coverage** - Not all Pigment features are available in the agent's tools (e.g. access rights config, permissions, automations, list duplicate, formula update). Check [What the agent cannot do](../agent-capabilities-and-behavior/SKILL.md) and direct the user to the UI when needed.
+- **Feature coverage** - Not all Pigment features are available in the agent's tools (e.g. access rights config, permissions, automations, list duplicate, formula update). Check `skill:agent-capabilities-and-behavior` and direct the user to the UI when needed.
 - **List Subsets** - Use only when they add clear value (mirror dimensions, targeted iterative perf, restricted dropdown with data on parent). Always warn about irreversible data loss on membership change and need for explicit parent remapping. Prefer filters or a regular list for "smaller list for analysis/input" unless a valid subset use case applies. See [modeling_subsets.md](./modeling_subsets.md).

@@ -20,6 +20,7 @@ _Feedback loops: Step 3→Step 1, Step 5→Step 3, Step 6→Step 5, Step 7→app
 
 - Clarify business calculation in plain language
 - Identify existing blocks (Metrics, Dimensions, Lists, properties)
+- **Application workspace (not documentation):** use **`tool:search`** to find relevant blocks, confirm exact friendly names, and spot close duplicates (e.g. lists whose names differ by a prefix). Use **`kind`** / **`regexp`** on search when you need a precise name match. This step is separate from Step 2, which searches **markdown skills** only.
 - Understand source and target metric: name, dimensions, type (Number/Date/Text/Dimension/Boolean). Note: Formula result must match target type - see type conversion functions if needed
 - Check for obvious circular reference risks
 
@@ -127,21 +128,13 @@ Compare source vs target dimensions, apply modifiers:
 - Logic matches requirements
 **⚠️ REQUIRED — Validate before applying:**
 
-You MUST call `validate_formula` before calling `create_or_update_formula` or `update_list_property_formula`. Applying an invalid formula puts the metric/property into an error state.
+You MUST call `tool:validate_formula` before calling `tool:create_or_update_formula` or `tool:update_list_property_formula`. Applying an invalid formula puts the metric/property into an error state.
 
-- `validate_formula` checks syntax, entity references, types, and dimensional alignment WITHOUT applying
+- `tool:validate_formula` checks syntax, entity references, types, and dimensional alignment WITHOUT applying
 - Returns error highlighting and hints if invalid — use these to fix the formula before retrying
 - Use before including formulas in user messages
 
-**Exception:** Do NOT use `validate_formula` with formulas containing `Previous` or `PreviousOf` functions (the validator does not support them). For these, verify syntax manually and confirm iterative calculation is configured on the target metric.
-
-**Formula Generation with Formula Builder Tools** (only for actual implementation):
-
-When you have a real `metric_id` or `list_id` and need help generating complex formulas:
-
-- **For metrics**: Use `generate_metric_formula` with the metric ID and a prompt describing what the formula should do
-- **For list properties**: Use `generate_list_property_formula` with the list ID and a prompt
-- These tools call a formula expert that knows Pigment's syntax and can generate formulas
+**Exception:** Do NOT use `tool:validate_formula` with formulas containing `Previous` or `PreviousOf` functions (the validator does not support them). For these, verify syntax manually and confirm iterative calculation is configured on the target metric.
 
 **Note**: Formula builder tools are only for actual implementation when you have concrete metric/list IDs. For general formula discussions or learning, write formulas manually following the steps above.
 
@@ -211,15 +204,15 @@ IFDEFINED(User, 'Revenue'[AR: 'Rules'])
 - Sparsity best practices applied where relevant
 - No circular references
 
-**⚠️ REQUIRED — Call `validate_formula` before applying:**
+**⚠️ REQUIRED — Call `tool:validate_formula` before applying:**
 
-Do NOT call `create_or_update_formula` or `update_list_property_formula` without validating first. Applying an invalid formula puts the block into an error state.
+Do NOT call `tool:create_or_update_formula` or `tool:update_list_property_formula` without validating first. Applying an invalid formula puts the block into an error state.
 
-- Call `validate_formula` — it returns detailed error messages with position highlighting
-- If valid, proceed to apply using `create_or_update_formula` or `update_list_property_formula`
+- Call `tool:validate_formula` — it returns detailed error messages with position highlighting
+- If valid, proceed to apply using `tool:create_or_update_formula` or `tool:update_list_property_formula`
 - If invalid, fix the formula and re-validate before applying
 
-**Exception**: Skip `validate_formula` for formulas containing `Previous`/`PreviousOf` (not supported by the validator).
+**Exception**: Skip `tool:validate_formula` for formulas containing `Previous`/`PreviousOf` (not supported by the validator).
 
 **If validation fails** → Loop back to appropriate step based on failure type
 
@@ -233,7 +226,7 @@ Do NOT call `create_or_update_formula` or `update_list_property_formula` without
    - **Top-level comment** (required): `//` comment on its own line(s) above the formula explaining its purpose (what it computes and why)
    - **Part-level comments** (for multi-step formulas): `//` on their own line below the segment they describe, with a blank line before the next segment. Skip for one-liners or obvious formulas.
    - Use the same language as the block name
-   - Comments must be included in the formula string passed to tools (`create_or_update_formula`, `generate_metric_formula`, etc.)
+   - Comments must be included in the formula string passed to tools (`tool:create_or_update_formula`, `tool:update_list_property_formula`, etc.)
 2. **Explanation** - What the formula does, key operations and dimensional transformations
 3. **Documentation referenced** - Key files/functions consulted
 4. **Validation suggestions** (if relevant) - How user can verify results
@@ -242,14 +235,14 @@ Do NOT call `create_or_update_formula` or `update_list_property_formula` without
 
 ## Critical Rules
 
-- **Always validate before applying** - Call `validate_formula` before `create_or_update_formula` / `update_list_property_formula`. Invalid formulas put blocks into error states. Exception: skip for `Previous`/`PreviousOf` formulas.
+- **Always validate before applying** - Call `tool:validate_formula` before `tool:create_or_update_formula` / `tool:update_list_property_formula`. Invalid formulas put blocks into error states. Exception: skip for `Previous`/`PreviousOf` formulas.
 - **Always search documentation** - Discovers functions you don't know about
 - **Pigment syntax ONLY** - You MUST NEVER write code or functions using another language being Excel, SQL, Python, JavaScript, MDX, DAX, or ANY other programming or query language. Think ONLY in Pigment terms.
 - **Never invent functions** - Only use documented Pigment functions
 - **Modifiers use square brackets** - `[BY: ...]`, `[REMOVE: ...]`, `[FILTER: ...]`, etc.
 - **If unsure about syntax** - Search documentation, never assume
 - **Verify dimensional alignment** - Ensure source and target dimensions match
-- **Verify referenced entities exist** - Use `search` tool to confirm metric names, list names, and property names before writing formulas
+- **Verify referenced entities exist** - Use `tool:search` to confirm metric names, list names, and property names before writing formulas
 - **Apply sparsity best practices** - Use BLANK, IFDEFINED, early filtering when relevant
 - **Iterate when needed** - Go back and refine if validation fails
 

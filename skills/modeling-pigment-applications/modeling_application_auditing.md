@@ -24,7 +24,7 @@ Produce:
 
 ### 2.1 Formula Quality & Anti-Patterns
 
-**Use:** [writing-pigment-formulas](../writing-pigment-formulas/SKILL.md) and [optimizing-pigment-performance](../optimizing-pigment-performance/SKILL.md) for detailed formula and performance checks.
+**Use:** `skill:writing-pigment-formulas` and `skill:optimizing-pigment-performance` for detailed formula and performance checks.
 
 **Identify:**
 
@@ -42,7 +42,7 @@ Produce:
 
 ### 2.2 Hardcoding & Time & Date Risks
 
-**Use:** [modeling_principles.md](./modeling_principles.md) (sections 4 and 9 for deployment-safe formulas and Test & Deploy when used); [modeling_time_and_calendars.md](./modeling_time_and_calendars.md) and [writing-pigment-formulas](../writing-pigment-formulas/SKILL.md) for time/date functions.
+**Use:** [modeling_principles.md](./modeling_principles.md) (sections 4 and 9 for deployment-safe formulas and Test & Deploy when used); [modeling_time_and_calendars.md](./modeling_time_and_calendars.md) and `skill:writing-pigment-formulas` for time/date functions.
 
 **Detect:**
 
@@ -120,7 +120,7 @@ Produce:
 
 ## 5. Board & UX Audit
 
-**Use:** [designing-pigment-boards](../designing-pigment-boards/SKILL.md) for layout, naming, and patterns.
+**Use:** `skill:designing-pigment-boards` for layout, naming, and patterns.
 
 ### 5.1 Board Folder Structure
 
@@ -206,10 +206,10 @@ Pigment’s **Restore block** feature restores previously deleted blocks by crea
 
 When findings come from or require deeper use of another skill, state it explicitly in the report:
 
-- **Formula quality / optimization:** [writing-pigment-formulas](../writing-pigment-formulas/SKILL.md), [optimizing-pigment-performance](../optimizing-pigment-performance/SKILL.md) (including [performance_troubleshooting_workflow.md](../optimizing-pigment-performance/performance_troubleshooting_workflow.md))
-- **Time & dates / T&D risks:** [modeling_principles.md](./modeling_principles.md) (sections 4 & 9 for T&D), [modeling_time_and_calendars.md](./modeling_time_and_calendars.md), [writing-pigment-formulas](../writing-pigment-formulas/SKILL.md) (time/date functions)
+- **Formula quality / optimization:** `skill:writing-pigment-formulas`, `skill:optimizing-pigment-performance` (including [performance_troubleshooting_workflow.md](../optimizing-pigment-performance/performance_troubleshooting_workflow.md))
+- **Time & dates / T&D risks:** [modeling_principles.md](./modeling_principles.md) (sections 4 & 9 for T&D), [modeling_time_and_calendars.md](./modeling_time_and_calendars.md), `skill:writing-pigment-formulas` (time/date functions)
 - **Folder structure / governance:** [modeling_principles.md](./modeling_principles.md). **Naming:** [modeling_naming_conventions.md](./modeling_naming_conventions.md)
-- **Boards / UX:** [designing-pigment-boards](../designing-pigment-boards/SKILL.md) (or advanced boards skill)
+- **Boards / UX:** `skill:designing-pigment-boards` (or advanced boards skill)
 - **Access rights:** [modeling_access_rights.md](./modeling_access_rights.md)
 - **Application cleaning (deletion workflow):** [modeling_application_cleaning.md](./modeling_application_cleaning.md) — for definition of "unused", order of deletion, observation period, board usage-based cleaning
 
@@ -221,5 +221,5 @@ When findings come from or require deeper use of another skill, state it explici
 - [modeling_naming_conventions.md](./modeling_naming_conventions.md) - Naming conventions (including Applications ZZ\_)
 - [modeling_application_cleaning.md](./modeling_application_cleaning.md) - Deletion-only application cleaning, unused definitions, mandatory order, boards by usage
 - [performance_troubleshooting_workflow.md](../optimizing-pigment-performance/performance_troubleshooting_workflow.md) - Performance audit methodology
-- [writing-pigment-formulas](../writing-pigment-formulas/SKILL.md) - Formula workflow and quality
-- [designing-pigment-boards](../designing-pigment-boards/SKILL.md) - Board structure and naming
+- `skill:writing-pigment-formulas` - Formula workflow and quality
+- `skill:designing-pigment-boards` - Board structure and naming

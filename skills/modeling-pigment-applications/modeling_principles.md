@@ -15,6 +15,8 @@ Then make the properties Dimension-typed referencing those new dimensions.
 
 - When creating a metric. Check if its assigned dimensions exist. Create those which do not exist. Then, create the target metric with dimensions assigned.
 
+**Resolving objects in the live application:** Reading skills and using `grep` on documentation is not enough to know which metrics, lists, and properties exist in the user’s workspace or to obtain their IDs. Use **`tool:search`** (Application Expert)—the intended, **fast** path to retrieve workspace inventory and disambiguate blocks; combine with **`kind`** / **`regexp`** filters when several names are similar.
+
 ## 1. Folder Structure
 
 **Never create blocks in "No Folder".** Every new block (metric, dimension list, transaction list, table) must be created in an explicit folder. "No Folder" is a system default placeholder, not a valid target; blocks left there are hard to find and clutter the application. Before creating any block, determine the target folder and create (or assign) the block there. For how to choose the right folder and where to place each block type, see [Working with Folders](./modeling_working_with_folders.md).
@@ -73,7 +75,7 @@ Only hard-code dimension items in formulas if you are **absolutely certain** the
 When the user asks for a metric or formula that filters or selects on a specific dimension member (e.g. "revenue for January 25", "revenue for current Budget version", "filter to France"), you **must** not output a formula containing `Dimension."Item"` without first having read this section and MP02. Propose the MP02-compliant pattern (input metric of type Dimension, e.g. VAR_Current_Budget_Version) unless the user explicitly accepts a one-off hard-coded reference.
 
 
-For comprehensive guidance on writing formulas, see [Writing Pigment Formulas](../writing-pigment-formulas/).
+For comprehensive guidance on writing formulas, see `skill:writing-pigment-formulas`.
 
 ---
 
@@ -194,6 +196,7 @@ Modeling and Views are different teams, but in practice modeling and reporting a
 - Views can pivot by dimension-type properties without changing metric structure
 - Multiple aggregation levels can be shown in different Views of the same metric
 - Metric structure remains minimal and performant
+- See [How List Properties Work in Pivots (Grouping)](../creating-and-editing-pigment-views/SKILL.md#how-list-properties-work-in-pivots-grouping) for details
 
 **2. Percentages, Variations, and Cumulates "For Display Only"**
 
@@ -205,6 +208,7 @@ Modeling and Views are different teams, but in practice modeling and reporting a
 - Use **Show Value As** feature in Views for percentages, growth rates, and ratios
 - Use **Calculated Items** in Views for differences and variances
 - Use **Show Value As - Cumulative** for cumulated series
+- See [MG09 - Ratios: Use Show Value As and Calculated Items](#mg09---ratios-use-show-value-as-and-calculated-items) for Show Value As, Calculated Items, and cumulative display in Views
 
 **Examples of View-Based Calculations:**
 - **Percentages:** Show Value As → % of Grand Total, % of Parent Total, % of Another Metric
@@ -234,6 +238,7 @@ Modeling and Views are different teams, but in practice modeling and reporting a
 - Use View **filters** (by items or by value) to restrict visible data
 - Use View **sorting** to order data by metric value or properties
 - Use "top N" or "bottom N" filters for ranking analysis
+- See [View Components — Step 2: Filtering](../creating-and-editing-pigment-views/SKILL.md#step-2-filtering) and [View Components — Step 3: Sorting](../creating-and-editing-pigment-views/SKILL.md#step-3-sorting)
 
 **5. Variance Analysis Considerations**
 
@@ -261,24 +266,25 @@ Use a View when:
 **Key View Capabilities to Leverage**
 
 Before creating a metric, consider if Views can handle the requirement using:
-- **Dimension-type properties** for hierarchical reporting
-- **Show Value As** for percentages, growth, differences, cumulates
-- **Calculated Items** for ratios and derived metrics
-- **Filters** for data restriction (by items, by value, top/bottom N)
-- **Sorting** for data ordering (by metric value, by property)
-- **Page selectors** for user-controlled filtering
+- **Dimension-type properties** for hierarchical reporting (see [How List Properties Work in Pivots (Grouping)](../creating-and-editing-pigment-views/SKILL.md#how-list-properties-work-in-pivots-grouping))
+- **Show Value As** for percentages, growth, differences, cumulates (see [MG09 - Ratios: Use Show Value As and Calculated Items](#mg09---ratios-use-show-value-as-and-calculated-items))
+- **Calculated Items** for ratios and derived metrics (see [MG09 - Ratios: Use Show Value As and Calculated Items](#mg09---ratios-use-show-value-as-and-calculated-items))
+- **Filters** for data restriction (by items, by value, top/bottom N) (see [View Components — Step 2: Filtering](../creating-and-editing-pigment-views/SKILL.md#step-2-filtering))
+- **Sorting** for data ordering (by metric value, by property) (see [View Components — Step 3: Sorting](../creating-and-editing-pigment-views/SKILL.md#step-3-sorting))
+- **Page selectors** for user-controlled filtering (see [Pivots (Rows, Columns & Pages)](../creating-and-editing-pigment-views/SKILL.md#pivots-rows-columns--pages))
 
 **Reference Documentation**
 
-For comprehensive guidance on View capabilities, see the **creating-and-editing-pigment-views** and **designing-pigment-boards** skills.
+For comprehensive guidance on View capabilities, see:
+- `skill:creating-and-editing-pigment-views` — Definitions, draft workflow, and where to read next
+- [View Design Process](../creating-and-editing-pigment-views/SKILL.md#view-design-process) — Step-by-step configuration (reuse, draft, validate)
+- [View Components](../creating-and-editing-pigment-views/SKILL.md#view-components) — Pivots, filters, and sorting; [Pivoting rules](../creating-and-editing-pigment-views/view_pivoting.md) and [Display modes](../creating-and-editing-pigment-views/view_display_modes.md) for layout and widget constraints
 
 #### MG05 - Simple Flows: One-Way Data Flow
 
 **Ensure one-way data flow:**
 
 Design data to flow towards a central consolidation point that combines Actuals and Planning data for reporting on Boards. Reference the correct Block directly and use the dependency diagram to maintain clarity and simplicity.
-
-
 
 #### MG06 - Block Usage: Proper Role Assignment
 
@@ -380,7 +386,7 @@ The **Scenario** feature that Pigment offers natively, as opposed to a classical
 
 Performance optimization rules. For comprehensive guidance, see:
 - [Performance - Sparsity Deep Dive](../optimizing-pigment-performance/performance_sparsity_deep_dive.md) - MS01, MS02
-- [Writing Pigment Formulas](../writing-pigment-formulas/) - MS03, MS05, MS06, MS10
+- `skill:writing-pigment-formulas` - MS03, MS05, MS06, MS10
 - [Iterative Calculation (PREVIOUS & PREVIOUSOF)](../writing-pigment-formulas/functions_iterative_calculation.md) - When and how to use PREVIOUS/PREVIOUSOF (MS10)
 - [Performance - Iterative Calculations](../optimizing-pigment-performance/performance_iterative_calculations.md) - Optimizing iterative calculations (MS10)
 
