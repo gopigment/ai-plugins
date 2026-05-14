@@ -1,6 +1,6 @@
-# View Components
+# Sorting
 
-## Step 3: Sorting
+UI: order of rows/columns (and chart categories). Tool payloads use `pivotFieldId` and **`sorts`** (same pivot list as filters).
 
 Sorting controls how data is ordered in the View. It applies to both **Grid** and **Chart** display (e.g., bar order in a bar chart). Multiple sorting options can be applied, with the first option having the highest priority.
 

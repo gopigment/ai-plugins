@@ -1,8 +1,10 @@
 # Finding Relevant Views
 
-**Always reuse existing Views** instead of creating new ones. Existing Views preserve valuable customizations (formatting, calculations, pivot configurations) and avoid clutter. An 80% match that needs minor edits is better than creating from scratch.
+**Balance reuse and creation.** Reusing a **well-named, well-fitted** View preserves formatting work. **Creating** with **`create_view`** is **normal** and often the **preferred** path when modeling new app features.
 
-**Key concept**: Display mode (KPI, Grid, Chart) is **NOT stored in the View** — it is set at the **Widget level**. Focus on whether the View's **pivot configuration** supports your intended display mode, not on how the View was previously used.
+**Name before score:** A title like **"View 1"** (or other generic default) is a weak reuse candidate: it is **often** the product’s placeholder. Prefer a **new** View with a clear name and pivots that fit **this** widget and **other** widgets on the same board, unless the listed View already matches.
+
+**Key concept:** Display mode (KPI, Grid, Chart) is set on the **Widget**, not in the View. Judge pivot fit for your `display_intent`, not past widget usage.
 
 ---
 
@@ -104,9 +106,11 @@ Hints in View data:
 
 Views with high `formatOverridesCount` or `conditionalFormattingCount` are worth reusing to preserve that effort.
 
-**6. Name & Description (tie-breaker only)**
+**6. Name & Description**
 
-Only use as a tie-breaker when other criteria are equal. Clear names ("Revenue by Product Line - Monthly Trend") help confirm intent. Poor names ("View 1", "Test") are a weak negative signal. Do not let naming alone drive selection decisions.
+- **Descriptive** names (e.g. *Revenue by Product - Monthly*) support reuse.
+- **Description** text (when present): check it **matches your intent** (target board, slice, question). A mismatch lowers reuse even with similar pivots.
+- **Generic** names (*View 1*, *Test*) → **usually create a new View** unless pivots are already a **Perfect** match; do not over-optimize for placeholder names.
 
 ## Step 3: Select the Best View
 
@@ -130,16 +134,16 @@ with extra Dimensions you can remove.
 
 If evaluating the match or picking the best View gets too hard, refer to [scoring_relevant_views.md](./scoring_relevant_views.md) for a detailed scoring system.
 
-## Step 4: Decide to reuse the best View or create one from scratch
+## Step 4: Reuse or create
 
-- If the best View selected in Step 3 is a good match → use it
-- If the best View is a close match but needs editing → duplicate it then edit it. Only start from scratch if the cost of editing is higher than starting from scratch (refer to "How to assess the cost of edits")
-- If no good match → create a new View. Use the best existing View as inspiration for how to structure rows, columns, and pages — even a poor match can reveal useful conventions for the Block.
-- If uncertain → ask the user.
+- **Good match (from Step 3)** → use it.
+- **Close match, worth editing** → Draft from that View, or new View via `create_view` if edits would mangle a shared/poorly named View — use [How to assess the cost of edits](#how-to-assess-the-cost-of-edits).
+- **No / weak match** (including generic default names) → **`create_view`**; you can still **mirror** a Block’s better conventions.
+- **Default:** prefer **creating** over long user prompts when the choice is unclear.
 
-**Convention for new Views**: time Dimensions (Year, Quarter, Month) should generally go in **Columns**, with entity Dimensions (Product, Region, Department, etc.) in **Rows**.
+**Convention (new views):** time Dimensions often in **Columns**; entity Dimensions in **Rows**. For tables, metrics in **Rows**. Name and **description** should reflect the board story.
 
-**Naming new Draft Views**: When creating a Draft View with edits from the original, give it a clear name and description that reflect the intended purpose (e.g., "Revenue by Region - Quarterly Trend"). Good naming helps users understand the Draft's intent when they review it.
+**Naming Drafts (when you edit a live View in preview):** clear name + description so the user can review the Draft.
 
 ---
 
@@ -195,17 +199,8 @@ These edits modify the View's **pivot configuration** to support your intended d
 
 ## Special Cases
 
-**No good match**: Ask the user whether to adapt the closest match or create a new View. Explain what the closest option is and what edits it would need.
-Example communication:
+**No good match** — default to **creating** with `create_view`; only loop in the user for a product-style choice if both paths are high-effort and ambiguous.
 
-```
-"No existing View matches 'Revenue by Region (Grid)'.
-The closest match is 'Revenue by Product (Grid)' which shows a similar structure but a different Dimension.
-Would you like to:
-1. Use 'Revenue by Product' and adjust the breakdown?
-2. Create a new View for 'Revenue by Region'?"
-```
+**Multiple equally good matches** — break ties: pivot closeness, board usage, recency, then **name clarity** (favor informative names over *View 1*).
 
-**Multiple equally good matches**: Break ties with pivot config closeness > Board usage > recency > name clarity.
-
-**Outdated View (>1 year)**: If the Block is still active and the View is still on Boards, it's probably fine. If it's on 0 Boards, treat with caution and ask the user.
+**Outdated View (>1 year)**: If the Block is still active and the View is still on Boards, it's probably fine. If it's on 0 Boards, create a new view.

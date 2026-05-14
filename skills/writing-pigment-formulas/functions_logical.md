@@ -22,7 +22,7 @@ Boolean operations, conditional logic, and sparsity-aware functions.
 | **ISDEFINED**  | Check if defined (sparse) ✓ | `ISDEFINED(Value)`                                    |
 | **ANYOF**      | Any value is TRUE           | `ANYOF(BooleanBlock)`                                 |
 | **ALLOF**      | All values are TRUE         | `ALLOF(BooleanBlock)`                                 |
-| **IN**         | Value in set                | `IN(Value, Set1, Set2, ...)`                          |
+| **IN**         | Value in set (infix)        | `Block IN (Item1, Item2, ...)`                        |
 | **TRUE**       | Boolean true                | `TRUE`                                                |
 | **FALSE**      | Boolean false               | `FALSE`                                               |
 
@@ -492,13 +492,13 @@ Check if any value in a Boolean block is TRUE.
 
 ```pigment
 // Any product in Electronics category
-ANYOF('Product Category = Electronics')
+ANYOF('Product'.'Category' = Category."Electronics")
 
 // Any employee in Sales department
-ANYOF('Employee Department = Sales')
+ANYOF('Employee'.'Department' = "Sales")
 
 // Any country with revenue > 1M
-ANYOF('Revenue > 1000000')
+ANYOF('Revenue' > 1000000)
 ```
 
 **Returns**: Boolean (TRUE if any item matches)
@@ -524,26 +524,28 @@ ALLOF('IsActiveProduct')
 
 ### IN
 
-Check if value is in a set of values.
+Check if items in a List/Block belong to a given set, or fall within a numeric/date range. **IN is an infix operator**, not a function call.
 
-**Syntax**: `IN(Value, Set1, Set2, ...)`
+**Syntax** (specific items): `Block IN (Item1, Item2, ..., ItemN)`
+
+**Syntax** (range, inclusive bounds): `Block IN (lower : upper)`
 
 **Examples**:
 
 ```pigment
-// Check if status is valid
-IN('Status', "Active", "Pending", "Approved")
+// Specific dimension items
+Country IN (Country."France", Country."UK")
 
-// Check if country is in EU
-IN('Country', "France", "Germany", "Spain", "Italy")
+// Negation
+NOT Month IN (Month."Jan 22", Month."Feb 22", Month."Mar 22")
 
-// Check if category matches
-IN('Product'.'Category', "Electronics", "Computers", "Phones")
+// Range over a Year property
+'Switchover Date'[ADD: Year] IN (Year.'Start Date' : Year.'End Date')
 ```
 
-**Returns**: Boolean (TRUE if Value matches any Set item)
+**Returns**: Boolean (TRUE if Block matches any item / falls in the range).
 
-**Key Point**: Cleaner than multiple OR conditions.
+**Key Point**: Cleaner than multiple OR conditions. Prefer `Dimension."Item"` references over raw text strings so renames in the source dimension stay in sync.
 
 ---
 

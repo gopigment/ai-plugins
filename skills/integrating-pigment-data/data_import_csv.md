@@ -5,6 +5,21 @@
 CSV import populates dimensions or transaction lists with external data. Each CSV row represents an item, each CSV column maps to a property.
 
 ---
+## Working with File Attachments
+
+The user may attach files (CSVs, PDFs) to the conversation. All attached files remain available throughout the conversation.
+
+### File Identification
+Each file has:
+- **File Name**: The user-visible name (e.g., "sales_data.csv")
+- **Metadata**: Size, row count, columns, preview data
+
+### Handling Multiple Files with the Same Name
+
+When multiple files share the same name:
+
+1. **Examine the metadata, order and preview** to differentiate files
+2. **If genuinely ambiguous**, use the `ask_user` tool to clarify and give it the name, metadata, preview data and order
 
 ## 1. CSV Analysis
 
@@ -35,6 +50,8 @@ After filtering the relevant columns, examine the preview rows to detect:
 
 - **Date columns**: If any, determine the appropriate date format before calling the MCP tool
 - **Number columns**: If any, determine the appropriate number format before calling the MCP tool
+
+If dates are ambiguous (e.g., '01/02/2023' could be Jan 2nd or Feb 1st) or if the preview doesn't contain enough examples to confidently determine the format, ask the user for confirmation.
 
 ---
 

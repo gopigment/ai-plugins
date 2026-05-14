@@ -59,11 +59,12 @@ Skills are domain-knowledge files loaded automatically by Cursor and Claude Code
 |-------|-------------|
 | **Analyzing Data** | Query formulation, data discovery, analysis patterns, result interpretation |
 | **Modeling Applications** | Architecture, dimensions, metrics, tables, calendars, subsets, access rights |
+| **Solving Specific Use Cases** | FP&A (Nexus, OPEX, FX hub), Workforce Planning patterns, and other domain-specific modeling guidance |
 | **Writing Formulas** | Pigment's proprietary formula language — syntax, modifiers, functions, performance |
 | **Optimizing Performance** | Profiling, scoping, sparsity, iterative calculations, troubleshooting |
 | **Designing Boards** | Board structure, widget sizing, layout rules, page organization |
 | **Creating Views** | View creation, draft/override workflow, pivots, filters, sorting |
-| **Integrating Data** | Data import, CSV mapping, integration overview |
+| **Integrating Data** | Data import, CSV mapping, cross-app imports, troubleshooting |
 | **Agent Capabilities** | What the AI can and cannot do, behavioral protocols, handoff guidance |
 
 ## Example Prompts

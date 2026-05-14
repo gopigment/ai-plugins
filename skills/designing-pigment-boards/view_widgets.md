@@ -18,31 +18,18 @@ The widget `display_type` MUST match the underlying block type:
 
 ## Creating a View Widget
 
-### Case 1: The View needs no edit
+**⚠️ CRITICAL (order of operations — every View widget):** Do **not** create or point a **View** widget, or call **`update_view_widget_overrides`**, until the underlying View (or Draft) is **valid for the `display_type` you set on the widget** and for the **Block** (the **Display Type / Block Type Rules** above, plus [view_display_modes.md](../creating-and-editing-pigment-views/view_display_modes.md)).
 
-Create the View Widget pointing directly to the existing View. No override needed.
+Read the View (or Draft) and confirm **block ↔ `display_type`** and **view_display_modes** rules (e.g. **Kpi** → no row pivots and `metricsLocation` MUST NOT be `Rows` (use `Columns` or `Pages`); **List** blocks only **List** display). If invalid, fix or **create** a suitable View (`create_view` or Draft) **before** the widget. **Do not** trust `get_block_views` candidates without this check.
 
-### Case 2: The View needed an edit (a Draft View was created)
+## Changing a View that is already on this Board
 
-Must read and follow the `skill:creating-and-editing-pigment-views` skill to create and edit a Draft View.
+When the user asks to **modify** the View **currently shown** on a View widget (same board context):
 
-Then:
+1. **`create_draft_view`** from that **live** View. If the ask is a **new** visualization on the block (not changing this widget’s current View), use **`create_view`** instead.
+2. Edit the **Draft** with **`update_draft_view`** / **`update_draft_view_chart_config`** as needed.
+3. Leave the widget bound to the **original** View id; use **`update_view_widget_overrides`** so the widget **displays the Draft** for the current user until they **save or discard** in the Pigment Board UI.
 
-1. **Create the View Widget** pointing to the **original View** (not the Draft)
-2. **Use `update_view_widget_overrides`** to create an override that makes the widget display the Draft View for the current user only
+The agent does **not** replace the organization-wide widget target or save Drafts on the user’s behalf unless the product explicitly allows it—**user validation** happens in the UI.
 
-## Changing which View a Widget points to
-
-Update the widget to point directly to the new View ID. Do not use overrides for this.
-
-If the new View needed an edit, a Draft View was created for it. In that case, update the widget to point to the **original new View** (not the Draft), then use `update_view_widget_overrides` to override with the Draft.
-
-## Critical: Overrides are a full replacement
-
-`update_view_widget_overrides` performs a **full replacement** of all overrides on the board for the current user. If multiple widgets need overrides, you must pass all of them in a single call. Calling it per widget will wipe previously set overrides.
-
-## After all widgets are set up
-
-**Do NOT merge any Draft View.** Your job ends at creating drafts and setting overrides.
-
-The user can review the changes in the Board UI and decide to merge each Draft View or discard it.
+See also `skill:creating-and-editing-pigment-views` (CRITICAL RULES).

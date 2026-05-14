@@ -1,6 +1,6 @@
-This skill defines how Dimensions (“pivots”) should be ordered and allocated between **Rows** and **Columns** when generating Boards.
+This guide defines how Dimensions (“pivots”) are ordered and split between rows, columns and pages for boards.
 
-This skill handles:
+It covers:
 1. Ordering pivots Dimensions
 2. Allocating them to Rows vs Columns
 
@@ -10,9 +10,8 @@ This skill handles:
 
 ## **Global Ordering Principles**
 
-1. Related Dimensions (parent-child or same hierarchy) must always stay together and cannot be split between rows and columns (ex: `Employee` , `Employee > Manager` )
-2. Parent Dimensions before child Dimensions
-3. Dimensions Order: Time → Business → Comparison or Scenario
+1. Parent Dimensions before child Dimensions
+2. Dimensions Order: Time → Business → Metric → Comparison or Scenario
 
 ### **Example**
 
@@ -51,6 +50,16 @@ Filtering overrides all display rules:
 
 Related dimensions (parent-child or same hierarchy) must always be allocated together. They cannot be split between rows and columns.
 
+### Building a hierarchy in Rows
+
+To expose a **multi-level grouping** on the same entity, add **each level as its own pivot in Rows**, ordered from the **shallowest** path to the **deepest** (parent chain before children). Do not skip intermediate levels if you want the full drill-down in the grid.
+
+Example on an `Entity` list: **`Entity > Grouping L1`**, then **`Entity > Grouping L2`**, then **`Entity > Grouping L3`**, and so on — one pivot per level, all in **Rows**, respecting the global ordering (parents before children on that chain).
+
+### Tree layout vs tabular layout (Grid)
+
+For a **Grid** widget, the product can render the **same** row pivots either as **tabular** row headers (one column per pivot level) or as a **treeview** (single hierarchy column with indentation / expand–collapse). If `create_view` does not accept this display mode, recommend to the user to do it manually in the UI.
+
 ---
 
 # **3. Display-Type Driven Allocation**
@@ -62,7 +71,7 @@ Pivot allocation depends primarily on the **display type**.
 ## **3.1 KPI**
 
 - All pivot Dimensions → **columns**
-- `metricsLocation` MUST be `Columns` (or `Pages`) — **never `Rows`**. KPI views have no row pivots, so putting the metrics axis on Rows produces a broken layout. Default to `Columns`.
+- `metricsLocation` MUST be `Columns` (or `Pages`) — **never `Rows`**. KPI views have no row pivots, so Rows produces a broken layout. Default to `Columns`.
 
 ---
 

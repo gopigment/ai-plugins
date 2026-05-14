@@ -58,10 +58,9 @@ When doing the following tasks, you MUST read these documents:
   - ** CRITICAL:** You must read and apply the widgets sizing guidelines: [board_widget_sizes.md](./board_widget_sizes.md)
   - Must read: [board_pages.md](./board_pages.md)
 
-- When you decide you need a View:
-  - Must read: [relevant_views.md](./relevant_views.md)
-  - **CRITICAL**: You must read and apply the View Widget guidelines: [view_widgets.md](./view_widgets.md)
-  - MUST check first if an existing View can be used before creating one using `tool:get_block_views`.
+- When you need a View:
+  - Read [relevant_views.md](./relevant_views.md) and [view_widgets.md](./view_widgets.md) (**CRITICAL** for widgets).
+  - Use `tool:get_block_views` to **see** what exists. **Reusing** is optional: generic names (e.g. _View 1_) often mean you should **create** with `tool:create_view`. Do not block on a long “search for similar” pass.
 
 ---
 
@@ -73,6 +72,7 @@ When doing the following tasks, you MUST read these documents:
 - Boards describe _what should be displayed_, not _how it is calculated_
 - Simplicity beats completeness for executive and operational dashboards
 - Do not answer with too much detail to avoid overloading the user's chat.
+- If the user asks to avoid new modeling blocks (e.g. no new Metrics, Lists, or structural changes), creating a Table block can still be appropriate: a Table bundles existing Metrics for visualization and/or input on a Board. It's a layout container, not a new structural object dimension.
 
 ---
 
@@ -118,8 +118,17 @@ Use **View widgets** for data visualizations (Grids, Charts, KPIs).
 Even for a simple KPI showing a single Metric value, you must:
 
 1. Create or find a View that references the Metric
-2. Configure the View appropriately (e.g., no row pivots for KPIs)
+2. Configure the View appropriately
 3. Reference that View ID in the View widget
+
+### KPI Widget Usage
+
+- No row pivots
+- `metricsLocation` MUST NOT be `Rows` — use `Columns` (default) or `Pages`. KPIs have no row pivots, so Rows produces a broken layout.
+- The KPI widget displays as many columns as the underlying View.
+- Do not put a Dimension in columns unless it has very few items.
+- To display several Metrics side-by-side, prefer a single KPI Widget on a View with multiple Metrics in `values` (and `metricsLocation: Columns`) over multiple KPI Widgets — even if individual single-Metric Views already exist.
+- Not available for List blocks (KPI requires a Metric or Table block).
 
 ### Spacer Widget Usage
 
@@ -168,16 +177,13 @@ Follow this 4-step workflow when creating a Board:
    - View widgets for data visualizations
    - Spacer widgets between sections
 
-### Step 3: Find and Add Views
+### Step 3: Find or create Views, then add widgets
 
-1. **Identify Blocks** you want to visualize based on board purpose
+1. **Identify Blocks** for the story.
 
-2. **Use `tool:get_block_views`** for each Block:
-   - Find existing Views on the Blocks
-   - Review View descriptions and display modes (Grid, Chart, KPI, etc.)
-   - Select Views that match your analytical intent
+2. **For each Block**, `tool:get_block_views` — pick a **reusable** View only if name + pivots fit this board; otherwise **`tool:create_view`** (see [relevant_views.md](./relevant_views.md)). Ensure Pages align with [board_pages.md](./board_pages.md).
 
-3. **Add View widgets** to the board referencing the selected Views
+3. **Add View widgets** that reference those View IDs.
 
 ### Step 4: Update Board Pages
 

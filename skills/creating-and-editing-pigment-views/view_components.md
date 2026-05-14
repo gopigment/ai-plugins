@@ -1,12 +1,13 @@
 # View Components
 
+In the **UI** we say **Values** (what appears in the cells) and **Pages / Rows / Columns**.
+
 ## Step 1: Data & Layout
 
-### Value Fields
+### Values (cells)
 
-**CRITICAL REQUIREMENT**: There must be at least one value field in the View configuration.
 
-Value fields determine what data is displayed in the View cells. What counts as a value field depends on the Block type:
+That is what shows in the **cells**. It depends on the Block:
 
 - **Metric Block**: The Metric itself
 - **Table Block**: The Metrics within the Table

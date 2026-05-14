@@ -113,29 +113,9 @@ You can extend a calendar's date range without affecting existing data.
 
 **Important:** Extending forward is safe. Extending backward may create new periods, but existing data is preserved. You cannot shorten the calendar date range (remove periods) if data exists in those periods.
 
-### Actual vs Forecast Configuration
+### Distinguishing Actuals from Plan periods
 
-Actual vs Forecast allows you to distinguish between historical actuals and future forecast periods within the same calendar.
-
-**When enabled:**
-
-- Creates a Period Type dimension (Actual vs Forecast)
-- Requires a Switchover Date metric to define when actuals end and forecasts begin
-- Enables scenario planning with actual vs forecast separation
-
-**Use Cases:**
-
-- Financial planning with historical actuals and future forecasts
-- Budget vs Actual analysis
-- Rolling forecasts
-
-**Configuration:**
-
-- Enable in Calendar settings
-- Configure Period Type dimension
-- Set up Switchover Date metric (defines the transition point)
-
-**Best Practice:** Enable Actual vs Forecast if you need to distinguish between historical and future periods in your planning model.
+To distinguish historical Actuals from future Plan periods in a planning model, use the **Version Dimension Switchover** pattern documented in `modeling_scenarios_and_versions.md`. The pattern uses a **Switchover Month (or Year) Property on the Version Dimension** plus the **Is Version / Is Actual / Is Plan** Boolean Metrics to layer Actuals and plan data per Version.
 
 ### Time Dimensions Selection
 
