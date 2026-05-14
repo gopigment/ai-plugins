@@ -23,7 +23,7 @@ What the agent can and cannot do, and how it should behave.
 
 ## What the Agent Cannot Do Yet (UI only)
 
-Check this before proposing any action. If listed here, hand off to the user.
+Check this before proposing any action.
 
 | Not available | Notes |
 | --- | --- |

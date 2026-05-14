@@ -1,8 +1,8 @@
-# View Components
+# Filtering
 
-## Step 2: Filtering
+**UI:** **Pages** (selectors) vs **Filters** on row/column pivots.
 
-When a View shows more data than needed, you can narrow it down with **Pages** (simple inclusion) or **Filters** (more complex conditions).
+Narrow the View with **Pages** (default items, etc.) or **Filters** when you need more than page selection.
 
 ### Pages (Default Items)
 

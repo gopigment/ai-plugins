@@ -131,7 +131,7 @@ Examples: `RANK('MetricA', "", DESC)` and `RANK('MetricA', "", DESC, SEQUENTIAL)
 - **Source Block**: The values to rank (e.g. a metric or list property).
 - **Group**: The dimension(s) *within which* ranks are computed. Ranks are calculated separately for each member of Group. This is the **grouping dimension** (scope of the ranking), **not** the dimension of the block you are ranking.
 - **Direction**: ASC (smallest value gets rank 1) or DESC (largest value gets rank 1). In both cases, rank 1 is the “best” position; there is no rank 0.
-- **Ties**: Optional (e.g. MAXIMUM, SEQUENTIAL).
+- **Ties**: Optional. One of MINIMUM (default), MAXIMUM, SEQUENTIAL, AVERAGE.
 
 **Examples**:
 

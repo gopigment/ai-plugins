@@ -20,9 +20,9 @@ String manipulation, text transformation, and pattern matching functions.
 | **UPPER**      | Uppercase          | `UPPER("Hello")` → "HELLO"                |
 | **PROPER**     | Title case         | `PROPER("hello world")` → "Hello World"   |
 | **TRIM**       | Remove spaces      | `TRIM("  hello  ")` → "hello"             |
-| **CONTAINS**   | Check substring    | `CONTAINS("Hello", "ell")` → TRUE         |
-| **STARTSWITH** | Check prefix       | `STARTSWITH("Hello", "He")` → TRUE        |
-| **ENDSWITH**   | Check suffix       | `ENDSWITH("Hello", "lo")` → TRUE          |
+| **CONTAINS**   | Check substring    | `CONTAINS("ell", "Hello")` → TRUE         |
+| **STARTSWITH** | Check prefix       | `STARTSWITH("He", "Hello")` → TRUE        |
+| **ENDSWITH**   | Check suffix       | `ENDSWITH("lo", "Hello")` → TRUE          |
 | **&**          | Concatenate        | `"Hello" & " " & "World"` → "Hello World" |
 | **FIND**       | Find position      | `FIND("ell", "Hello")` → 2                |
 | **SUBSTITUTE** | Replace text       | `SUBSTITUTE("Hello", "l", "L")` → "HeLLo" |
@@ -48,14 +48,14 @@ TEXT(-44.23)         // "-44.23"
 
 ### VALUE
 
-Convert text to number.
+Convert text to number. Available as `NUMBER` (interchangeable alias).
 
-**Syntax**: `VALUE(Text)`
+**Syntax**: `VALUE(Text)` or `NUMBER(Text)`
 
 **Examples**:
 
 ```pigment
-VALUE("123")                                            // 123
+VALUE("123")                                           // 123
 VALUE("123.45")                                        // 123.45
 VALUE("-99.9")                                         // -99.9
 ```
@@ -93,8 +93,11 @@ Extract N characters from left.
 ```pigment
 LEFT("Hello World", 5)                                  // "Hello"
 LEFT("ABC123", 3)                                       // "ABC"
-LEFT('Product'.'SKU', 2)                               // First 2 characters of SKU
+LEFT("abc", 5)                                          // "abc" (count exceeds length – all returned)
+LEFT('Product'.'SKU', 2)                                // First 2 characters of SKU
 ```
+
+**Key Point**: Returns BLANK if Count is a negative integer.
 
 ---
 
@@ -114,8 +117,10 @@ Extract substring from middle.
 ```pigment
 MID("Hello World", 7, 5)                                // "World"
 MID("ABC123DEF", 4, 3)                                  // "123"
-MID('Product'.'SKU', 3, 4)                             // Characters 3-6 of SKU
+MID('Product'.'SKU', 3, 4)                              // Characters 3-6 of SKU
 ```
+
+**Key Point**: Returns BLANK if Start is 0/negative or if Count is negative.
 
 ---
 
@@ -130,8 +135,11 @@ Extract N characters from right.
 ```pigment
 RIGHT("Hello World", 5)                                 // "World"
 RIGHT("ABC123", 3)                                      // "123"
-RIGHT('Product'.'SKU', 2)                              // Last 2 characters of SKU
+RIGHT("abc", 5)                                         // "abc" (count exceeds length – all returned)
+RIGHT('Product'.'SKU', 2)                               // Last 2 characters of SKU
 ```
+
+**Key Point**: Returns BLANK if Count is a negative integer.
 
 ---
 
@@ -171,7 +179,7 @@ UPPER('Customer'.'Email')                               // Uppercase email
 
 ### PROPER
 
-Convert to title case (first letter of each word capitalized).
+Capitalize the first letter of the string and every letter that follows a non-alphabetic character (spaces, digits, punctuation, symbols). All other letters become lowercase.
 
 **Syntax**: `PROPER(Text)`
 
@@ -180,6 +188,7 @@ Convert to title case (first letter of each word capitalized).
 ```pigment
 PROPER("hello world")                                   // "Hello World"
 PROPER("JOHN SMITH")                                    // "John Smith"
+PROPER("c@ss n1te")                                     // "C@Ss N1Te" (digits/symbols trigger capitalization)
 PROPER('Customer'.'Name')                               // Title case name
 ```
 
@@ -243,16 +252,17 @@ STARTSWITH("A", "abc", TRUE)        // FALSE (case sensitive)
 
 ### ENDSWITH
 
-Check if text ends with suffix (case sensitive).
+Check if text ends with a suffix (not case sensitive by default).
 
-**Syntax**: `ENDSWITH(Text, Suffix)`
+**Syntax**: `ENDSWITH(End Text, Text to Search [, Is Case Sensitive])`
 
 **Examples**:
 
 ```pigment
-ENDSWITH("Hello World", "World")                        // TRUE
-ENDSWITH("Hello World", "Hello")                        // FALSE
-ENDSWITH('File'.'Name', ".pdf")                         // Check file extension
+ENDSWITH("World", "Hello World")    // TRUE
+ENDSWITH("Hello", "Hello World")    // FALSE
+ENDSWITH(".pdf", 'File'.'Name')     // Check file extension
+ENDSWITH("C", "abc", TRUE)          // FALSE (case sensitive)
 ```
 
 ---
@@ -271,7 +281,7 @@ Concatenate strings.
 "Hello" & " " & "World"                                 // "Hello World"
 'First Name' & " " & 'Last Name'                        // "John Smith"
 'Product'.'Code' & "-" & 'Product'.'Version'           // "PRD-v1.2"
-TEXT('Order'.'Number', "0000") & "-" & TEXT('Year', "0000")  // "0001-2024"
+TEXT('Order'.'Number') & "-" & TEXT('Year')             // "1-2024"
 ```
 
 **Common Uses**: Building composite keys, formatting display strings, creating labels
@@ -295,13 +305,13 @@ FIND("x", "Hello")              // BLANK (not found)
 FIND("A", "abc", 1, TRUE)       // BLANK (case sensitive)
 ```
 
-**Returns**: Position (1-based) or BLANK if not found.
+**Returns**: Position (1-based), or BLANK if not found OR if the starting position is 0/negative.
 
 ---
 
 ### SUBSTITUTE
 
-Replace one or all occurrences of a substring.
+Replace one or all occurrences of a substring. **Case sensitive** (unlike CONTAINS/STARTSWITH/ENDSWITH/FIND).
 
 **Syntax**: `SUBSTITUTE(Text, OldText, NewText [, OccurrenceNumber])`
 
@@ -310,7 +320,10 @@ Replace one or all occurrences of a substring.
 ```pigment
 SUBSTITUTE("aaa", "a", "b")         // "bbb" (all occurrences)
 SUBSTITUTE("aaa", "a", "b", 2)      // "aba" (only second occurrence)
+SUBSTITUTE("abc", "A", "d")         // "abc" (case sensitive – "A" not found)
 ```
+
+**Key Point**: Returns BLANK if OccurrenceNumber is a negative integer.
 
 ---
 
@@ -343,7 +356,7 @@ UPPER(TRIM('User'.'Email'))
 ### Pattern 5: Check Category
 
 ```pigment
-IF(CONTAINS('Product'.'Name', "premium"), "Premium", "Standard")
+IF(CONTAINS("premium", 'Product'.'Name'), "Premium", "Standard")
 ```
 
 ### Pattern 6: Build Date Range Display
@@ -352,13 +365,7 @@ IF(CONTAINS('Product'.'Name', "premium"), "Premium", "Standard")
 TEXT('Start Date') & " - " & TEXT('End Date')
 ```
 
-### Pattern 7: Case-Insensitive Contains
-
-```pigment
-CONTAINS(LOWER('Product'.'Description'), LOWER("premium"))
-```
-
-### Pattern 8: Extract Domain from User.Email
+### Pattern 7: Extract Domain from User.Email
 
 ```pigment
 MID(User.Email, FIND("@", User.Email) + 1, LEN(User.Email) - FIND("@", User.Email))
@@ -368,9 +375,10 @@ MID(User.Email, FIND("@", User.Email) + 1, LEN(User.Email) - FIND("@", User.Emai
 
 ## Critical Rules
 
-- **Text matching is NOT case sensitive by default** – CONTAINS, STARTSWITH, FIND (use optional argument for case-sensitive)
-- **ENDSWITH is case sensitive**
-- **FIND returns BLANK if not found** – Not 0
+- **Text matching is NOT case sensitive by default** – CONTAINS, STARTSWITH, ENDSWITH, FIND (use optional `Is Case Sensitive` argument for case-sensitive matching)
+- **SUBSTITUTE is case sensitive** – No optional argument to change this
+- **FIND returns BLANK if not found** – Not 0. Also returns BLANK if starting position is 0/negative
+- **LEFT/RIGHT/MID return BLANK on negative counts** – MID also returns BLANK on a 0/negative Start
 - **SUBSTITUTE can replace specific occurrence** – Use optional occurrence argument
 - **TRIM removes leading/trailing spaces and replaces multiple internal spaces with single space**
 - **FIND/MID positions are 1-based** - Not 0-based

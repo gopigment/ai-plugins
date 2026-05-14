@@ -196,7 +196,7 @@ Modeling and Views are different teams, but in practice modeling and reporting a
 - Views can pivot by dimension-type properties without changing metric structure
 - Multiple aggregation levels can be shown in different Views of the same metric
 - Metric structure remains minimal and performant
-- See [How List Properties Work in Pivots (Grouping)](../creating-and-editing-pigment-views/SKILL.md#how-list-properties-work-in-pivots-grouping) for details
+- See `skill:creating-and-editing-pigment-views` for details
 
 **2. Percentages, Variations, and Cumulates "For Display Only"**
 
@@ -238,7 +238,7 @@ Modeling and Views are different teams, but in practice modeling and reporting a
 - Use View **filters** (by items or by value) to restrict visible data
 - Use View **sorting** to order data by metric value or properties
 - Use "top N" or "bottom N" filters for ranking analysis
-- See [View Components — Step 2: Filtering](../creating-and-editing-pigment-views/SKILL.md#step-2-filtering) and [View Components — Step 3: Sorting](../creating-and-editing-pigment-views/SKILL.md#step-3-sorting)
+- See `skill:creating-and-editing-pigment-views`
 
 **5. Variance Analysis Considerations**
 
@@ -266,25 +266,27 @@ Use a View when:
 **Key View Capabilities to Leverage**
 
 Before creating a metric, consider if Views can handle the requirement using:
-- **Dimension-type properties** for hierarchical reporting (see [How List Properties Work in Pivots (Grouping)](../creating-and-editing-pigment-views/SKILL.md#how-list-properties-work-in-pivots-grouping))
+- **Dimension-type properties** for hierarchical reporting (see `skill:creating-and-editing-pigment-views`)
 - **Show Value As** for percentages, growth, differences, cumulates (see [MG09 - Ratios: Use Show Value As and Calculated Items](#mg09---ratios-use-show-value-as-and-calculated-items))
 - **Calculated Items** for ratios and derived metrics (see [MG09 - Ratios: Use Show Value As and Calculated Items](#mg09---ratios-use-show-value-as-and-calculated-items))
-- **Filters** for data restriction (by items, by value, top/bottom N) (see [View Components — Step 2: Filtering](../creating-and-editing-pigment-views/SKILL.md#step-2-filtering))
-- **Sorting** for data ordering (by metric value, by property) (see [View Components — Step 3: Sorting](../creating-and-editing-pigment-views/SKILL.md#step-3-sorting))
-- **Page selectors** for user-controlled filtering (see [Pivots (Rows, Columns & Pages)](../creating-and-editing-pigment-views/SKILL.md#pivots-rows-columns--pages))
+- **Filters** for data restriction (by items, by value, top/bottom N) (see `skill:creating-and-editing-pigment-views`)
+- **Sorting** for data ordering (by metric value, by property) (see `skill:creating-and-editing-pigment-views`)
+- **Page selectors** for user-controlled filtering (see `skill:creating-and-editing-pigment-views`)
 
 **Reference Documentation**
 
 For comprehensive guidance on View capabilities, see:
 - `skill:creating-and-editing-pigment-views` — Definitions, draft workflow, and where to read next
-- [View Design Process](../creating-and-editing-pigment-views/SKILL.md#view-design-process) — Step-by-step configuration (reuse, draft, validate)
-- [View Components](../creating-and-editing-pigment-views/SKILL.md#view-components) — Pivots, filters, and sorting; [Pivoting rules](../creating-and-editing-pigment-views/view_pivoting.md) and [Display modes](../creating-and-editing-pigment-views/view_display_modes.md) for layout and widget constraints
+- `skill:creating-and-editing-pigment-views` - Step-by-step configuration (reuse, draft, validate)
+- `skill:creating-and-editing-pigment-views` - Pivots, filters, and sorting; [Pivoting rules](../creating-and-editing-pigment-views/view_pivoting.md) and [Display modes](../creating-and-editing-pigment-views/view_display_modes.md) for layout and widget constraints
 
 #### MG05 - Simple Flows: One-Way Data Flow
 
 **Ensure one-way data flow:**
 
 Design data to flow towards a central consolidation point that combines Actuals and Planning data for reporting on Boards. Reference the correct Block directly and use the dependency diagram to maintain clarity and simplicity.
+
+For comprehensive guidance on financial statement modeling and data flow patterns, see [Core P&L reporting (Nexus pattern)](../solving-specific-use-cases/finance_nexus_financial_statements.md).
 
 #### MG06 - Block Usage: Proper Role Assignment
 

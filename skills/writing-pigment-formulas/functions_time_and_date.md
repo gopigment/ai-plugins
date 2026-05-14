@@ -25,12 +25,12 @@ Functions for date manipulation, time period calculations, and temporal operatio
 | Function         | Syntax                         | Returns            | Example                                              |
 | ---------------- | ------------------------------ | ------------------ | ---------------------------------------------------- |
 | **DATE**         | `DATE(Year, Month, Day)`       | Date               | `DATE(2024, 3, 15)` → 2024-03-15                     |
-| **DATEVALUE**    | `DATEVALUE("YYYY-MM-DD")`      | Date               | `DATEVALUE("2024-03-15")` → 2024-03-15               |
+| **DATEVALUE**    | `DATEVALUE(Text, Format)`      | Date               | `DATEVALUE("2024-03-15", "yyyy-MM-dd")` → 2024-03-15 |
 | **DAY**          | `DAY(Date)`                    | Day (1-31)         | `DAY(DATE(2024,3,15))` → 15                          |
 | **WEEKDAY**      | `WEEKDAY(Date)`                | Weekday (0-6)      | `WEEKDAY(DATE(2024,3,15))` → 5 (Friday)              |
 | **MONTH**        | `MONTH(Date)`                  | Month (1-12)       | `MONTH(DATE(2024,3,15))` → 3                         |
 | **YEAR**         | `YEAR(Date)`                   | Year               | `YEAR(DATE(2024,3,15))` → 2024                       |
-| **DAYS**         | `DAYS(EndDate, StartDate)`     | Days between       | `DAYS(DATE(2024,3,15), DATE(2024,3,1))` → 14         |
+| **DAYS**         | `DAYS(StartDate, EndDate)`     | Days between       | `DAYS(DATE(2024,3,1), DATE(2024,3,15))` → 14         |
 | **MONTHDIF**     | `MONTHDIF(StartDate, EndDate)` | Months between     | `MONTHDIF(DATE(2024,1,15), DATE(2024,3,15))` → 2     |
 | **NETWORKDAYS**  | `NETWORKDAYS(Start, End)`      | Business days      | `NETWORKDAYS(DATE(2024,3,1), DATE(2024,3,31))` → ~22 |
 | **EOMONTH**      | `EOMONTH(Date)`                | Last day of month  | `EOMONTH(DATE(2024,3,15))` → 2024-03-31              |
@@ -269,6 +269,12 @@ YEARTODATE('Monthly Sales')
 
 - **PREVIOUS(Dimension [, Offset])**: Iterative calculation within a **single** Block; returns the previous cell of the current metric in the iteration dimension. Use when the formula references itself along that dimension.
 - **PREVIOUSOF(Metric [, Offset])**: Iterative calculation **across Blocks**; requires an iterative calculation configuration. Use when multiple metrics reference each other in a cycle.
+
+**Examples**:
+
+```pigment
+// Previous month value of the current metric
+PREVIOUS(Month)
 
 // Previous value with offset of 2
 PREVIOUS(Month, 2)
