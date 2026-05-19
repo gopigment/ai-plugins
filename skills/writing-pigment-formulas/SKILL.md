@@ -353,6 +353,8 @@ All generated formulas must include `//` comments for readability and maintainab
 - One blank line between a part-level comment and the next formula segment
 - Skip for one-liners or very obvious formulas
 
+If comments are already present, try to maintain or enhance them. Replace them completely only if a formula update made them wrong or misleading.
+
 **Example (multi-step):**
 
 ```pigment

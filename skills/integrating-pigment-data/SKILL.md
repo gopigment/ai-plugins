@@ -1,6 +1,6 @@
 ---
 name: integrating-pigment-data
-description: Always use this skill when creating new lists to import CSV data into, importing CSV files into Pigment, mapping CSV columns to properties, deciding whether to import into dimensions vs transaction lists, configuring cross-application imports, troubleshooting data import issues. This skill includes supporting files in this directory - explore as needed.
+description: Use this skill ONLY when the user has attached a CSV file (visible in <file_attachments>) OR has explicitly asked to import CSV data into Pigment. Tasks covered - importing CSV files, mapping CSV columns to properties, deciding whether to import into dimensions vs transaction lists, configuring cross-application imports, troubleshooting data import issues. Do NOT use this skill for formula updates, list creation without CSV import, or any task where no CSV file is present. This skill includes supporting files in this directory - explore as needed.
 metadata:
   skill_path: /integrating-pigment-data/SKILL.md
   base_directory: /integrating-pigment-data

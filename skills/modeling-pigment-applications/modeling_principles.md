@@ -205,17 +205,16 @@ Modeling and Views are different teams, but in practice modeling and reporting a
 - These metrics are not referenced in any downstream calculations
 
 **Correct Approach:**
-- Use **Show Value As** feature in Views for percentages, growth rates, and ratios
-- Use **Calculated Items** in Views for differences and variances
-- Use **Show Value As - Cumulative** for cumulated series
-- See [MG09 - Ratios: Use Show Value As and Calculated Items](#mg09---ratios-use-show-value-as-and-calculated-items) for Show Value As, Calculated Items, and cumulative display in Views
+- For percentage-like metrics built from two base metrics (a ratio A ÷ B, or relative variance / growth such as (A − B) ÷ B): create or reuse a dedicated Metric with a Pigment formula (for example GM% = Gross Margin / Revenue), add it to the Table together with both operand Metrics, then use Views on Tables with Advanced Aggregators on that ratio Metric everywhere it must roll up correctly. That order (Metric on the Table first, then View configuration) is the default for cross-metric ratios and relative variances.
+- Show value as has many modes. Only % of … metric and % growth from … metric overlap the rollup behavior that Advanced Aggregators (Ratio / Growth) address—use Advanced Aggregators on Table views for those cases instead of those two SVA modes. All other Show value as options (cumulative, % of grand total, % of parent, and the rest) stay on Show value as.
+- Calculated Items suit derived rows or columns on a dimension (for example a total row). They are not a substitute for a dedicated ratio Metric between two Metrics: do not replace the ratio Metric with a Calculated Item on the value axis, duplicate an operand Metric as an extra value field, or try to “fix” rollups by putting Advanced Aggregators on that Calculated Item.
+- See [MG09 - Ratios and percentage-like metrics: create the Metric, then Advanced Aggregators](#mg09---ratios-and-percentage-like-metrics-create-the-metric-then-advanced-aggregators) and [View design process](../creating-and-editing-pigment-views/view_design_process.md) for the workflow.
 
 **Examples of View-Based Calculations:**
-- **Percentages:** Show Value As → % of Grand Total, % of Parent Total, % of Another Metric
-- **Growth:** Show Value As → % Growth from Another Item/Metric
-- **Differences:** Show Value As → Difference from Another Item/Metric
-- **Cumulates:** Show Value As → Cumulative
-- **Ratios:** Calculated Items on dimensions or Show Value As between metrics
+- Two-metric ratio, rate, percentage, growth, or variance on a Table: dedicated ratio Metric with formula on the Table, then View on a Table → Advanced Aggregators (Ratio, Growth, or Absolute growth) on that ratio Metric with operands on the two base Metrics (see MG09). Prefer this over Show value as → % of … metric or % growth from … metric for those rollups.
+- % of grand total, % of parent, and other share-of-axis modes: Show value as (not Advanced Aggregators)
+- Cumulative and other SVA modes: Show value as as appropriate
+- Other derived dimension logic: Calculated Items where appropriate
 
 **3. Mapped Dimensions for Reporting**
 
@@ -267,8 +266,8 @@ Use a View when:
 
 Before creating a metric, consider if Views can handle the requirement using:
 - **Dimension-type properties** for hierarchical reporting (see `skill:creating-and-editing-pigment-views`)
-- **Show Value As** for percentages, growth, differences, cumulates (see [MG09 - Ratios: Use Show Value As and Calculated Items](#mg09---ratios-use-show-value-as-and-calculated-items))
-- **Calculated Items** for ratios and derived metrics (see [MG09 - Ratios: Use Show Value As and Calculated Items](#mg09---ratios-use-show-value-as-and-calculated-items))
+- Advanced Aggregators on Views on Tables for two-metric ratios, percentages, and growth or relative variance—after the ratio Metric exists on the Table (see [MG09 - Ratios and percentage-like metrics: create the Metric, then Advanced Aggregators](#mg09---ratios-and-percentage-like-metrics-create-the-metric-then-advanced-aggregators) and `skill:creating-and-editing-pigment-views`)
+- **Calculated Items** for derived dimension logic where they fit
 - **Filters** for data restriction (by items, by value, top/bottom N) (see `skill:creating-and-editing-pigment-views`)
 - **Sorting** for data ordering (by metric value, by property) (see `skill:creating-and-editing-pigment-views`)
 - **Page selectors** for user-controlled filtering (see `skill:creating-and-editing-pigment-views`)
@@ -332,24 +331,17 @@ These functions perform sequential calculations. For example, if PREVIOUS() is u
 
 For comprehensive guidance on iterative calculations (PREVIOUS vs PREVIOUSOF, circular dependencies, configuration, when to use), see [Iterative Calculation (PREVIOUS & PREVIOUSOF)](../writing-pigment-formulas/functions_iterative_calculation.md). For performance optimization (subsetting, FILLFORWARD, CUMULATE), see [Performance - Iterative Calculations](../optimizing-pigment-performance/performance_iterative_calculations.md). For when and how to use List Subsets (including data-loss risks and safe patterns), see [List Subsets](./modeling_subsets.md).
 
-#### MG09 - Ratios: Use Show Value As and Calculated Items
+#### MG09 - Ratios and percentage-like metrics: create the Metric, then Advanced Aggregators
 
-**Critical Principle:** Do not create ratio metrics (e.g., `Margin%`, `EBIT%`) for display purposes. These should be handled in Views using Show Value As and Calculated Items.
+The problem: A ratio Metric (A ÷ B) or relative variance ((A − B) ÷ B) evaluates correctly at the finest grain shown in the view. If the Table view rolls it up like an ordinary additive measure, aggregated totals are wrong (for example sum of ratios instead of ratio of sums).
 
-**The Problem with Ratio Metrics:**
+Step 1 — Create or locate the ratio Metric. The ratio must be a real Pigment Metric with a formula (for example GM% = Gross Margin / Revenue). Add it to the Table with both operand Metrics. Avoid: duplicating an operand Metric as a second value field to simulate the ratio; using a Calculated Item on the value axis instead of that Metric for a cross-metric ratio; relying on Show value as → % of … metric or % growth from … metric as the default substitute for Advanced Aggregators on Table views (those two SVA modes overlap the rollup shape but Advanced Aggregators are the explicit fix).
 
-When you calculate a ratio in a Metric, the result will be correct at the lowest level of granularity. However, when Views aggregate these ratio metrics, Pigment displays the sum of ratios instead of the ratio of the sums, which is incorrect.
+Step 2 — Configure Advanced Aggregators in each Table view where the ratio must roll up. Add value fields for the ratio Metric and both operand Metrics. Set Ratio, Growth, or Absolute growth on the ratio Metric’s value field with the two operand value fields as operands (same A and B as in the formula). Apply on Rows, Columns, and Hidden dimensions aggregation as needed. Details: [View aggregators](../creating-and-editing-pigment-views/view_aggregators.md).
 
-**Solution:** To display ratios correctly in aggregated Views, use the **Show value as** and **Calculated Items** features in Views. The default order of calculation is as follows: Calculated Items in rows are performed before Calculated Items in columns. This ensures the correct ratio of sums is displayed instead of the sum of ratios.
+Show value as remains appropriate for many single-metric or axis-relative displays (cumulative, % of grand total, % of parent, YoY-style references where that mode fits, and other SVA options not listed here).
 
-**When to Create Ratio Metrics:**
-
-Only create ratio metrics when:
-- The ratio is needed for downstream calculations
-- The ratio logic is complex and benefits from being in the model
-- The ratio needs to be shared across Applications
-
-For display-only ratios, always use Views. See [MG04 - When Views Can Replace Metrics](#mg04---justify-metrics-think-twice-before-creating) for comprehensive guidance.
+Agent rule (Tables only): When a View on a Table shows such a ratio or relative-variance Metric, you must verify the dedicated Metric exists (create it if not), ensure it and both operands are on the Table, then configure Advanced Aggregators as above. This does not apply to view types without Advanced Aggregators (such as Views on Metrics); use a Table view when correct rollups are required.
 
 #### MG10 - Security: Start Restrictive
 
@@ -403,7 +395,7 @@ Performance optimization rules. For comprehensive guidance, see:
 - **MS08 - Small Dimensions:** Keep Calendars and Versions lean. Archive historical data to static snapshots.
 - **MS09 - Dependency:** Understand that independent metrics calculate in parallel. Break live calculations (e.g., disable Auto Save) if necessary.
 - **MS10 - Heavy Functions:** Avoid heavy functions like `CUMULATE`, `MOVINGSUM`, or text manipulation (`FIND`, `SUBSTITUTE`) on large lists.
-- **MS11 - Engine vs. View:** Use "Calculated Items" and "Show Value As" for reporting to offload work to the client side.
+- **MS11 - Engine vs. View:** Prefer Calculated Items and Show value as where they replace redundant metrics—but for two-metric ratio or relative-variance rollups on Tables, create the ratio Metric on the Table first and use Advanced Aggregators (not SVA’s % of … metric or % growth from … metric for that job, and not duplicate value fields or Calculated Items on the value axis as a substitute). Keep all other SVA modes on Show value as where they apply.
 - **MS12 - Split Access Rights:** Split security rules into smaller, dimension-specific metrics rather than one complex rule.
 
 ### MP - Modeling for Posterity

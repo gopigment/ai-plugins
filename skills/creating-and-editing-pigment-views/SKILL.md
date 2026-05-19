@@ -12,6 +12,15 @@ metadata:
 
 **Progressive Disclosure Pattern**: This `SKILL.md` provides an overview. Most details live in supporting files.
 
+**This file alone is often not sufficient**
+
+**Required workflow**:
+
+1. **Read this file first** - Understand available resources and when to use them
+2. **Identify relevant topics** - Match your task to any of the supporting documents
+3. **Read supporting files** - Use `tool:read_file` or `tool:grep` to access detailed documentation
+4. **Explore as needed** - Use `tool:ls`, `tool:grep`, or `tool:glob` to discover additional resources in this directory (some might not be explicitly mentioned in this file)
+
 ## UI and tool semantics (Views)
 
 These notes align the Pigment UI with view creation and edition tools
@@ -53,6 +62,7 @@ Every **pivot field** you add in `pages`, `rows`, or `columns` gets a **stable i
 # CRITICAL RULES
 
 - **Values/Rows/Columns/Pages field `id`** — Must always be a **freshly generated UUID**, never the metric ID. Each value entry needs its own unique identifier distinct from the metric/property it references.
+- **Same dimension on Pages and on Rows/Columns is SUPPORTED** — When the user asks to "put X on Pages", **add** to Pages without removing X from Rows/Columns. Page selectors then narrow which modalities appear on the row/column axis. Do not treat this as a conflict. See [view_components.md](./view_components.md) for OK patterns vs. anti-patterns.
 - **New View (greenfield)** — Use **`tool:create_view`**
 - **If board in user context and user wants to change a View** — **Do not** rewrite that View in place and rely on the agent to “validate” for them: use **`create_draft_view`** from that View, edit the **Draft** with **`update_draft_view`** (and related tools), keep the widget pointing at the **original** View, and use **`update_view_widget_overrides`** so only **this** session/user sees the Draft on the widget until they **save** in the Board UI. Details: [view_widgets.md](../designing-pigment-boards/view_widgets.md).
 - **Bulk-save protocol** if `tool:save_draft_views` is available — after creating or editing one or more Draft Views:
