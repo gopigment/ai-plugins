@@ -226,6 +226,7 @@ Do NOT call `tool:create_or_update_formula` or `tool:update_list_property_formul
    - **Top-level comment** (required): `//` comment on its own line(s) above the formula explaining its purpose (what it computes and why)
    - **Part-level comments** (for multi-step formulas): `//` on their own line below the segment they describe, with a blank line before the next segment. Skip for one-liners or obvious formulas.
    - Use the same language as the block name
+   - Maintain or enhance existing comments; replace them completely only if a formula update made them wrong or misleading
    - Comments must be included in the formula string passed to tools (`tool:create_or_update_formula`, `tool:update_list_property_formula`, etc.)
 2. **Explanation** - What the formula does, key operations and dimensional transformations
 3. **Documentation referenced** - Key files/functions consulted

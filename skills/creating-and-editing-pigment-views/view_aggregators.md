@@ -221,12 +221,19 @@ Examples:
 
 Recommended: Advanced Aggregator Ratio
 
-Be careful: rates and growths metrics must use Advanced Aggregators
+Workflow (Table views):
+1. The ratio must exist as a **Metric** with a Pigment formula (for example `GM% = Gross Margin / Revenue`). Do not fake it by adding the same operand Metric twice as separate value fields.
+2. Add the ratio Metric and **both** operand Metrics to the **Table**.
+3. In the View, include **three** value fields: ratio Metric plus both operands. Configure **Advanced Aggregator Ratio** on the **ratio** Metric’s value field; operands are the two **operand** Metrics’ value fields.
+
+Do not use Advanced Aggregators on a **Calculated Item** value field to stand in for a cross-metric ratio—Calculated Items are for dimension-level derived rows/columns; configure aggregators on **Metric** value fields instead.
+
+Rates and growth-style percentages that roll up across pivots must use Advanced Aggregators wherever the view aggregates.
 
 ### Metrics calculating a Growth or a Relative Variance
 
 Examples:
-- YoY growth %
+- YoY growth % between 2 metrics
 - Actual vs Budget % variance
 
 Recommended: Advanced Aggregator Growth (A-B/B)
@@ -270,10 +277,13 @@ Advanced aggregation:
 - operands must be **metric value fields**
 - operands must be **numeric**
 - cannot directly self-reference
-- may be sanitized or downgraded if invalid
 
 ### Important
 Advanced aggregation is a **View configuration**, not a new Metric.
+
+Advanced Aggregators apply to **Metric** value fields on Table views. They are not the right lever on **Calculated Item** value fields when the goal is a ratio between two Metrics—define a ratio **Metric** with a formula, then set the Advanced Aggregator on **that** value field.
+
+Do **not** duplicate an operand Metric as an extra value field and slap an Advanced Aggregator on the duplicate to imitate a ratio; create the ratio Metric and use its value field as the target.
 
 ---
 
@@ -340,12 +350,23 @@ Meaning:
 - Using advanced aggregation on a **Metric View**
   - Advanced aggregation is for **Table Views** only
 
+- Using Advanced Aggregators on **Calculated Items** to mimic a ratio between two Metrics
+  - Prefer a dedicated ratio **Metric** plus Advanced Aggregators on its value field. Keep Calculated Items for derived **dimension** rows/columns where that pattern fits.
+
+- **Duplicating** the same operand Metric as a second value field to simulate a ratio
+  - Does not replace a proper ratio Metric; create the ratio Metric with a Pigment formula and wire operands explicitly.
+
 - Overriding aggregation when Metric defaults are already correct
   - Prefer `Default` / no override unless the View needs different behavior
 
 ---
 
 ## 11. Quick decision tree
+
+### Step 0
+Does the View need a ratio, percentage, or relative variance built from **two** Metrics (same idea as A ÷ B or (A − B) ÷ B)?
+- **Yes** → Ensure a dedicated ratio **Metric** with a Pigment formula exists; add it and both operands to the **Table**; then configure Advanced Aggregators on the ratio value field (see §7). Continue to Step 1 for pivot-level aggregation choices.
+- **No** → Continue
 
 ### Step 1
 Is the dimension on **Rows** or **Columns**?
