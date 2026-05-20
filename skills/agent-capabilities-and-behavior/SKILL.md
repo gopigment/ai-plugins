@@ -23,11 +23,11 @@ What the agent can and cannot do, and how it should behave.
 
 ## What the Agent Cannot Do Yet (UI only)
 
-Check this before proposing any action.
+Check this before proposing any action. If listed here, first query the **documentation_assistant** tool to provide the user with relevant guidance, then hand off to the user.
 
 | Not available | Notes |
 | --- | --- |
-| Duplicate | |
+| Delete anything | Deactivated. Guide user to UI |
 | View formatting | Colors, conditional formatting, number formats |
 | Org Chart, Geo Map | |
 | Scenarios | |
@@ -37,7 +37,6 @@ Check this before proposing any action.
 | Automations | |
 | Variables | |
 | Subsets | See [modeling_subsets.md](../modeling-pigment-applications/modeling_subsets.md) |
-| History | |
 | Performance Insights | |
 | Snapshots | |
 | Test & Deploy | |

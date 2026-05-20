@@ -1,7 +1,7 @@
 {
   "name": "pigment",
   "displayName": "Pigment",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Analyze business data and build planning models in your Pigment workspace",
   "license": "SEE LICENSE IN LICENSE",
   "author": {
@@ -10,7 +10,13 @@
   "logo": "./logo.svg",
   "homepage": "https://github.com/gopigment/ai-plugins",
   "repository": "https://github.com/gopigment/ai-plugins",
-  "keywords": ["pigment", "planning", "forecasting", "analysis", "scenario"],
+  "keywords": [
+    "pigment",
+    "planning",
+    "forecasting",
+    "analysis",
+    "scenario"
+  ],
   "skills": "./skills/",
   "mcpServers": "./.mcp.json"
 }
