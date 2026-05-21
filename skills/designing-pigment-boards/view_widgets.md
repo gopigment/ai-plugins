@@ -18,7 +18,7 @@ The widget `display_type` MUST match the underlying block type:
 
 ## Creating a View Widget
 
-**⚠️ CRITICAL (order of operations — every View widget):** Do **not** create or point a **View** widget, or call **`update_view_widget_overrides`**, until the underlying View (or Draft) is **valid for the `display_type` you set on the widget** and for the **Block** (the **Display Type / Block Type Rules** above, plus [view_display_modes.md](../creating-and-editing-pigment-views/view_display_modes.md)).
+**⚠️ CRITICAL (order of operations — every View widget):** Do **not** create or point a **View** widget, or call **`tool:update_view_widget_overrides`**, until the underlying View (or Draft) is **valid for the `display_type` you set on the widget** and for the **Block** (the **Display Type / Block Type Rules** above, plus [view_display_modes.md](../creating-and-editing-pigment-views/view_display_modes.md)).
 
 Read the View (or Draft) and confirm **block ↔ `display_type`** and **view_display_modes** rules (e.g. **Kpi** → no row pivots and `metricsLocation` MUST NOT be `Rows` (use `Columns` or `Pages`); **List** blocks only **List** display). If invalid, fix or **create** a suitable View (`create_view` or Draft) **before** the widget. **Do not** trust `get_block_views` candidates without this check.
 
@@ -26,10 +26,11 @@ Read the View (or Draft) and confirm **block ↔ `display_type`** and **view_dis
 
 When the user asks to **modify** the View **currently shown** on a View widget (same board context):
 
-1. **`create_draft_view`** from that **live** View. If the ask is a **new** visualization on the block (not changing this widget’s current View), use **`create_view`** instead.
-2. Edit the **Draft** with **`update_draft_view`** / **`update_draft_view_chart_config`** as needed.
-3. Leave the widget bound to the **original** View id; use **`update_view_widget_overrides`** so the widget **displays the Draft** for the current user until they **save or discard** in the Pigment Board UI.
+1. If the ask is a **new** visualization on the block (not changing this widget's current View), use **`create_view`** instead.
+2. Otherwise call **`tool:update_view`** / **`tool:update_view_chart_config`** / `tool:update_view_filters` / `tool:update_view_sorts` directly on the View id.
+3. **If a Draft was auto-created** , leave the widget bound to the **original** View id and call **`tool:update_view_widget_overrides`** so the widget **displays the Draft** for the current user until they **save or discard** in the Pigment Board UI.
+4. **If the edit applied directly** (no Draft fork — e.g. you're editing a View you just created), nothing else to do; the widget already shows the latest content.
 
-The agent does **not** replace the organization-wide widget target or save Drafts on the user’s behalf unless the product explicitly allows it—**user validation** happens in the UI.
+The agent does **not** replace the organization-wide widget target or save Drafts on the user's behalf unless the product explicitly allows it — **user validation** happens in the UI.
 
 See also `skill:creating-and-editing-pigment-views` (CRITICAL RULES).

@@ -19,7 +19,7 @@ Call **`tool:get_block_views`** on the block (use **`display_intent`** when the 
 ## Step 3: Reuse, or create
 
 - **Strong name + pivot fit** (including board-wide pages and story) → reuse; wire the widget to that View.
-- **Otherwise** → **`tool:create_view`**, then iterate with updates. **Editing the live View behind a board widget** → **`create_draft_view`** + **`update_view_widget_overrides`** (see [view_widgets.md](../designing-pigment-boards/view_widgets.md)); do not silently overwrite the widget’s live View.
+- **Otherwise** → **`tool:create_view`**, then iterate with updates. **Editing the live View behind a board widget** → call **`update_view`** directly on that View id — if a Draft was created, pair the edit with **`tool:update_view_widget_overrides`** so this user sees the Draft on the widget (see [view_widgets.md](../designing-pigment-boards/view_widgets.md)).
 
 **Templates (Grid only):** If `tool:get_all_view_templates` exists, after a **new** View in **Grid** mode, pick and apply a template silently when one clearly fits; else skip.
 

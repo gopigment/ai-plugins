@@ -64,7 +64,9 @@ Every **pivot field** you add in `pages`, `rows`, or `columns` gets a **stable i
 - **Values/Rows/Columns/Pages field `id`** — Must always be a **freshly generated UUID**, never the metric ID. Each value entry needs its own unique identifier distinct from the metric/property it references.
 - **Same dimension on Pages and on Rows/Columns is SUPPORTED** — When the user asks to "put X on Pages", **add** to Pages without removing X from Rows/Columns. Page selectors then narrow which modalities appear on the row/column axis. Do not treat this as a conflict. See [view_components.md](./view_components.md) for OK patterns vs. anti-patterns.
 - **New View (greenfield)** — Use **`tool:create_view`**
-- **If board in user context and user wants to change a View** — **Do not** rewrite that View in place and rely on the agent to “validate” for them: use **`create_draft_view`** from that View, edit the **Draft** with **`update_draft_view`** (and related tools), keep the widget pointing at the **original** View, and use **`update_view_widget_overrides`** so only **this** session/user sees the Draft on the widget until they **save** in the Board UI. Details: [view_widgets.md](../designing-pigment-boards/view_widgets.md).
+- **Editing an existing View** — Call **`tool:update_view`** (or the field-specific variants) directly on the View id. If a Draft was auto-created, the agent should:
+  - wire the widget to display it via **`tool:update_view_widget_overrides`** so only this user sees it
+  - tell the user they can save the Draft in the Board UI.
 - **Bulk-save protocol** if `tool:save_draft_views` is available — after creating or editing one or more Draft Views:
   1. List the draft view names and ask the user for explicit confirmation before saving.
   2. Once confirmed, call `tool:save_draft_views` once with all draft view IDs.
@@ -73,7 +75,6 @@ Every **pivot field** you add in `pages`, `rows`, or `columns` gets a **stable i
   - use the **draft + override workflow** to allow safe, user-specific preview before committing changes that affect all users.
   - read: [view_widgets.md](../designing-pigment-boards/view_widgets.md).
 - **Name (first signal)** — **"View 1"** and similar are often **placeholders**. Prefer **`create_view`** with a real name and pivots aligned to **this** widget and **other widgets on the same board** unless the existing View already fits.
-- **View you created earlier in this run (not yet shared / saved on a board)** — You may **`update`** it directly without a Draft when that matches product flow.
 - **Shared / external View (other users, other boards)** — Prefer **Draft** (or a **new** View) before overwriting something others rely on or displayed in another board, except if asked explicitely.
 
 # Definitions

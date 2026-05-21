@@ -209,19 +209,19 @@ IF(
 
 **Why**: BY uses a mapping and is sparse (only computes for existing data). ADD creates all possible combinations and is dense. Always prefer BY when a mapping property exists.
 
-**Anti-pattern** (dense allocation to all combinations):
+**Anti-pattern** (dense allocation to all combinations then filter, instead of targeted allocation):
 
 ```pigment
-'Total'[ADD: Product]
+'MyMetric'[ADD: Version][FILTER: Version = MyVersion]
 ```
 
 **Optimized** (sparse allocation via mapping):
 
 ```pigment
-'Total'[BY: Product.Parent]
+'MyMetric'[BY: MyVersion]
 ```
 
-**Note**: BY requires a mapping property. If no mapping exists and you must use ADD, consider if the formula design can be changed.
+**Note**: BY requires a mapping property or a dimension formatted metric. If no mapping exists and you must use ADD, consider if the formula design can be changed.
 
 ---
 
