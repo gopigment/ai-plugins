@@ -44,6 +44,8 @@ Read this skill when:
 
 **Always read this skill before designing or modifying Pigment application structure.**
 
+> **Version Dimension is foundational.** Almost every Pigment metric carries a Version (Budget, Actual, Forecast, etc.). Whenever you design or modify a metric structure, a planning model, or anything time-bound, ALSO consult `skill:planning-cycles-pigment-applications` to wire the Version Dimension correctly (switchover, mandatory Boolean metrics, Actual/Plan layering). Treat it as a required companion skill, not an optional reference.
+
 ---
 
 ## Modeling Workflow
@@ -53,6 +55,7 @@ Read this skill when:
 - [ ] Understand what you're building (dimension, metric, table, calendar, etc.)
 - [ ] Clarify business purpose and usage
 - [ ] Identify obvious dependencies (e.g., metrics need dimension lists first)
+- [ ] **Check the Version Dimension.** If the model is missing a Version Dimension or the metric you are creating would benefit from one, consult `skill:planning-cycles-pigment-applications` before deciding the metric structure.
 - [ ] Check if prerequisites exist (dimensions, properties, source metrics)—resolve them in the **workspace** with **`tool:search`** not only by reading this documentation
 
 **If unclear** → Ask user for clarification
@@ -248,26 +251,6 @@ Planning metric structures, understanding multi-dimensional relationships, desig
 
 **Read**: [./modeling_principles.md](./modeling_principles.md) - Section 5
 
-**Setting Up Planning Cycles**:
-
-- "Use native scenarios or version dimension?"
-- "Calculate variance between scenarios?"
-- "Set up Budget vs Actual?"
-- "Build versions / a planning cycle from scratch"
-- "Best practices for versions / scenarios / planning cycles"
-- "Switchover date / month / year"
-- "Is Actual / Is Plan / Is Version boolean metrics"
-- "Layer actuals and forecast in one metric"
-- "Forecast / Reforecast / Rolling Forecast modeling"
-- "Combine Versions and Scenarios"
-- "Shared vs Local Scenarios"
-- "Snapshots in version management"
-- "Data slices for cross-Dimension comparison"
-
-**Read**: [./modeling_scenarios_and_versions.md](./modeling_scenarios_and_versions.md)
-
-> **Important:** When building a versioning system, always read the full file, especially the **"Building a versioning system: switchover, properties, and data layering"** section. A correct Version Dimension setup must include: a Switchover Month (or Year) property, Start/End Month, Active/Lock booleans, and the **Is Version / Is Actual / Is Plan** Boolean metrics used to layer actuals and plan data. Do not propose a Version Dimension without these elements.
-
 **Setting Up Calendars and Time**:
 
 **Read**: [./modeling_time_and_calendars.md](./modeling_time_and_calendars.md) - Calendar configuration and time dimensions
@@ -419,7 +402,7 @@ Once model designed, move to formula writing.
 | Best Practices Rules (28)                | [modeling_principles.md](./modeling_principles.md) - Section 8                                               |
 | Time & Calendars                         | [modeling_time_and_calendars.md](./modeling_time_and_calendars.md)                                           |
 | Modifiers (syntax)                       | [formula_modifiers.md](../writing-pigment-formulas/formula_modifiers.md)                                     |
-| Scenarios vs Versions                    | [modeling_scenarios_and_versions.md](./modeling_scenarios_and_versions.md)                                   |
+| Scenarios vs Versions (planning cycles)  | `skill:planning-cycles-pigment-applications`                                                                 |
 | Performance                              | [modeling_performance_considerations.md](./modeling_performance_considerations.md)                           |
 | Centralized Reporting Metrics            | [finance_nexus_financial_statements.md](../solving-specific-use-cases/finance_nexus_financial_statements.md) |
 | Access Rights (design, rules, debug)     | [modeling_access_rights.md](./modeling_access_rights.md)                                                     |
@@ -441,7 +424,7 @@ Once model designed, move to formula writing.
 - [./modeling_naming_conventions.md](./modeling_naming_conventions.md) - Comprehensive naming conventions for all Pigment elements
 - [./modeling_principles.md](./modeling_principles.md) - Folder structure, best practices (28 rules)
 - [./modeling_time_and_calendars.md](./modeling_time_and_calendars.md) - Calendar configuration and time dimensions
-- [./modeling_scenarios_and_versions.md](./modeling_scenarios_and_versions.md) - Planning cycles
+- `skill:planning-cycles-pigment-applications` - Planning cycles (Version Dimension, Native Scenarios, Snapshots)
 - [./modeling_performance_considerations.md](./modeling_performance_considerations.md) - Performance
 - [../solving-specific-use-cases/finance_nexus_financial_statements.md](../solving-specific-use-cases/finance_nexus_financial_statements.md) - Centralized reporting metric pattern for P&L/Balance Sheet and reporting aggregation
 - [./modeling_access_rights.md](./modeling_access_rights.md) - Access Rights design, Apply/Ignore rules, patterns, debugging, governance

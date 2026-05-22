@@ -83,7 +83,7 @@ Do not rely on SKILL.md summaries alone — open and read the full document for 
 - When the default property is `Name`, `Country."France"` and `Country.Name."France"` are equivalent; both are valid.
 - The explicit form `Dimension.Property."Value"` is valid when that property is the identifier used to resolve the item (e.g. `Country.Code."FR"` if the dimension uses Code as identifier).
 
-**Best practice (MP02):** Hard-coding dimension items in formulas (e.g. `Country."France"`, `Version."Budget"`) is discouraged. Prefer an input metric of type Dimension (e.g. VAR_Budget_Version) or other structural references. See [modeling_principles – Formula Best Practices and MP02](../modeling-pigment-applications/modeling_principles.md).
+**Best practice (MP02):** Hard-coding dimension items in formulas (e.g. `Country."France"`, `Version."Budget"`) is discouraged. Prefer an input metric of type Dimension (e.g. VAR_Budget_Version) or other structural references. See [modeling_principles – Formula Best Practices and MP02](../modeling-pigment-applications/modeling_principles.md). When the formula references the Version dimension or planning-cycle items (Budget, Forecast, Actual, etc.), also use `skill:planning-cycles-pigment-applications` for the Version Dimension setup, switchover semantics, and Is Actual / Is Plan / Is Version Boolean metrics.
 
 **Common Mistakes:**
 
@@ -180,7 +180,7 @@ IFDEFINED(
 
 Before delivering any formula:
 
-- **Dimension item literals:** Does the formula contain a literal dimension item (e.g. `Month."Jan 25"`, `Version."Budget"`, `Country."France"`)? If **yes**: have you applied MP02 (input metric of type Dimension or other structural reference)? If not, do not deliver the formula as-is; propose the MP02-compliant solution. See [modeling_principles](../modeling-pigment-applications/modeling_principles.md) section 4 and MP02.
+- **Dimension item literals:** Does the formula contain a literal dimension item (e.g. `Month."Jan 25"`, `Version."Budget"`, `Country."France"`)? If **yes**: have you applied MP02 (input metric of type Dimension or other structural reference)? If not, do not deliver the formula as-is; propose the MP02-compliant solution. See [modeling_principles](../modeling-pigment-applications/modeling_principles.md) section 4 and MP02. If the literal is a Version Item (Budget, Forecast, Reforecast, Actual...), also consult `skill:planning-cycles-pigment-applications` so the Version Dimension is wired correctly (switchover, Is Actual / Is Plan).
 
 ---
 

@@ -35,6 +35,8 @@ Read this skill when:
 - You want to understand **how different planning domains connect** within a single Pigment organization
 - You are designing or integrating **FX currency conversion** (Hub app, rates by version, entity mapping, AVG/END, reporting currency)
 
+> **Planning-cycle topics (Version Dimension, Budget vs Actual, Forecast, Reforecast, switchover, Actual/Plan layering, scenarios, snapshots) are NOT covered here.** They are owned by `skill:planning-cycles-pigment-applications`. Most patterns below (Centralized Reporting Metric, OPEX, Workforce, FX) assume a Version Dimension already exists; consult that skill before building the planning-cycle layer of the model.
+
 ---
 
 ## 1. FP&A — Financial Planning & Analysis
@@ -90,6 +92,7 @@ Required reading for this pattern: [Workforce Planning – Snapshot Spread Logic
 ## Cross-References
 
 - **Modeling foundations:** `skill:modeling-pigment-applications` (dimensions, folder structure, Push/Pull)
+- **Planning cycles, Versions, Scenarios, Snapshots:** `skill:planning-cycles-pigment-applications` -- always use this when a use case involves a Version Dimension, Budget vs Actual, Forecast, Reforecast, switchover, or Actual/Plan layering (most FP&A, OPEX, and Workforce patterns do)
 - **Formula implementation:** `skill:writing-pigment-formulas` (BY modifier, aggregation functions)
 - **Performance:** `skill:optimizing-pigment-performance` (large aggregation optimization)
 - **FP&A pattern — Centralized Reporting Metric (Nexus):** [finance_nexus_financial_statements.md](./finance_nexus_financial_statements.md)
