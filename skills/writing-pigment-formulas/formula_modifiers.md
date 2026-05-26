@@ -204,7 +204,7 @@ Remove dimension and aggregate to remaining dimensions.
 
 **Note**: Loses scope (performance impact). Prefer BY when possible.
 
-For the **tiered/banded lookup** pattern (assign each item to a band or tier based on thresholds on a dimension, e.g. account segmentation, salary bands), see [modeling_segmentation_tiered_lookup.md](../modeling-pigment-applications/modeling_segmentation_tiered_lookup.md) in modeling-pigment-applications — it uses `IF(...)[REMOVE FIRSTNONBLANK: Dim]` or `LASTNONBLANK`.
+For the **tiered/banded lookup** pattern (assign each item to a band or tier based on thresholds on a dimension, e.g. account segmentation, salary bands), see [formula_segmentation_tiered_lookup.md](./formula_segmentation_tiered_lookup.md) — it uses `IF(...)[REMOVE FIRSTNONBLANK: Dim]` or `LASTNONBLANK`.
 
 ---
 

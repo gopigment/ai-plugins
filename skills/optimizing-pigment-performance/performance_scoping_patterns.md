@@ -96,7 +96,7 @@ The most common cause of scope loss:
 Sequential calculations lose scope on the cumulating dimension:
 
 ```pigment
-'Monthly Revenue'[CUMULATE: Month]
+CUMULATE('Monthly Revenue', Month)
 ```
 
 **Why scope is lost**: To compute Month 6, Pigment needs Months 1-5. If Month 3 changes, Months 3-12 must be recomputed.
@@ -385,7 +385,7 @@ RANK('Revenue'[REMOVE: Month])
 **Formula**:
 
 ```pigment
-'Monthly Revenue'[YEARTODATE]
+YEARTODATE('Monthly Revenue')
 ```
 
 **Why unavoidable**: YTD for December depends on all previous months.

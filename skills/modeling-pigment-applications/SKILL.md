@@ -1,6 +1,6 @@
 ---
 name: modeling-pigment-applications
-description: Always use this skill when designing or modifying Pigment applications. Covers core concepts (dimensions, hierarchies, metrics, transaction lists, properties, sparsity), architecture and folder structure, naming conventions and the 28 modeling rules, time and calendars, versions and planning cycles, scenarios, list subsets, access rights, performance, application auditing and cleaning, Test & Deploy safe modeling; plus Centralized Reporting Metrics and FX. Supporting files live in this directory; explore as needed.
+description: Always use this skill when designing or modifying Pigment applications. Provides the mental model of a Pigment app (Application, Dimensions, Calendars, Metrics, Transaction Lists, Tables), the core concepts (dimension list vs property vs transaction list, metric vs table, sparsity, scope), the canonical order of architecture decisions, a minimal viable application pattern and pointers to deeper-dive docs (architecture, naming, hierarchies, calendars, principles, folders, subsets, performance).
 metadata:
   skill_path: /modeling-pigment-applications/SKILL.md
   base_directory: /modeling-pigment-applications
@@ -8,473 +8,171 @@ metadata:
     - "*.md"
 ---
 
-# How to Use This Skill
-
-**Progressive Disclosure Pattern**: This `SKILL.md` provides an overview. Most details live in supporting files.
-
-**This file alone is often not sufficient**
-
-**Required workflow**:
-
-1. **Read this file first** - Understand available resources and when to use them
-2. **Identify relevant topics** - Match your task to any of the supporting documents
-3. **Read supporting files** - Use `tool:read_file` or `tool:grep` to access detailed documentation
-4. **Explore as needed** - Use `tool:ls`, `tool:grep`, or `tool:glob` to discover additional resources in this directory (some might not be explicitly mentioned in this file)
-
 # Modeling Pigment Applications
 
-This skill provides guidance for designing and architecting Pigment applications.
+Core concepts and architecture for designing Pigment applications. Read first for any modeling task. Jump to the linked deep dives only when the task requires the detail.
 
 ## When to Use This Skill
 
-Read this skill when:
+Read this skill before:
 
-- Understanding **core modeling concepts** (blocks, metric and property types, metric vs transaction list, sparsity, etc.)
-- Making **architectural decisions** (application structure, folder organization, data sharing)
-- Applying **governance standards** (best practices, naming conventions)
-- **Creating blocks and components** (dimensions, metrics, transaction lists, tables, calendars)
-- Designing **Centralized Reporting Metrics** (final aggregation for P&L, Balance Sheet, reporting)
-- Designing and applying **Access Rights** (AR metrics, rules, scope, Role vs User, debugging)
-- **Auditing an app** (modeling, formula hygiene, folders, boards, governance, cleanup)
-- **Cleaning an application** (deletion of unused objects, boards by usage)
-- Designing a complete **Pigment architecture** (dimensional structure, UX, data, governance, planning cycle)
-- Ensuring **Test & Deploy safety** (formula item references, dimension connectivity, deployment-safe modeling)
-- **Creating or using List Subsets** (when to use vs filters/other list, data-loss risks, mirror dimensions, safe patterns)
-- Designing **FX / currency conversion** (Hub app, rate types, entity mapping, AVG vs END, triangulation)
-
-**Always read this skill before designing or modifying Pigment application structure.**
+- Designing or restructuring an Application (dimensions, metrics, tables, transaction lists, folders)
+- Choosing dimension vs property, metric vs transaction list, table vs standalone metric
+- Reviewing whether an existing structure is sound (sparsity, scope, T&D safety)
+- Onboarding to an unfamiliar workspace before changing anything
 
 ---
 
-## Modeling Workflow
+## Mental Model
 
-### Step 1: Understand Intent
+Pigment is an in-memory, sparse, multidimensional engine. An Application is a graph of typed blocks plus orthogonal cycle layers. Block types:
 
-- [ ] Understand what you're building (dimension, metric, table, calendar, etc.)
-- [ ] Clarify business purpose and usage
-- [ ] Identify obvious dependencies (e.g., metrics need dimension lists first)
-- [ ] Check if prerequisites exist (dimensions, properties, source metrics)—resolve them in the **workspace** with **`tool:search`** not only by reading this documentation
+- **Folders** -- organizational only, never logic, optional
+- **Dimensions** (includes the Version dimension) -- analysis axes, items + properties
+- **Calendar dimensions** -- Month / Quarter / Year, plus Date
+- **Metrics** -- multidim grids, typed Number / Date / Text / Dim / Bool
+- **Transaction Lists (TL)** -- high-volume facts, NOT structural
+- **Tables** -- group metrics sharing dimensions
+- **Boards / Views** -- UX layer over metrics and tables
 
-**If unclear** → Ask user for clarification
+Plus two orthogonal layers that apply across blocks:
 
-### Step 2: Search & Read Documentation
+- **Native Scenarios** -- ad-hoc what-if, app-level feature
+- **Snapshots** -- point-in-time copy of the app
 
-- [ ] Search this SKILL.md for relevant section
-- [ ] Read documentation files listed
-- [ ] Review applicable Pigment Modeling Best Practices rules
-- [ ] Read Core Concepts if unfamiliar with fundamental concepts
-- [ ] Check dimensional relationships for multi-dimensional structures
+Invariants the agent must respect:
 
-### Step 3: Model with CRUD in Mind
-
-- [ ] **Choose the target folder** before creating the block: list existing Blocks folders, pick the folder that matches the block type and purpose (see [Working with Folders](./modeling_working_with_folders.md) – Placing new blocks). Never create in "No Folder".
-- [ ] Create prerequisite components first (e.g., dimension lists before metrics)
-- [ ] Follow Pigment Modeling Best Practices standards
-- [ ] Apply naming conventions from the Quick Naming Rules section below
-- [ ] Validate against standards after creation
+- A **metric cell** is identified by one item per structural dimension. Empty cells are not stored (sparsity).
+- Only **dimension lists** can sit in a metric structure. Transaction lists never can. Aggregate them inside formulas with `BY`.
+- The **Version Dimension** is the planning-cycle dimension (Budget, Actual, Forecast). Whenever you design or modify a planning metric or anything time-bound, also consult `skill:planning-cycles-pigment-applications`.
+- **Folders are inert.** Placement affects discovery and governance, not calculation.
 
 ---
 
-## Core Principle: Think CRUD
+## Core Concepts
 
-Always "think CRUD" - create prerequisites first:
+### Block types
 
-- Dimension lists before metrics that use them
-- Source metrics before calculated metrics that reference them
-- Properties before formulas that reference them
+| Concept | What it is | When to pick it |
+|---|---|---|
+| **Dimension list** | Analysis axis with unique items and properties. Usable as a structural axis. | Country, Product, Employee, Account, anything you will slice metrics by |
+| **Property** | Column on a dimension. Type Number / Date / Text / Boolean / Dimension. | Static attribute of an item |
+| **Metric** | Multidimensional, sparse, typed grid. Sourced by input, import, or formula. | Anything you compute, plan, or report |
+| **Transaction List** | High-volume row store (orders, journal entries). Items not unique. Not structural. | Granular facts to aggregate into metrics |
+| **Table** | Group of metrics sharing dimensions, with calculated rows or columns. | P&L, Balance Sheet, Cash Flow, multi-metric reporting |
+| **Calendar** | App-level time dimensions (Month, Quarter, Year) plus Date type. | Always reuse. Never re-create time dimensions |
+| **Version Dimension** | Custom Dimension holding Budget / Actual / Forecast plus switchover and gating Boolean metrics. | Any planning cycle, Actual vs Plan layering, cross-version variance |
+| **List Subset** | Constrained view of a parent list. Power tool with irreversible data loss on membership change. | Prefer filters or a separate list unless the subset use case is clear |
 
----
+### Data visualization types
 
-## Quick Naming Rules (Apply When Creating Blocks)
+| Concept | What it is | When to pick it |
+|---|---|---|
+| **View** | Configured visual of a Metric or Table (filters, sort, breakdown, display mode). Reusable across Boards. | Whenever you want to show data the same way in multiple places |
+| **View display mode** | How a View renders its data: `Grid` (pivot table), `Chart` (bar / line / pie / etc.), `KPI` (single big number). | Grid for tabular breakdown, Chart for trend or comparison, KPI for a headline metric |
+| **Board** | Container page that lays out one or more Widgets. The unit of user-facing reporting, dashboards, and input screens. | Any user-facing dashboard, report, or input form |
+| **Widget** | An element placed on a Board. Most commonly renders a View; also supports text, image, button, separator. | Anything embedded on a Board |
 
-**Apply these conventions when creating blocks.** If the application already uses
-a different naming style (e.g. Snake_Case for dimensions), prefer consistency with
-that style.
+### Engine vocabulary
 
-| Element              | Style                               | Example                                                          |
-| -------------------- | ----------------------------------- | ---------------------------------------------------------------- |
-| **Metric**           | Snake_Case with type prefix         | `CALC_Net_Revenue`, `INPUT_Budget_Amount`, `DATA_Employee_Count` |
-| **Dimension**        | PascalCase, no prefix               | `Department`, `CostCenter`, `GLAccount`                          |
-| **Transaction List** | Snake_Case with `LOAD_` prefix      | `LOAD_Sales_Orders`, `LOAD_Employee_Events`                      |
-| **Property**         | Snake_Case                          | `Sort_Order`, `Account_Type`, `Is_Active`                        |
-| **Folder**           | Numeric prefix `#.` or `##.`        | `0. Settings`, `1. Dimensions`, `10. Data Loads`                 |
-| **Table**            | Snake_Case, optional `[TBL] ` prefix | `[TBL] Variance_Analysis`, `Cash_Flow_Summary`                 |
+- **Block**: any first-class object in an app (Dimension, Metric, Transaction List, Table, Calendar, Board, Folder).
+- **Item**: a row of a list (Dimension or Transaction List).
+- **Structural dimension**: a Dimension used to define a metric's grid.
+- **Cell**: one value at one combination of structural items.
+- **Sparsity**: only non-blank cells are stored and processed.
+- **Scope**: the dimensional context in which a formula evaluates.
 
-**Common Metric Prefixes:**
+### Sibling decisions the agent gets wrong most often
 
-- `INPUT_` - User-entered data
-- `CALC_` - Intermediate calculations
-- `OUTPUT_` / `RES_` - Final results
-- `DATA_` - Aggregated data from transaction lists
-- `ASM_` - Assumptions
-- `MAP_` - Lookups/mappings
-- `PUSH_` / `PULL_` - Cross-app sharing
-
-**Forbidden Characters:**
-
-- **Never use periods `.`** - breaks formula references
-- **Never use colons `:`** - breaks formula references
-
-**Full conventions:** [./modeling_naming_conventions.md](./modeling_naming_conventions.md)
+- **Dimension vs Property.** Values repeat across rows AND you need to slice metrics by them, use a Dimension. Free text, measure, or boolean, use a Property.
+- **Dimension vs Transaction List.** Need to slice metrics by it with unique items, use a Dimension. Granular events, high volume, not structural, use a Transaction List.
+- **Metric vs Transaction List as source of truth.** Aggregated planning numbers belong in a Metric. Atomic events from ERP or CRM belong in a Transaction List, then aggregate with `BY`.
+- **Table vs standalone Metric.** Multiple metrics share dimensions and you want calculated items or a single view, use a Table. One isolated KPI or intermediate calc stays standalone.
 
 ---
 
-## Essential Foundation
+## Architecture: Decisions in Order
 
-### 1. Core Concepts (Read First)
+Decide in this order. Reversing causes rework.
 
-**[./modeling_fundamentals.md](./modeling_fundamentals.md)** - Essential platform knowledge
-
-**Covers**:
-
-- Pigment as multidimensional engine (4 core principles)
-- Dimensions vs properties (strategic usage, hierarchies)
-- Metric and property types (Number/Date/Text/Dimension/Boolean)
-- Metrics vs transaction lists (when to use each)
-- Dimension list vs Transaction list (TL is not a structural dimension of a metric; correct BY pattern and anti-pattern)
-- Sparsity principles and performance implications
-- IFDEFINED vs ISBLANK patterns
-
-**Critical** - These are building blocks of everything in Pigment
-
-### 2. Pigment Modeling Best Practices Standards and Principles
-
-**[./modeling_principles.md](./modeling_principles.md)** - Complete governance guide
-
-**Covers**:
-
-- Folder structure (OX folders: Settings, Dimensions, Library, Assumptions)
-- Data and themed folder organization
-- Library folder for data sharing (Push/Pull patterns)
-- Formula best practices
-- **28 Modeling Rules** (MG: General, MS: Speed, MP: Posterity)
-
-**Critical** - Ensures models are compliant, performant, maintainable
-
-### 3. Naming Conventions
-
-**[./modeling_naming_conventions.md](./modeling_naming_conventions.md)** - Comprehensive naming guide
-
-**Covers**:
-
-- **Three-tier naming framework**: Understanding Technical Name, Friendly Name, and Display Name
-  - *Technical Name* — System reference for formulas and APIs (not shown to users)
-  - *Friendly Name* — Default UI name
-  - *Display Name* — Localizable, user-friendly name shown in agents conversation and UI
-- Character rules and sort order
-- Two-prefix system for metrics
-- Conventions for all element types (applications, folders, dimensions, metrics, tables, boards, views)
-- Anti-patterns to avoid
-
-**Critical** - Consistent naming improves auditability and simplifies formulas. Understanding the three-tier framework helps agents and modelers distinguish between technical references and user-facing presentations.
+1. **Application boundary.** One app vs a Hub-and-domain-apps topology. The Hub holds shared Dimensions (Entity, GL, FX, Version, Time) and shared reference/actuals data. Domain apps reference Hub content via shared Blocks (Library), typically metrics with a Push/Pull naming convention.
+2. **Dimensional structure.** List the slicing axes. Target 5 or fewer structural dimensions per metric. Challenge anything above.
+3. **Calendar.** Pick fiscal year, granularity (Month or Quarter), and date range. Use the existing app calendar. Never roll your own time list.
+4. **Version Dimension.** If the app holds any planning cycle (Budget, Forecast, Actual), build a Version Dimension and define switchover and gating Booleans now, not later. See `skill:planning-cycles-pigment-applications`.
+5. **Data sourcing per metric.** Input vs Import vs Formula. Data from ERP or CRM lands in a Transaction List, then aggregates into a metric with `BY`.
+6. **Metric layering.** `INPUT_` then `CALC_` then `OUTPUT_` or `RES_`. Reporting metrics stay thin. No cross-cutting calc inside them.
+7. **Tables for reporting.** Group metrics sharing dimensions. One centralized reporting metric per financial view (P&L, Balance Sheet).
+8. **Folders.** Map blocks to numeric-prefixed folders (Dimensions, Library, Data Loads, Assumptions, Reporting). Never place blocks at the root level.
+9. **Governance.** Naming, T&D safety (no direct item refs in formulas), Access Rights, audit.
 
 ---
 
-## Task-Based Routing
-
-### 1. Understanding Platform Fundamentals (Start Here)
-
-**Core Concepts**:
-
-- "What are dimensions, transaction lists, properties, metrics, tables?"
-- "What metric or property type should I use (Number/Date/Text/Dimension/Boolean)?"
-- "When to use metric vs transaction list?"
-- "How does sparsity work?"
-
-**Read**: [./modeling_fundamentals.md](./modeling_fundamentals.md)
-
-**Dimensions and Hierarchies**:
-
-- "How to create hierarchies with dimension-type properties?"
-- "Multi-level hierarchies (4+ levels)?"
-- "Handle ragged or unbalanced hierarchies?"
-- "Should this be a dimension or property?"
-- "Add to metric structure or use property?"
-- "Avoid dimension explosion?"
-
-**Read**: [./modeling_dimensions_and_hierarchies.md](./modeling_dimensions_and_hierarchies.md)
-
-### 2. Designing Application Structure
-
-**Tasks**:
-
-- "How to organize folders?"
-- "What are OX folders?"
-- "Single or multiple apps?"
-- "What is Hub pattern?"
-- "Share data between apps?"
-- "What's Push vs Pull?"
-
-**Read**: [./modeling_principles.md](./modeling_principles.md) - Sections 1, 2, and 6
-
-### 3. Applying Governance Standards
-
-**Naming Conventions**:
-
-- "How to name applications?"
-- "What prefix conventions for metrics?"
-- "How to name folders?"
-- "What characters are allowed in names?"
-- "How to use the two-prefix system?"
-- "What's the difference between technical name, friendly name, and display name?"
-- "When should I set display names for blocks?"
-- "How do display names support multi-language models?"
-
-**Read**: [./modeling_naming_conventions.md](./modeling_naming_conventions.md)
-
-**Best Practices Rules**:
-
-- "What are Pigment Modeling Best Practices rules?"
-- "Formula formatting standards?"
-- "Ensure maintainability?"
-
-**Read**: [./modeling_principles.md](./modeling_principles.md) - Section 8 (28 Modeling Rules)
-
-### 4. Implementing Dimensional Models
-
-**Designing Dimensional Models**:
-
-Planning metric structures, understanding multi-dimensional relationships, designing data flows, choosing aggregation/allocation patterns.
-
-**Read**: [./modeling_dimensions_and_hierarchies.md](./modeling_dimensions_and_hierarchies.md) - Dimensional concepts and hierarchy patterns
-
-**For modifier syntax**: See `../writing-pigment-formulas/formula_modifiers.md` - BY, ADD, REMOVE, SELECT, KEEP modifiers
-
-**Planning Data Loading Strategy**:
-
-- "Load into transaction list or metric?"
-- "When to use dimensions vs transaction lists?"
-- "Handle granular transactional data?"
-
-**Read**: [./modeling_principles.md](./modeling_principles.md) - Section 5
-
-**Setting Up Planning Cycles**:
-
-- "Use native scenarios or version dimension?"
-- "Calculate variance between scenarios?"
-- "Set up Budget vs Actual?"
-- "Build versions / a planning cycle from scratch"
-- "Best practices for versions / scenarios / planning cycles"
-- "Switchover date / month / year"
-- "Is Actual / Is Plan / Is Version boolean metrics"
-- "Layer actuals and forecast in one metric"
-- "Forecast / Reforecast / Rolling Forecast modeling"
-- "Combine Versions and Scenarios"
-- "Shared vs Local Scenarios"
-- "Snapshots in version management"
-- "Data slices for cross-Dimension comparison"
-
-**Read**: [./modeling_scenarios_and_versions.md](./modeling_scenarios_and_versions.md)
-
-> **Important:** When building a versioning system, always read the full file, especially the **"Building a versioning system: switchover, properties, and data layering"** section. A correct Version Dimension setup must include: a Switchover Month (or Year) property, Start/End Month, Active/Lock booleans, and the **Is Version / Is Actual / Is Plan** Boolean metrics used to layer actuals and plan data. Do not propose a Version Dimension without these elements.
-
-**Setting Up Calendars and Time**:
-
-**Read**: [./modeling_time_and_calendars.md](./modeling_time_and_calendars.md) - Calendar configuration and time dimensions
-
-### 5. Performance Optimization
-
-**Tasks**:
-
-- "How to optimize model performance?"
-- "Avoid slow calculations?"
-- "Reduce memory usage?"
-
-**Read**: [./modeling_performance_considerations.md](./modeling_performance_considerations.md)
-
-Also see: [./modeling_principles.md](./modeling_principles.md) - Section 8 (MS rules for Speed)
-
-### 6. Centralized Reporting Metrics
-
-**Tasks**:
-
-- "What is a Centralized Reporting Metric (Nexus)?"
-- "How do I design a P&L or Balance Sheet aggregation metric?"
-- "Where should the final reporting metric live?"
-- "Push/Pull and Centralized Reporting Metrics?"
-
-**Read**: [../solving-specific-use-cases/finance_nexus_financial_statements.md](../solving-specific-use-cases/finance_nexus_financial_statements.md)
-
-### 7. Access Rights (Design and Rules)
-
-**Tasks**:
-
-- "How do I set up Access Rights by Country/Region/Department?"
-- "What's the difference between building an AR metric and applying it?"
-- "Apply vs Ignore rules?"
-- "Role-based vs user-based AR?"
-- "Why can't this user see data?" / "Why can they see data they shouldn't?"
-
-**Read**: [./modeling_access_rights.md](./modeling_access_rights.md)
-
-For formula syntax (ACCESSRIGHTS, IFDEFINED): [../writing-pigment-formulas/functions_security.md](../writing-pigment-formulas/functions_security.md). For AR performance: [../optimizing-pigment-performance/performance_access_rights.md](../optimizing-pigment-performance/performance_access_rights.md).
-
-### 8. Auditing a Pigment App
-
-**Tasks**:
-
-- "Audit this app for modeling and governance issues"
-- "Review formulas, folders, and boards for best practices"
-- "Find unused metrics, temporary metrics, or cleanup opportunities"
-- "Check board size, naming, and folder structure"
-
-**Read**: [./modeling_application_auditing.md](./modeling_application_auditing.md)
-
-For detailed formula checks use writing-pigment-formulas; for performance use optimizing-pigment-performance; for boards use designing-pigment-boards.
-
-### 9. Application Cleaning
-
-**Tasks**:
-
-- "Clean up unused metrics, dimensions, tables, or properties"
-- "Identify and delete dead boards"
-- "What is the deletion order for unused objects?"
-- "How do I define 'unused' for a metric or dimension?"
-
-**Read**: [./modeling_application_cleaning.md](./modeling_application_cleaning.md)
-
-### 10. Architecture Design
-
-**Tasks**:
-
-- "Design a complete Pigment architecture from scratch"
-- "How many applications do I need?"
-- "What dimensions should go in the metric structure?"
-- "How do I design for UX, data flow, governance, and planning cycles?"
-
-**Read**: [./modeling_architecture_design.md](./modeling_architecture_design.md)
-
-### 11. List Subsets (sublists)
-
-**Tasks**:
-
-- "Should I use a subset for X?" / "Create a subset of this list"
-- "Same dimension twice" (e.g. Time + Cohort month, Company rows + columns)
-- "Limit the list for input" / "Only show active items" / "Restrict dropdown"
-- Performance: "Use a subset to speed up iterative calc?"
-
-**Read**: [./modeling_subsets.md](./modeling_subsets.md) - When to recommend vs avoid, data-loss warnings, decision checklist, safe patterns (STORE/CALC, dropdown UX on parent, remap to parent). Tool: create_sublist exists; update/delete not yet exposed—design guidance applies regardless.
-
-### 12. Test & Deploy (when used)
-
-**Tasks**:
-
-- "How do I make my formulas safe for Test & Deploy?"
-- "Can I reference dimension items directly in a T&D context?"
-- "Which dimensions are managed vs non managed?"
-- "How to avoid deployment failures from item references?"
-
-**Read**: [./modeling_principles.md](./modeling_principles.md) - Section 4 (baseline: no direct item reference) and Section 9 (When Test & Deploy is used: Rules 1 & 2, context, enforcement).
-
-### 13. Segmentation (tiered / banded lookup)
-
-**Tasks**:
-
-- "Assign each item to a tier/band based on thresholds" (account segmentation, salary bands, discount brackets)
-- "Avoid nested IFs or SWITCH for tiering when thresholds live on a dimension"
-- "Lookup which band matches a value" (similar to Excel XMATCH/XLOOKUP match_mode -1 or 1)
-
-**Read**: [./modeling_segmentation_tiered_lookup.md](./modeling_segmentation_tiered_lookup.md) - Pattern with IF + REMOVE FIRSTNONBLANK/LASTNONBLANK, floor/ceiling variants, dimension order, best practices.
-
-For modifier syntax (REMOVE, FIRSTNONBLANK, LASTNONBLANK): [../writing-pigment-formulas/formula_modifiers.md](../writing-pigment-formulas/formula_modifiers.md).
-
-### 14. FX / Currency conversion
-
-**Tasks**:
-
-- "How do I set up FX rates?" / "Currency conversion in P&L or Balance Sheet?"
-- "Reporting currency vs local vs group currency?"
-- "When to use AVG rate vs END rate?"
-- "What is Push_DH_FX_* and how does the FX Hub work?"
-- "Triangulation for currency pairs?"
-- "Entity currency mapping for multi-currency consolidation?"
-
-**Read**: [../solving-specific-use-cases/fx_currency_conversion.md](../solving-specific-use-cases/fx_currency_conversion.md)
+## Minimal Viable Application
+
+Concrete shape of a well-formed micro-app. Generalize from this pattern.
+
+```
+Folders:
+  01. Dimensions
+  02. Library
+  03. Data Loads
+  04. Reporting
+
+Dimensions:
+  Country       items: FR, US, UK         property: Region [Dim]
+  Product       items: P1, P2             property: Category [Dim]
+  Calendar      Month, Quarter, Year      (existing)
+  Version       items: Budget FY26, Reforecast Q2 FY26, ...     (Actual is optional)
+                properties: Start_Month, End_Month, Switchover_Month,
+                            Active_Version [Bool], Lock_Version [Bool],
+                            Version_Type [Dim] (MP02-safe Actual ref)
+                Boolean metrics: Is_Version, Is_Actual, Is_Plan (layer Actual vs Plan)
+
+Transaction List:
+  LOAD_Sales    props: Country [Dim], Product [Dim], Date, Amount [Number]
+
+Metrics:
+  DATA_Sales_Amount    [Country x Product x Month x Version]
+    LOAD_Sales.Amount [BY SUM: LOAD_Sales.Country, LOAD_Sales.Product,
+                       TIMEDIM(LOAD_Sales.Date, Month)]
+  INPUT_Budget         [Country x Product x Month x Version]   user input, scoped via Version_Type = "Budget" (MP02-safe)
+  CALC_Variance        [Country x Product x Month x Version]   DATA_Sales_Amount - INPUT_Budget
+  OUTPUT_Net_Revenue   [Country x Product x Month x Version]   thin reporting metric
+
+Table:
+  P&L (rows = OUTPUT_ metrics, dims = Country x Month x Version)
+```
 
 ---
 
-## Moving to Formula Implementation
+## Critical Rules
 
-Once model designed, move to formula writing.
-
-**Use writing-pigment-formulas skill for**:
-
-- Writing and debugging formula syntax
-- Detailed function documentation (CUMULATE, SHIFT, ITEM, etc.)
-- Detailed modifier documentation (BY, ADD, REMOVE, SELECT, FILTER)
-- Formula writing workflow
-- Technical implementation of aggregation, allocation, transformation
-
----
-
-## Quick Reference
-
-| Topic                                    | File                                                                                                         |
-| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| Fundamentals                             | [modeling_fundamentals.md](./modeling_fundamentals.md)                                                       |
-| Dimension list vs Transaction list (metric structure, BY pattern) | [modeling_fundamentals.md](./modeling_fundamentals.md) - Section 2.3 |
-| Dimensions & Hierarchies                 | [modeling_dimensions_and_hierarchies.md](./modeling_dimensions_and_hierarchies.md)                           |
-| Folder Structure                         | [modeling_principles.md](./modeling_principles.md) - Section 1                                               |
-| Naming Conventions                       | [modeling_naming_conventions.md](./modeling_naming_conventions.md)                                           |
-| Best Practices Rules (28)                | [modeling_principles.md](./modeling_principles.md) - Section 8                                               |
-| Time & Calendars                         | [modeling_time_and_calendars.md](./modeling_time_and_calendars.md)                                           |
-| Modifiers (syntax)                       | [formula_modifiers.md](../writing-pigment-formulas/formula_modifiers.md)                                     |
-| Scenarios vs Versions                    | [modeling_scenarios_and_versions.md](./modeling_scenarios_and_versions.md)                                   |
-| Performance                              | [modeling_performance_considerations.md](./modeling_performance_considerations.md)                           |
-| Centralized Reporting Metrics            | [finance_nexus_financial_statements.md](../solving-specific-use-cases/finance_nexus_financial_statements.md) |
-| Access Rights (design, rules, debug)     | [modeling_access_rights.md](./modeling_access_rights.md)                                                     |
-| App audit (modeling, UX, governance)     | [modeling_application_auditing.md](./modeling_application_auditing.md)                                       |
-| Application cleaning (deletion workflow) | [modeling_application_cleaning.md](./modeling_application_cleaning.md)                                       |
-| Architecture design (5 pillars)          | [modeling_architecture_design.md](./modeling_architecture_design.md)                                         |
-| Test & Deploy (when used)               | [modeling_principles.md](./modeling_principles.md) - Section 9                                               |
-| List Subsets (when to use, risks, patterns) | [modeling_subsets.md](./modeling_subsets.md)                                                             |
-| Segmentation (tiered / banded lookup)   | [modeling_segmentation_tiered_lookup.md](./modeling_segmentation_tiered_lookup.md)                         |
-| FX / Currency conversion (Hub pattern)  | [fx_currency_conversion.md](../solving-specific-use-cases/fx_currency_conversion.md)                       |
-| What the agent cannot do (UI only)      | `skill:agent-capabilities-and-behavior`    |
+- **Architecture before blocks.** Dimensional structure is the single most expensive decision. Design before building.
+- **Only dimension lists can be structural.** Transaction lists never. Aggregate with `BY`.
+- **Never use `.` or `:` in names.** They break formula references.
+- **Never place a block at the root level.**
+- **Never reference an item directly in a formula** when T&D is in use. Use an input metric of type Dimension.
+- **List Subsets are not a default.** Membership change deletes data irreversibly. Prefer filters.
+- **Reuse the app calendar.** Never create parallel time dimensions.
+- **Always model planning cycles with a Version Dimension.** Consult `skill:planning-cycles-pigment-applications` whenever a planning cycle is in scope.
 
 ---
 
-## Documentation Files
+## Deeper Dives
 
-- [./modeling_fundamentals.md](./modeling_fundamentals.md) - Platform fundamentals
-- [./modeling_dimensions_and_hierarchies.md](./modeling_dimensions_and_hierarchies.md) - Dimensional modeling, hierarchies, structure decisions
-- [./modeling_naming_conventions.md](./modeling_naming_conventions.md) - Comprehensive naming conventions for all Pigment elements
-- [./modeling_principles.md](./modeling_principles.md) - Folder structure, best practices (28 rules)
-- [./modeling_time_and_calendars.md](./modeling_time_and_calendars.md) - Calendar configuration and time dimensions
-- [./modeling_scenarios_and_versions.md](./modeling_scenarios_and_versions.md) - Planning cycles
-- [./modeling_performance_considerations.md](./modeling_performance_considerations.md) - Performance
-- [../solving-specific-use-cases/finance_nexus_financial_statements.md](../solving-specific-use-cases/finance_nexus_financial_statements.md) - Centralized reporting metric pattern for P&L/Balance Sheet and reporting aggregation
-- [./modeling_access_rights.md](./modeling_access_rights.md) - Access Rights design, Apply/Ignore rules, patterns, debugging, governance
-- [./modeling_application_auditing.md](./modeling_application_auditing.md) - Audit app (modeling, formulas, folders, boards, governance, cleanup) and report with severity
-- [./modeling_application_cleaning.md](./modeling_application_cleaning.md) - Deletion-only application cleaning, unused definitions, mandatory order, boards by usage
-- [./modeling_architecture_design.md](./modeling_architecture_design.md) - Pigment architecture design across 5 pillars
-- [./modeling_subsets.md](./modeling_subsets.md) - List subsets: when to use vs avoid, data-loss risks, decision checklist, safe patterns (STORE/CALC, dropdown on parent, remap to parent)
-- [./modeling_segmentation_tiered_lookup.md](./modeling_segmentation_tiered_lookup.md) - Tiered/banded lookup: assign items to bands/tiers from thresholds on a dimension (IF + REMOVE FIRSTNONBLANK/LASTNONBLANK)
-- [../solving-specific-use-cases/fx_currency_conversion.md](../solving-specific-use-cases/fx_currency_conversion.md) - FX currency conversion: Hub app, FX_01/FX_02/Push_DH_FX_* layers, AVG vs END, reporting currency, entity mapping
-- `skill:agent-capabilities-and-behavior` - What the agent cannot do (UI only)
----
+Open only when the task requires the detail.
 
-## Cross-References
-
-**After Modeling**: writing-pigment-formulas (formulas), designing-pigment-boards (boards), integrating-pigment-data (data import), optimizing-pigment-performance (optimization)
-
----
-
-## Critical Notes
-
-- **Only dimension lists can be used in metric structure**
-- **Start with understanding intent** - Clarify what you're building and why
-- **Think CRUD** - Create prerequisites before dependent components
-- **Follow Pigment Modeling Best Practices standards** - Reference [modeling_principles.md](./modeling_principles.md) regularly
-- **Always apply naming conventions when creating blocks** - See Quick Naming Rules section above
-- **Dimension vs property decision is critical** - Wrong choice causes rework
-- **Type selection is critical** - Use Dimension for categorical/hierarchical, Number for quantitative, Date for temporal, Text for descriptive, Boolean for flags
-- **Metric vs transaction list decision is critical** - Impacts performance and design
-- **Centralized Reporting Metric = final aggregation for reporting** - Use one centralizing metric per financial view; keep detailed logic upstream and use Push/Pull for security
-- **AR: Build != Apply** - Create AR metric then create Apply rule in Data access rights; use BLANK not FALSE; guard with IFDEFINED('Users roles', ...)
-- **App audit** - Use modeling_application_auditing for full audits; delegate formula/perf details to writing-pigment-formulas and optimizing-pigment-performance; always validate cleanup with user
-- **Architecture first** - Dimensional structure is the most critical decision; design architecture before building; challenge any metric structure with more than 5 dimensions
-- **Test & Deploy safety** - See Modeling Principles section 4 (baseline: no direct item reference) and section 9 (when T&D is used: both rules, context, enforcement)
-- **Folder placement** - Never create blocks in "No Folder". Always choose the appropriate folder from the application's Blocks folders (see [Working with Folders](./modeling_working_with_folders.md) – Placing new blocks); use block type and purpose (e.g. dimension → Dimensions folder, PUSH_/PULL_ → Library, DATA_ → Data Loads or themed Data) to decide.
-- **Feature coverage** - Not all Pigment features are available in the agent's tools (e.g. access rights config, permissions, automations, list duplicate, formula update). Check `skill:agent-capabilities-and-behavior` and direct the user to the UI when needed.
-- **List Subsets** - Use only when they add clear value (mirror dimensions, targeted iterative perf, restricted dropdown with data on parent). Always warn about irreversible data loss on membership change and need for explicit parent remapping. Prefer filters or a regular list for "smaller list for analysis/input" unless a valid subset use case applies. See [modeling_subsets.md](./modeling_subsets.md).
+| Need | Doc |
+|---|---|
+| Engine, sparsity, dimension list vs transaction list, BY pattern, IFDEFINED vs ISBLANK | [./modeling_fundamentals.md](./modeling_fundamentals.md) |
+| Hierarchies, ragged hierarchies, mapped dimensions, dimension explosion | [./modeling_dimensions_and_hierarchies.md](./modeling_dimensions_and_hierarchies.md) |
+| Calendars, fiscal year, date range, time dimension mechanics | [./modeling_time_and_calendars.md](./modeling_time_and_calendars.md) |
+| End-to-end architecture design (5 pillars, Hub pattern, UX, data flow, governance) | [./modeling_architecture_design.md](./modeling_architecture_design.md) |
+| Naming conventions (prefixes, casing, character rules) | [./modeling_naming_conventions.md](./modeling_naming_conventions.md) |
+| Modeling principles, T&D safety, data loading strategy | [./modeling_principles.md](./modeling_principles.md) |
+| Folder placement decisions | [./modeling_working_with_folders.md](./modeling_working_with_folders.md) |
+| List Subsets: safe patterns and data-loss risks | [./modeling_subsets.md](./modeling_subsets.md) |
+| Design-time performance (1G cells, masks, table consolidation) | [./modeling_performance_considerations.md](./modeling_performance_considerations.md) |
+| Centralized Reporting Metric (P&L, Balance Sheet aggregation) | [`../solving-specific-use-cases/finance_nexus_financial_statements.md`](../solving-specific-use-cases/finance_nexus_financial_statements.md) |
+| FX / currency conversion (Hub pattern, AVG vs END, entity mapping) | [`../solving-specific-use-cases/fx_currency_conversion.md`](../solving-specific-use-cases/fx_currency_conversion.md) |
+| Modifier syntax (BY, ADD, REMOVE, SELECT, FILTER) | [`../writing-pigment-formulas/formula_modifiers.md`](../writing-pigment-formulas/formula_modifiers.md) |

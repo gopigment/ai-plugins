@@ -177,7 +177,7 @@ Data granularity is critical. When **available data granularity** does not match
 
 **Objective:** Determine application structure based on ownership, access, and sensitivity.
 
-For detailed guidance on application structure, hub pattern, and folder organization, see [modeling_principles.md](./modeling_principles.md). For Access Rights design, see [modeling_access_rights.md](./modeling_access_rights.md).
+For detailed guidance on application structure, hub pattern, and folder organization, see [modeling_principles.md](./modeling_principles.md). For Access Rights design, see `skill:securing-pigment-applications` ([securing_access_rights.md](../securing-pigment-applications/securing_access_rights.md)).
 
 ### Key Decisions
 
@@ -228,7 +228,7 @@ For detailed guidance on application structure, hub pattern, and folder organiza
 
 **Objective:** Design version management and historical plan protection. The planning cycle (version/scenario management) is why customers adopt EPM tools: to plan budgets, reforecasts, and compare against actuals.
 
-For detailed guidance on scenarios vs version dimensions, see [modeling_scenarios_and_versions.md](./modeling_scenarios_and_versions.md).
+For detailed guidance on scenarios vs version dimensions, see `skill:planning-cycles-pigment-applications`.
 
 ### Version Dimension
 
@@ -304,6 +304,6 @@ Before locking the architecture, validate:
 - [./modeling_dimensions_and_hierarchies.md](./modeling_dimensions_and_hierarchies.md) - Hierarchies, dimension vs property
 - [./modeling_principles.md](./modeling_principles.md) - Folder structure, hub, Library
 - [./modeling_naming_conventions.md](./modeling_naming_conventions.md) - Naming conventions
-- [./modeling_scenarios_and_versions.md](./modeling_scenarios_and_versions.md) - Scenarios vs version dimension, planning cycles
+- `skill:planning-cycles-pigment-applications` - Scenarios vs version dimension, planning cycles
 - [./modeling_time_and_calendars.md](./modeling_time_and_calendars.md) - Time dimensions and calendars
-- [./modeling_access_rights.md](./modeling_access_rights.md) - Access rights design and governance
+- `skill:securing-pigment-applications` - Access rights design and governance

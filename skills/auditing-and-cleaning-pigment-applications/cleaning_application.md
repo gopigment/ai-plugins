@@ -185,6 +185,6 @@ When executing a cleaning task:
 
 ## See Also
 
-- [modeling_application_auditing.md](./modeling_application_auditing.md) - Full app audit (surfaces candidates; this doc defines deletion workflow)
-- [modeling_principles.md](./modeling_principles.md) - Folder structure, MP06 hygiene
-- [modeling_naming_conventions.md](./modeling_naming_conventions.md) - Naming conventions (including Applications ZZ\_)
+- [auditing_application.md](./auditing_application.md) - Full app audit (surfaces candidates; this doc defines deletion workflow)
+- [modeling_principles.md](../modeling-pigment-applications/modeling_principles.md) - Folder structure, MP06 hygiene
+- [modeling_naming_conventions.md](../modeling-pigment-applications/modeling_naming_conventions.md) - Naming conventions (including Applications ZZ\_)

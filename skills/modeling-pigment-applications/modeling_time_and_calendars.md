@@ -115,7 +115,7 @@ You can extend a calendar's date range without affecting existing data.
 
 ### Distinguishing Actuals from Plan periods
 
-To distinguish historical Actuals from future Plan periods in a planning model, use the **Version Dimension Switchover** pattern documented in `modeling_scenarios_and_versions.md`. The pattern uses a **Switchover Month (or Year) Property on the Version Dimension** plus the **Is Version / Is Actual / Is Plan** Boolean Metrics to layer Actuals and plan data per Version.
+To distinguish historical Actuals from future Plan periods in a planning model, use the **Version Dimension Switchover** pattern documented in [`../planning-cycles-pigment-applications/SKILL.md`](../planning-cycles-pigment-applications/SKILL.md) (skill: `planning-cycles-pigment-applications`). The pattern uses a **Switchover Month (or Year) Property on the Version Dimension** plus the **Is Version / Is Actual / Is Plan** Boolean Metrics to layer Actuals and plan data per Version. Calendars do not handle this; do not use Calendar tools for versioning.
 
 ### Time Dimensions Selection
 

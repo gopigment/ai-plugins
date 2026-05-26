@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The Pigment formula profiler is a powerful computation tracking feature that helps you understand how metrics are calculated, where performance bottlenecks exist, and how scope propagates through your computation chains. Mastering the profiler is essential for effective performance optimization.
+The Pigment change profiler is a powerful computation tracking feature that helps you understand how metrics are calculated, where performance bottlenecks exist, and how scope propagates through your computation chains. Mastering the profiler is essential for effective performance optimization.
 
 This guide covers practical profiler usage: what the profiler shows, how to interpret its output, and how to use it for performance debugging.
 
@@ -35,7 +35,7 @@ All metrics that reference this initial metric should also have scoped computati
 
 ### Scope Notation
 
-The profiler displays the **outbound scope** (result of computation) on each dimension involved in the structure of every metric within the computation chain.
+The profiler displays the **effective scope** (used during computation) on each dimension involved in the structure of every metric within the computation chain.
 
 **Notation format**: `X/Y` where:
 
@@ -54,7 +54,7 @@ The profiler uses three color codes to represent scope behavior:
 
 #### ⚫ Black Chip - Scope Preserved
 
-**Meaning**: No change in scope. The metric simply carries forward the inbound scope it received, if any, without altering or extending it.
+**Meaning**: No change in scope. The metric simply carries forward the inbound scope it received, if any, without altering or extending it. It means effective scope and output scope are equivalent.
 
 **What happens**: This scope will continue downstream to the next metrics in the chain.
 
@@ -64,7 +64,7 @@ The profiler uses three color codes to represent scope behavior:
 
 #### 🔵 Blue Chip - Scope Introduction
 
-**Meaning**: Positive scope change. The metric did not receive this specific inbound scope for one or more dimensions, but is adding it to the next dependent executions.
+**Meaning**: Positive scope change. The metric did not receive this specific inbound scope for one or more dimensions, but is adding it to the next dependent executions. It means we had extra scoped dimensions in output scope compared to effective scope.
 
 **What happens**: This newly introduced scope will be passed to downstream metrics, potentially triggering their recalculation.
 
@@ -150,7 +150,7 @@ Certain modeler actions can completely remove the scope of a metric.
 ### CUMULATE and Time Functions
 
 ```pigment
-'Monthly Revenue'[CUMULATE: Month]
+CUMULATE('Monthly Revenue', Month)
 ```
 
 **Result**: Scope lost on the `Month` dimension because Pigment needs to compute A to compute B (sequential dependency).
@@ -400,6 +400,7 @@ Improvement: 57% faster
 5. **Use mappings** - Prefer BY with mappings over REMOVE + ADD
 6. **Profile after changes** - Verify your optimization worked
 7. **Document findings** - Note which patterns caused issues for future reference
+8. **Vocabulary** - Never use API terms but prefer natural language when explaining to users
 
 ## See Also
 

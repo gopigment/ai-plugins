@@ -1,49 +1,48 @@
 ---
-name: integrating-pigment-data
-description: Use this skill ONLY when the user has attached a CSV file (visible in <file_attachments>) OR has explicitly asked to import CSV data into Pigment. Tasks covered - importing CSV files, mapping CSV columns to properties, deciding whether to import into dimensions vs transaction lists, configuring cross-application imports, troubleshooting data import issues. Do NOT use this skill for formula updates, list creation without CSV import, or any task where no CSV file is present. This skill includes supporting files in this directory - explore as needed.
+name: integrating-external-data
+description: Always use this skill when creating new lists to import CSV data into, importing CSV files into Pigment, mapping CSV columns to properties, deciding whether to import into dimensions vs transaction lists, configuring cross-application imports, troubleshooting data import issues, or importing excel files. This skill includes supporting files in this directory - explore as needed.
 metadata:
-  skill_path: /integrating-pigment-data/SKILL.md
-  base_directory: /integrating-pigment-data
+  skill_path: /integrating-external-data/SKILL.md
+  base_directory: /integrating-external-data
   includes:
     - "*.md"
 ---
 
-# How to Use This Skill
 
-**Progressive Disclosure Pattern**: This `SKILL.md` provides an overview. Most details live in supporting files.
-
-**This file alone is often not sufficient**
-
-**Required workflow**:
-
-1. **Read this file first** - Understand available resources and when to use them
-2. **Identify relevant topics** - Match your task to any of the supporting documents
-3. **Read supporting files** - Use `tool:read_file` or `tool:grep` to access detailed documentation
-4. **Explore as needed** - Use `tool:ls`, `tool:grep`, or `tool:glob` to discover additional resources in this directory (some might not be explicitly mentioned in this file)
-
-# Integrating Pigment Data
+# Integrating External Data
 
 This skill provides guidance for importing external data into Pigment applications efficiently.
 
 ## When to Use This Skill
 
+There are three broad use-cases.
+
+1. Direct CSV Import Workflow
+
 - **Create lists for CSV import** - Creating new dimensions or transaction lists that will receive CSV data
 - **Import CSV files** - Loading data from CSV into dimensions or transaction lists
 - **Map CSV columns** - Matching columns to properties using semantic matching
 - **Decide import targets** - Choosing between dimensions and transaction lists
+
+2. Direct Excel import Workflow
+
+- **Excel import** - Importing an excel spreadsheet
+
+3. Generic information on how to create import connector in Pigment
+
 - **Configure P2P imports** - Moving data between Pigment applications
 - **Optimize import performance** - Scoping and filtering strategies
 - **Troubleshoot imports** - Resolving connector issues and data quality problems
 
-## Import Workflow
+# Direct CSV Import Workflow
 
-### Step 1: Identify Data Type
+## Step 1: Identify Data Type
 
 - [ ] Determine if master data (entities like customers, products) or transactional data (events like orders, sales)
 - [ ] Search this SKILL.md for relevant section
 - [ ] Read documentation files listed
 
-### Step 2: Decide Import Target
+## Step 2: Decide Import Target
 
 **Use Decision Framework:**
 
@@ -54,14 +53,12 @@ This skill provides guidance for importing external data into Pigment applicatio
 | Static entities with properties               | **Dimension**        | Need to maintain properties/hierarchies |
 | Granular event-based data                     | **Transaction List** | Aggregate to metrics using formulas     |
 
-### Step 3: Map Columns & Import
+## Step 3: Map Columns & Import
 
 - [ ] Map CSV columns to properties (semantic matching handles translations/abbreviations/synonyms)
 - [ ] Create missing properties if needed
 - [ ] Configure and execute import
 - [ ] Validate results
-
----
 
 ## Prerequisites
 
@@ -72,21 +69,6 @@ This skill provides guidance for importing external data into Pigment applicatio
 
 **If unfamiliar** → Use modeling-pigment-applications skill first
 
----
-
-## Task-Based Routing
-
-### Importing CSV Data
-
-**🚨 CRITICAL: Before importing CSV, read the CRITICAL RULES section in data_import_csv.md**
-
-**Questions**:
-
-- "Should I import this CSV into a dimension or transaction list?"
-- "How do I map CSV columns to dimension properties?"
-- "How do I handle semantic matching for column names?"
-- "Should I create separate dimensions for columns with repeated values?"
-
 **Read**: [./data_import_csv.md](./data_import_csv.md)
 
 **Quick Decision**:
@@ -94,7 +76,11 @@ This skill provides guidance for importing external data into Pigment applicatio
 - Master data (customers, products, employees) → **Dimension**
 - Transactional data (orders, sales, movements) → **Transaction List**
 
-### Understanding Integration Types
+# Direct Excel Import Workflow
+
+Excel imports are to be done according to the instructions in [./excel_import.md](./excel_import.md)
+
+# Generic information on how to create import connector in Pigment
 
 **Questions**:
 
@@ -182,6 +168,7 @@ This skill provides guidance for importing external data into Pigment applicatio
 
 - **[./integration_overview.md](./integration_overview.md)** - Integration patterns and best practices
 - **[./data_import_csv.md](./data_import_csv.md)** - CSV import to dimensions and decision framework
+- **[./excel_import.md](./excel_import.md)** - Excel import guidelines
 
 ---
 

@@ -218,7 +218,7 @@ Check: (1) Rule actually applied and enabled? (2) Correct dimension in rule scop
 ## 13. Governance and Naming
 
 - **Security dashboard**: central place for User<->Role, AR matrices, documentation.
-- **Naming**: e.g. AR_Country, Bool_Country_Read_Allowed, Map_User_to_Region. Clear prefixes help modelers and agents. Align with general conventions in [modeling_naming_conventions.md](./modeling_naming_conventions.md).
+- **Naming**: e.g. AR_Country, Bool_Country_Read_Allowed, Map_User_to_Region. Clear prefixes help modelers and agents. Align with general conventions in [modeling_naming_conventions.md](../modeling-pigment-applications/modeling_naming_conventions.md).
 - **Refactoring**: Prefer role-based AR and dimension replacement when scaling. Test with impersonation before rollout.
 
 ---
@@ -267,4 +267,4 @@ Check: (1) Rule actually applied and enabled? (2) Correct dimension in rule scop
 
 - [functions_security.md](../writing-pigment-formulas/functions_security.md) - ACCESSRIGHTS, RESETACCESSRIGHTS syntax
 - [performance_access_rights.md](../optimizing-pigment-performance/performance_access_rights.md) - AR performance, IFDEFINED(User)
-- [modeling_principles.md](./modeling_principles.md) - MS12, MP10, Roles, security folder
+- [modeling_principles.md](../modeling-pigment-applications/modeling_principles.md) - MS12, MP10, Roles, security folder

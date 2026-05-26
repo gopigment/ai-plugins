@@ -31,7 +31,7 @@ Check this before proposing any action. If listed here, first query the **docume
 | View formatting | Colors, conditional formatting, number formats |
 | Org Chart, Geo Map | |
 | Scenarios | |
-| Access Rights | See [modeling_access_rights.md](../modeling-pigment-applications/modeling_access_rights.md) |
+| Access Rights | See `skill:securing-pigment-applications` |
 | Permissions | |
 | Sequences | |
 | Automations | |

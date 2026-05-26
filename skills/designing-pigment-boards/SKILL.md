@@ -8,8 +8,6 @@ metadata:
     - "*.md"
 ---
 
-** CRITICAL:** You must read and apply the widgets sizing guidelines: [board_widget_sizes.md](./board_widget_sizes.md)
-
 # How to Use This Skill
 
 **Progressive Disclosure Pattern**: This `SKILL.md` provides an overview. Most details live in supporting files.
@@ -55,8 +53,8 @@ When doing the following tasks, you MUST read these documents:
 
 - When creating or editing a Board:
   - Must read to the end: [board_design_rules.md](./board_design_rules.md)
-  - ** CRITICAL:** You must read and apply the widgets sizing guidelines: [board_widget_sizes.md](./board_widget_sizes.md)
   - Must read: [board_pages.md](./board_pages.md)
+  - Apply the inline widget sizing rules in the **Widget Sizing** section below.
 
 - When you need a View:
   - Read [relevant_views.md](./relevant_views.md) and [view_widgets.md](./view_widgets.md) (**CRITICAL** for widgets).
@@ -223,4 +221,18 @@ Focus on:
 
 ### 3. FINALLY: Widget Sizing
 
-- Apply Standard widget sizing consistently for each widget.
+You MUST follow these height guidelines. When a data widget has a title, add 1 to the minimum height.
+
+| Widget type | Height |
+|---|---|
+| Text (title only) | 2 |
+| Text (title + subtitle) | 3 |
+| Spacer | 1 |
+| KPI without title | 4-6 |
+| KPI with title | 5-7 |
+| Chart without title | 11-18 |
+| Chart with title | 12-18 |
+| Grid without title | 11-24 |
+| Grid with title | 12-24 |
+
+Chart/Grid height depends on data complexity (rows, columns, legends, axis labels).

@@ -355,7 +355,7 @@ Pigment is most likely to contain sensitive information. Always start with the m
 - Setup centralized, clear, and robust access rights rules that can be easily audited
 
 For comprehensive guidance on access rights and security, see:
-- [Modeling Access Rights](./modeling_access_rights.md)
+- `skill:securing-pigment-applications` ([securing_access_rights.md](../securing-pigment-applications/securing_access_rights.md))
 - [Performance - Access Rights](../optimizing-pigment-performance/performance_access_rights.md)
 
 #### MG11 - Sharing: Only What's Necessary
@@ -374,7 +374,7 @@ The **Scenario** feature that Pigment offers natively, as opposed to a classical
 
 **Recommendation:** For more flexibility and to fully accommodate your planning needs, using a normal **Dimension** to model your planning cycle is recommended. Begin by creating a Version Dimension in your central hub Application. Incorporate this Dimension into your Metrics structure, either for input data (usually in Tables) or for building your calculation logic. Maintain a live version of data that is regularly updated, and couple it with the **Clone data to** functionality, which replicates inputs across various planning phases. Finally, configure read and write access rights to effectively manage visibility and editing permissions for the different planning stages.
 
-**For comprehensive guidance on when to use Native Scenarios vs Version Dimensions, see [modeling_scenarios_and_versions.md](./modeling_scenarios_and_versions.md).**
+**ALWAYS read `skill:planning-cycles-pigment-applications` before structuring any planning metric.** The Version Dimension is foundational: switchover semantics, the Is Actual / Is Plan / Is Version Boolean metrics, and Actual/Plan layering must be wired correctly upfront. Treat that skill as a required companion to this one, not an optional reference.
 
 ### MS - Modeling for Speed
 
