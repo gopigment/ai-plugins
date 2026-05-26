@@ -42,7 +42,7 @@ Produce:
 
 ### 2.2 Hardcoding & Time & Date Risks
 
-**Use:** [modeling_principles.md](./modeling_principles.md) (sections 4 and 9 for deployment-safe formulas and Test & Deploy when used); [modeling_time_and_calendars.md](./modeling_time_and_calendars.md) and `skill:writing-pigment-formulas` for time/date functions.
+**Use:** [`../modeling-pigment-applications/modeling_principles.md`](../modeling-pigment-applications/modeling_principles.md) (sections 4 and 9 for deployment-safe formulas and Test & Deploy when used); [`../modeling-pigment-applications/modeling_time_and_calendars.md`](../modeling-pigment-applications/modeling_time_and_calendars.md) and `skill:writing-pigment-formulas` for time/date functions.
 
 **Detect:**
 
@@ -56,7 +56,7 @@ Produce:
 
 ## 3. Metric Hygiene & Cleanup
 
-**For strict deletion workflow and machine-readable definition of "unused", use [modeling_application_cleaning.md](./modeling_application_cleaning.md).** The audit surfaces **candidates** and **recommendations**; the application cleaning doc defines order of deletion, observation period, and board usage rules.
+**For strict deletion workflow and machine-readable definition of "unused", use [cleaning_application.md](./cleaning_application.md).** The audit surfaces **candidates** and **recommendations**; the application cleaning doc defines order of deletion, observation period, and board usage rules.
 
 ### 3.1 Unused Metrics (Audit View)
 
@@ -65,7 +65,7 @@ Produce:
 - Are not referenced anywhere (no other metric, table, or board references them) — aligns with application cleaning's "unused" for metrics when downstream + UI exposure = 0
 - Look like legacy remnants of past refactors
 
-**Recommend:** Flag as deletion candidates. For actual deletion, follow [modeling_application_cleaning.md](./modeling_application_cleaning.md): hide -> observe -> delete, in mandatory order (dimensions -> metrics -> tables -> properties). Validate with user before deletion when uncertain.
+**Recommend:** Flag as deletion candidates. For actual deletion, follow [cleaning_application.md](./cleaning_application.md): hide -> observe -> delete, in mandatory order (dimensions -> metrics -> tables -> properties). Validate with user before deletion when uncertain.
 
 ### 3.2 Temporary / Copy Metrics
 
@@ -83,7 +83,7 @@ Produce:
 - Are they actually reused by other applications or blocks?
 - Or shared "just in case" with no consumers?
 
-**Recommend:** Un-share unused shared metrics; consolidate duplicates where appropriate. See Library folder usage in [modeling_principles.md](./modeling_principles.md).
+**Recommend:** Un-share unused shared metrics; consolidate duplicates where appropriate. See Library folder usage in [modeling_principles.md](../modeling-pigment-applications/modeling_principles.md).
 
 ---
 
@@ -91,7 +91,7 @@ Produce:
 
 ### 4.1 Metric Folder Structure
 
-**Use:** [modeling_principles.md](./modeling_principles.md) (OX folders, themed folders).
+**Use:** [modeling_principles.md](../modeling-pigment-applications/modeling_principles.md) (OX folders, themed folders).
 
 **Identify:**
 
@@ -106,11 +106,11 @@ Produce:
 - Outputs
 - Technical / Helper (and consider hiding non-business blocks from end users)
 
-**Note:** Folder organization is **Phase 2 / optional** in [modeling_application_cleaning.md](./modeling_application_cleaning.md); audit can recommend it as hygiene, but it is not part of deletion-only cleaning.
+**Note:** Folder organization is **Phase 2 / optional** in [cleaning_application.md](./cleaning_application.md); audit can recommend it as hygiene, but it is not part of deletion-only cleaning.
 
 ### 4.2 "No Folder" Cleanup
 
-**Prevention:** When creating blocks, always assign a folder. Never create in "No Folder". See [Working with Folders](./modeling_working_with_folders.md) – Placing new blocks.
+**Prevention:** When creating blocks, always assign a folder. Never create in "No Folder". See [Working with Folders](../modeling-pigment-applications/modeling_working_with_folders.md) – Placing new blocks.
 
 **Identify:** Blocks (metrics, lists) not assigned to any folder.
 
@@ -126,13 +126,13 @@ Produce:
 
 **Check:** Logical grouping of boards by business purpose (e.g. Input / Review / Analysis / Admin). Flag flat or deeply nested structures that hurt findability.
 
-**Recommend:** Clear separation by purpose; consistent naming (e.g. prefixes like IN-, REV-, ADM- if adopted). See [modeling_naming_conventions.md](./modeling_naming_conventions.md).
+**Recommend:** Clear separation by purpose; consistent naming (e.g. prefixes like IN-, REV-, ADM- if adopted). See [modeling_naming_conventions.md](../modeling-pigment-applications/modeling_naming_conventions.md).
 
 ### 5.2 Board Naming Conventions
 
 **Identify:** Ambiguous or inconsistent board names.
 
-**Recommend:** Business-oriented naming; align with [modeling_naming_conventions.md](./modeling_naming_conventions.md) and board skills.
+**Recommend:** Business-oriented naming; align with [modeling_naming_conventions.md](../modeling-pigment-applications/modeling_naming_conventions.md) and board skills.
 
 ### 5.3 Board Size & Performance
 
@@ -144,13 +144,13 @@ Produce:
 
 ### 5.4 Unused Boards (Audit vs Cleaning)
 
-**Audit:** Flag boards that appear unused (e.g. no recent use, or only admin viewers). For **deletion** and classification (ACTIVE / STALE / DEAD), use [modeling_application_cleaning.md](./modeling_application_cleaning.md): definition is usage-based (view_count, unique_non_admin_viewers, time window); DEAD boards follow tag -> notify -> contestation -> delete. Audit does not replace the application cleaning workflow.
+**Audit:** Flag boards that appear unused (e.g. no recent use, or only admin viewers). For **deletion** and classification (ACTIVE / STALE / DEAD), use [cleaning_application.md](./cleaning_application.md): definition is usage-based (view_count, unique_non_admin_viewers, time window); DEAD boards follow tag -> notify -> contestation -> delete. Audit does not replace the application cleaning workflow.
 
 ---
 
 ## 6. Governance & Access Rights
 
-**Use:** [modeling_access_rights.md](./modeling_access_rights.md) and [modeling_principles.md](./modeling_principles.md) (MS12, MP10, security).
+**Use:** `skill:securing-pigment-applications` and [modeling_principles.md](../modeling-pigment-applications/modeling_principles.md) (MS12, MP10, security).
 
 **Identify:**
 
@@ -163,7 +163,7 @@ Produce:
 
 ## 7. App Cleanup & Maintenance (Validate with User)
 
-**For strict deletion workflow and definitions, see [modeling_application_cleaning.md](./modeling_application_cleaning.md).** Below is the audit-oriented view.
+**For strict deletion workflow and definitions, see [cleaning_application.md](./cleaning_application.md).** Below is the audit-oriented view.
 
 ### 7.1 Restored Blocks
 
@@ -171,13 +171,13 @@ Pigment’s **Restore block** feature restores previously deleted blocks by crea
 
 **Identify:** The system folder containing restored blocks, and the blocks inside it.
 
-**Action:** Propose cleaning this folder if the user confirms they no longer need the restored blocks: either move blocks that are still needed to an appropriate folder (see [Working with Folders](./modeling_working_with_folders.md) – Placing new blocks), or delete unused ones. Validate with the user before removing any restored blocks. If deletion is confirmed, align with the application cleaning doc (order, observation, logging).
+**Action:** Propose cleaning this folder if the user confirms they no longer need the restored blocks: either move blocks that are still needed to an appropriate folder (see [Working with Folders](../modeling-pigment-applications/modeling_working_with_folders.md) – Placing new blocks), or delete unused ones. Validate with the user before removing any restored blocks. If deletion is confirmed, align with the application cleaning doc (order, observation, logging).
 
 ### 7.2 Snapshot Cleanup
 
 **Identify:** Old or unused snapshots.
 
-**Explain:** Impact on space and performance (see MP06 in [modeling_principles.md](./modeling_principles.md)).
+**Explain:** Impact on space and performance (see MP06 in [modeling_principles.md](../modeling-pigment-applications/modeling_principles.md)).
 
 **Action:** Validate with the user before deletion. Snapshot cleanup is not part of the structural/board cleaning order in the application cleaning doc but is part of general hygiene.
 
@@ -188,7 +188,7 @@ Pigment’s **Restore block** feature restores previously deleted blocks by crea
 - **Optimize for future maintainers:** Prefer explicit structure over convenience.
 - **Technical debt:** Treat hardcodes, temporary metrics (ZZ/TMP/COPY/test/TBD), and oversized boards as debt; call them out and prioritize by severity.
 - **Scale assumption:** Assume the app will grow in users, time horizon, and scenario complexity; flag design choices that will not scale.
-- **Delegation:** When a finding is about formula quality or performance, point to the relevant skill. When it is about **deletion of unused objects**, point to [modeling_application_cleaning.md](./modeling_application_cleaning.md) for workflow and definitions.
+- **Delegation:** When a finding is about formula quality or performance, point to the relevant skill. When it is about **deletion of unused objects**, point to [cleaning_application.md](./cleaning_application.md) for workflow and definitions.
 
 ---
 
@@ -207,19 +207,19 @@ Pigment’s **Restore block** feature restores previously deleted blocks by crea
 When findings come from or require deeper use of another skill, state it explicitly in the report:
 
 - **Formula quality / optimization:** `skill:writing-pigment-formulas`, `skill:optimizing-pigment-performance` (including [performance_troubleshooting_workflow.md](../optimizing-pigment-performance/performance_troubleshooting_workflow.md))
-- **Time & dates / T&D risks:** [modeling_principles.md](./modeling_principles.md) (sections 4 & 9 for T&D), [modeling_time_and_calendars.md](./modeling_time_and_calendars.md), `skill:writing-pigment-formulas` (time/date functions)
-- **Folder structure / governance:** [modeling_principles.md](./modeling_principles.md). **Naming:** [modeling_naming_conventions.md](./modeling_naming_conventions.md)
+- **Time & dates / T&D risks:** [modeling_principles.md](../modeling-pigment-applications/modeling_principles.md) (sections 4 & 9 for T&D), [modeling_time_and_calendars.md](../modeling-pigment-applications/modeling_time_and_calendars.md), `skill:writing-pigment-formulas` (time/date functions)
+- **Folder structure / governance:** [modeling_principles.md](../modeling-pigment-applications/modeling_principles.md). **Naming:** [modeling_naming_conventions.md](../modeling-pigment-applications/modeling_naming_conventions.md)
 - **Boards / UX:** `skill:designing-pigment-boards` (or advanced boards skill)
-- **Access rights:** [modeling_access_rights.md](./modeling_access_rights.md)
-- **Application cleaning (deletion workflow):** [modeling_application_cleaning.md](./modeling_application_cleaning.md) — for definition of "unused", order of deletion, observation period, board usage-based cleaning
+- **Access rights:** `skill:securing-pigment-applications` ([securing_access_rights.md](../securing-pigment-applications/securing_access_rights.md))
+- **Application cleaning (deletion workflow):** [cleaning_application.md](./cleaning_application.md) — for definition of "unused", order of deletion, observation period, board usage-based cleaning
 
 ---
 
 ## See Also
 
-- [modeling_principles.md](./modeling_principles.md) - Folder structure, MP06 hygiene
-- [modeling_naming_conventions.md](./modeling_naming_conventions.md) - Naming conventions (including Applications ZZ\_)
-- [modeling_application_cleaning.md](./modeling_application_cleaning.md) - Deletion-only application cleaning, unused definitions, mandatory order, boards by usage
+- [modeling_principles.md](../modeling-pigment-applications/modeling_principles.md) - Folder structure, MP06 hygiene
+- [modeling_naming_conventions.md](../modeling-pigment-applications/modeling_naming_conventions.md) - Naming conventions (including Applications ZZ\_)
+- [cleaning_application.md](./cleaning_application.md) - Deletion-only application cleaning, unused definitions, mandatory order, boards by usage
 - [performance_troubleshooting_workflow.md](../optimizing-pigment-performance/performance_troubleshooting_workflow.md) - Performance audit methodology
 - `skill:writing-pigment-formulas` - Formula workflow and quality
 - `skill:designing-pigment-boards` - Board structure and naming

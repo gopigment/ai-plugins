@@ -351,20 +351,20 @@ FILLFORWARD('Exchange Rate', Date)
 ### Common Mistakes
 
 ```pigment
-// ❌ WRONG: Using PREVIOUS for simple lookup
-'Last Month Revenue' = PREVIOUS(Month)
+// ❌ WRONG: Using PREVIOUS for simple lookup — 'Last Month Revenue'
+PREVIOUS(Month)
 
-// ✅ CORRECT: Using SELECT for lookup
-'Last Month Revenue' = 'Revenue'[SELECT: Month-1]
+// ✅ CORRECT: Using SELECT for lookup — 'Last Month Revenue'
+'Revenue'[SELECT: Month-1]
 
-// ❌ WRONG: Using PREVIOUSOF for comparison
-'MoM Change' = 'Revenue' - PREVIOUSOF('Revenue')
+// ❌ WRONG: Using PREVIOUSOF for comparison — 'MoM Change'
+'Revenue' - PREVIOUSOF('Revenue')
 
-// ✅ CORRECT: Using SELECT for comparison
-'MoM Change' = 'Revenue' - 'Revenue'[SELECT: Month-1]
+// ✅ CORRECT: Using SELECT for comparison — 'MoM Change'
+'Revenue' - 'Revenue'[SELECT: Month-1]
 
-// ✅ CORRECT: PREVIOUSOF for true iterative (balance depends on prior balance)
-'Ending Balance' = PREVIOUSOF('Ending Balance', 0) + 'Inflow' - 'Outflow'
+// ✅ CORRECT: PREVIOUSOF for true iterative (balance depends on prior balance) — 'Ending Balance'
+PREVIOUSOF('Ending Balance', 0) + 'Inflow' - 'Outflow'
 ```
 
 ### When PREVIOUS/PREVIOUSOF is Appropriate
@@ -372,11 +372,11 @@ FILLFORWARD('Exchange Rate', Date)
 Only use when the **current period's calculated result depends on the prior period's calculated result**:
 
 ```pigment
-// Running balance - current balance = prior balance + changes
-'Ending Balance' = PREVIOUSOF('Ending Balance', 0) + 'Inflow' - 'Outflow'
+// Running balance - current balance = prior balance + changes — 'Ending Balance'
+PREVIOUSOF('Ending Balance', 0) + 'Inflow' - 'Outflow'
 
-// Compounding - current value depends on prior calculated value
-'Compound Value' = PREVIOUSOF('Compound Value', 'Initial') * (1 + 'Growth Rate')
+// Compounding - current value depends on prior calculated value — 'Compound Value'
+PREVIOUSOF('Compound Value', 'Initial') * (1 + 'Growth Rate')
 ```
 
 **⚠️ REMINDER:** These formulas will only work if iterative calculation is configured on the metric. There is no AI tool to configure this — the user must do it in the Pigment UI. Always confirm with the user before applying.
@@ -394,20 +394,26 @@ Only use when the **current period's calculated result depends on the prior peri
 ### Date Math Patterns
 
 ```pigment
-// Days in month
-DAY(EOMONTH(DATE(2024, 3, 15))) // → 31
+// Number of days by Month
+DAYSINPERIOD(Month)
 
-// Business days in month
-NETWORKDAYS(STARTOFMONTH(Month), EOMONTH(Month))
+// Business days by month
+NETWORKDAYS(Month.'Start Date', Month.'End Date')
 
 // Months between dates
-MONTHDIF('Start Date', 'End Date')
+MONTHDIF('Date 1', 'Date 2')
 
-// Add months to date
-EDATE('Start Date', 6)  // 6 months later
+// Date + number of months
+EDATE('Date 1', 6)  // 6 months later
 
-// Check if weekend
-IF(WEEKDAY('Date') = 0 OR WEEKDAY('Date') = 6, "Weekend", "Weekday")
+// Month + number of months
+Month+1  // Next month
+
+// Penultimate day of the next month
+(Month + 1).'End Date' - 1
+
+// Check if the first day of the month is a Sunday
+WEEKDAY(Month.'Start Date') = 0
 ```
 
 ### Time Series Patterns
@@ -464,7 +470,7 @@ CUMULATE('Monthly Revenue', Month)
 FILLFORWARD('Product Price', Month)
 
 // Business days for proration
-NETWORKDAYS(STARTOFMONTH(Month), EOMONTH(Month))
+NETWORKDAYS(Month.'Start Date', Month.'End Date')
 
 // Check if date in period
 IF(INPERIOD('Order'.'Date', Quarter), 'Order'.'Amount', BLANK)

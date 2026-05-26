@@ -9,25 +9,33 @@ This guide covers **optimization strategies** for iterative calculations, subset
 **⚠️ IMPORTANT — PREVIOUSOF Prerequisite:**
 PREVIOUSOF can only be used on metrics that have iterative calculation enabled in the Pigment application settings. This configuration **cannot be done via AI tools** — the user must set it up in the Pigment UI. Before writing any formula with PREVIOUSOF, confirm with the user that iterative calculation is configured on the target metric. If not, instruct them to enable it first.
 
+**Correct PREVIOUSOF pattern for period-end balances:**
+
+Split beginning and ending metrics across the iteration cycle:
+
+```pigment
+// Metric — 'Beginning Balance'
+PREVIOUSOF('Ending Balance')
+
+// Metric — 'Ending Balance'
+'Beginning Balance' + 'Inflow' - 'Outflow'
+```
+
 ## Understanding Iterative Calculation Performance
 
 ### Why Iterative Calculations Are Slow
 
 **Sequential dependency**: To compute period N, you must first compute periods 1 through N-1.
 
-**Example**:
-
-```pigment
-'Ending Balance' = PREVIOUSOF('Ending Balance', 0) + 'Inflow' - 'Outflow'
-```
+**Example** (same beginning/ending pattern as above):
 
 **Computation sequence**:
 
-- Month 1: 0 + Inflow₁ - Outflow₁
-- Month 2: Month 1 result + Inflow₂ - Outflow₂
-- Month 3: Month 2 result + Inflow₃ - Outflow₃
-- ...
-- Month 36: Month 35 result + Inflow₃₆ - Outflow₃₆
+- Month 1: Beginning₁ = seed → Ending₁ = Beginning₁ + Inflow₁ - Outflow₁
+- Month 2: Beginning₂ = Ending₁ → Ending₂ = Beginning₂ + Inflow₂ - Outflow₂
+- Month 3: Beginning₃ = Ending₂ → Ending₃ = Beginning₃ + Inflow₃ - Outflow₃
+
+Each additional period adds one more sequential step.
 
 **Performance impact**: Cannot parallelize, must compute sequentially.
 
@@ -36,7 +44,8 @@ PREVIOUSOF can only be used on metrics that have iterative calculation enabled i
 Iterative calculations lose scope on the iterating dimension:
 
 ```pigment
-'YTD Revenue' = 'Monthly Revenue'[CUMULATE: Month]
+// Metric — 'YTD Revenue'
+YEARTODATE('Monthly Revenue')
 ```
 
 **Profiler result**: Scope lost on Month dimension.
@@ -78,8 +87,11 @@ Iterative calculations lose scope on the iterating dimension:
 **Anti-pattern**:
 
 ```pigment
-'Daily Ending Inventory' =
-  PREVIOUSOF('Daily Ending Inventory', 0) + 'Purchases' - 'Sales'
+// Metric — 'Beginning Daily Inventory'
+PREVIOUSOF('Ending Daily Inventory')
+
+// Metric — 'Ending Daily Inventory'
+'Beginning Daily Inventory' + 'Purchases' - 'Sales'
 ```
 
 **Performance**: 1,825 sequential days × all products × all warehouses = Very slow.
@@ -92,11 +104,13 @@ Iterative calculations lose scope on the iterating dimension:
 
 ```pigment
 // Create a subset for recent periods only
-// Subset: 'Recent Days' = Last 90 days
+// Subset: 'Recent Days' = last 90 days
 
-'Daily Ending Inventory' =
-  PREVIOUSOF('Daily Ending Inventory'[FILTER: Day IN 'Recent Days'], 0) +
-  'Purchases' - 'Sales'
+// Metric — 'Beginning Daily Inventory'
+PREVIOUSOF('Ending Daily Inventory'[FILTER: Day IN 'Recent Days'])
+
+// Metric — 'Ending Daily Inventory'
+'Beginning Daily Inventory' + 'Purchases' - 'Sales'
 ```
 
 **Performance**: 90 days instead of 1,825 days = 20x faster.
@@ -123,22 +137,18 @@ Iterative calculations lose scope on the iterating dimension:
 **Time-based subset**:
 
 ```pigment
-// Property on Month dimension
-'Is Current Year' = YEAR(Month.'Date') = YEAR(TODAY())
+// Property on Month dimension — 'Is Current Year' (Boolean)
+Month.Year = TIMEDIM('Today', Year)
 
-// Use in formula
-'YTD Revenue' = 'Monthly Revenue'[FILTER: Month.'Is Current Year'][YEARTODATE]
+// Metric — 'YTD Revenue'
+YEARTODATE('Monthly Revenue')
 ```
 
 **Dynamic subset**:
 
 ```pigment
-// Property on Day dimension
-'Days Since Today' = DAYS(TODAY(), Day.'Date')
-'Is Recent' = 'Days Since Today' <= 90
-
-// Use in formula
-'Recent Cumulative' = 'Daily Value'[FILTER: Day.'Is Recent'][CUMULATE: Day]
+// Days Since Today on the Day dimension
+DAYS('Today', Day.'Start Date')
 ```
 
 ## Optimization Strategy 2: Use FILLFORWARD Instead of PREVIOUS
@@ -160,8 +170,8 @@ Iterative calculations lose scope on the iterating dimension:
 **Anti-pattern using PREVIOUS**:
 
 ```pigment
-'Current Status' =
-  IFBLANK('Status Input', PREVIOUSOF('Current Status', "Unknown"))
+// Metric — 'Current Status'
+IFBLANK('Status Input', PREVIOUSOF('Current Status', "Unknown"))
 ```
 
 **Problem**: Iterative, computes every period even if no change.
@@ -169,7 +179,8 @@ Iterative calculations lose scope on the iterating dimension:
 **Optimized using FILLFORWARD**:
 
 ```pigment
-'Current Status' = 'Status Input'[FILLFORWARD]
+// Metric — 'Current Status'
+FILLFORWARD('Status Input', Month)
 ```
 
 **Improvement**: Non-iterative, much faster.
@@ -179,15 +190,20 @@ Iterative calculations lose scope on the iterating dimension:
 **Anti-pattern using PREVIOUS**:
 
 ```pigment
-'Current Department' =
-  IFBLANK('Department Change', PREVIOUSOF('Current Department', "Unassigned"))
+// Metric — 'Current Department'
+IFBLANK('Department Change', PREVIOUSOF('Current Department', "Unassigned"))
 ```
+
+**Problem**: Iterative, computes every period even if no change.
 
 **Optimized using FILLFORWARD**:
 
 ```pigment
-'Current Department' = 'Department Change'[FILLFORWARD]
+// Metric — 'Current Department'
+FILLFORWARD('Department Change', Month)
 ```
+
+**Improvement**: Non-iterative, much faster.
 
 **When PREVIOUS is required**:
 
@@ -203,7 +219,8 @@ Iterative calculations lose scope on the iterating dimension:
 
 ```pigment
 // 3 dimensions: Month × Product × Region
-'Cumulative Sales' = 'Monthly Sales'[CUMULATE: Month]
+// Metric — 'Cumulative Sales'
+CUMULATE('Monthly Sales', Month)
 ```
 
 **Performance**: Iterates for every Product × Region combination.
@@ -218,14 +235,12 @@ Iterative calculations lose scope on the iterating dimension:
 
 ```pigment
 // Aggregate to fewer dimensions
-'Total Monthly Sales' = 'Monthly Sales'[REMOVE: Product, Region]
+// Metric — 'Total Monthly Sales'
+'Monthly Sales'[REMOVE: Product, Region]
 
 // Iterate on smaller dataset
-'Cumulative Total Sales' = 'Total Monthly Sales'[CUMULATE: Month]
-
-// If needed, allocate back
-'Allocated Cumulative' =
-  'Cumulative Total Sales'[BY: 'Allocation Key']
+// Metric — 'Cumulative Total Sales'
+CUMULATE('Total Monthly Sales', Month)
 ```
 
 **Performance**: 1 iteration chain instead of 50,000 = 50,000x faster.
@@ -250,10 +265,11 @@ Iterative calculations lose scope on the iterating dimension:
 
 ### Pattern 1: Pre-Compute Starting Points
 
-**Anti-pattern**: Iterate from the beginning of time.
+**Anti-pattern**: Roll forward in a single ending-balance metric from the beginning of time.
 
 ```pigment
-'Ending Balance' = PREVIOUSOF('Ending Balance', 0) + 'Change'
+// Metric — 'Ending Balance'
+PREVIOUSOF('Ending Balance', 0) + 'Change'
 ```
 
 **Problem**: If data goes back 10 years, iterates from year 1.
@@ -261,56 +277,14 @@ Iterative calculations lose scope on the iterating dimension:
 **Optimized**: Use a known starting point.
 
 ```pigment
-// Import or calculate starting balance for current year
-'Starting Balance' = 'Imported Starting Balance'
+// Metric — 'Beginning Balance'
+IF(Month = 'First Month of Window', 'Imported Starting Balance', PREVIOUSOF('Ending Balance'))
 
-// Iterate only from current year
-'Ending Balance' =
-  IFBLANK(
-    PREVIOUSOF('Ending Balance', 'Starting Balance') + 'Change',
-    'Starting Balance'
-  )
+// Metric — 'Ending Balance'
+'Beginning Balance' + 'Change'
 ```
 
-**Improvement**: Iterate only current year, not all history.
-
-### Pattern 2: Use CUMULATE Instead of PREVIOUS
-
-**When applicable**: Simple running totals without complex logic.
-
-**Anti-pattern**:
-
-```pigment
-'Running Total' = PREVIOUSOF('Running Total', 0) + 'Value'
-```
-
-**Optimized**:
-
-```pigment
-'Running Total' = 'Value'[CUMULATE: Month]
-```
-
-**Why better**: CUMULATE is optimized for simple summation.
-
-### Pattern 3: Period-Specific Calculations
-
-**Anti-pattern**: Iterate across all periods for a single calculation.
-
-```pigment
-// Just need December YTD
-'Dec YTD' = 'Monthly Revenue'[YEARTODATE]
-```
-
-**Problem**: Computes YTD for all months, even though only December is needed.
-
-**Optimized**:
-
-```pigment
-// Calculate only December YTD
-'Dec YTD' = 'Monthly Revenue'[SELECT: Month <= Month."Dec 25"][REMOVE: Month]
-```
-
-**Improvement**: Single aggregation instead of iterative calculation.
+**Improvement**: Iterate only from the window start, not all history.
 
 ## Optimization Strategy 5: Granularity Trade-offs
 
@@ -318,68 +292,46 @@ Iterative calculations lose scope on the iterating dimension:
 
 **Scenario**: Cash flow forecasting with daily granularity.
 
-**Anti-pattern**:
-
-```pigment
-// 1,825 days of iteration
-'Daily Cash Balance' =
-  PREVIOUSOF('Daily Cash Balance', 'Starting Cash') +
-  'Daily Inflows' - 'Daily Outflows'
-```
-
 **Question**: Is daily granularity necessary?
 
 **Optimized**: Use monthly granularity if acceptable.
 
 ```pigment
-// 60 months of iteration
-'Monthly Cash Balance' =
-  PREVIOUSOF('Monthly Cash Balance', 'Starting Cash') +
-  'Monthly Inflows' - 'Monthly Outflows'
+// Metric — 'Beginning Cash Balance'
+PREVIOUSOF('Ending Cash Balance')
+
+// Metric — 'Ending Cash Balance'
+'Beginning Cash Balance' + 'Monthly Inflows' - 'Monthly Outflows'
 ```
 
-**Improvement**: 30x fewer iterations (1,825 days → 60 months).
-
-### Hybrid Approach: Monthly + Daily Detail
-
-**Pattern**: Monthly for most periods, daily for current period.
-
-```pigment
-// Monthly for historical
-'Historical Monthly Balance' =
-  'Monthly Balance'[FILTER: Month < Month."Current Month"]
-
-// Daily for current month only
-'Current Month Daily Balance' =
-  PREVIOUSOF('Current Month Daily Balance'[FILTER: Day IN 'Current Month'],
-    'Historical Monthly Balance'[SELECT: Month = Month."Last Month"]) +
-  'Daily Change'
-```
-
-**Benefit**: Fast historical calculation, detailed current period.
+**Improvement**: ~30x fewer iterations when moving from daily to monthly (e.g. 1,825 days → 60 months).
 
 ## Common Iterative Calculation Patterns
 
 ### Pattern 1: Inventory Balance
 
 ```pigment
-'Ending Inventory' =
-  PREVIOUSOF('Ending Inventory', 'Starting Inventory') +
-  'Purchases' - 'Sales'
+// Metric — 'Beginning Inventory'
+PREVIOUSOF('Ending Inventory')
+
+// Metric — 'Ending Inventory'
+'Beginning Inventory' + 'Purchases' - 'Sales'
 ```
 
 **Optimization**:
 
-- Subset to recent periods
+- Subset to relevant periods
 - Use monthly instead of daily if possible
 - Reduce product dimensionality where appropriate
 
 ### Pattern 2: Cash Flow
 
 ```pigment
-'Cash Balance' =
-  PREVIOUSOF('Cash Balance', 'Opening Balance') +
-  'Inflows' - 'Outflows'
+// Metric — 'Beginning Cash Balance'
+PREVIOUSOF('Ending Cash Balance')
+
+// Metric — 'Ending Cash Balance'
+'Beginning Cash Balance' + 'Inflows' - 'Outflows'
 ```
 
 **Optimization**:
@@ -391,8 +343,11 @@ Iterative calculations lose scope on the iterating dimension:
 ### Pattern 3: Employee Headcount
 
 ```pigment
-'Headcount' =
-  PREVIOUSOF('Headcount', 0) + 'Hires' - 'Departures'
+// Metric — 'Beginning Headcount'
+PREVIOUSOF('Ending Headcount')
+
+// Metric — 'Ending Headcount'
+'Beginning Headcount' + 'Hires' - 'Departures'
 ```
 
 **Optimization**:
@@ -404,8 +359,11 @@ Iterative calculations lose scope on the iterating dimension:
 ### Pattern 4: Loan Balance
 
 ```pigment
-'Loan Balance' =
-  PREVIOUSOF('Loan Balance', 'Principal') - 'Payment'
+// Metric — 'Beginning Loan Balance'
+PREVIOUSOF('Ending Loan Balance')
+
+// Metric — 'Ending Loan Balance'
+'Beginning Loan Balance' - 'Payment'
 ```
 
 **Optimization**:
@@ -452,8 +410,9 @@ Iterative calculations lose scope on the iterating dimension:
 4. **Pre-compute starting points**: Don't iterate from the beginning of time
 5. **Consider granularity trade-offs**: Monthly vs daily vs weekly
 6. **Use CUMULATE for simple totals**: Optimized for summation
-7. **Profile regularly**: Measure impact of optimizations
-8. **Accept trade-offs**: Sometimes granularity or detail must be sacrificed
+7. **Split beginning/ending metrics**: `Beginning = PREVIOUSOF(Ending)`, then compute `Ending` from flows
+8. **Profile regularly**: Measure impact of optimizations
+9. **Accept trade-offs**: Sometimes granularity or detail must be sacrificed
 
 ## When Iterative Calculations Are Unavoidable
 
@@ -462,18 +421,24 @@ Some calculations require iteration:
 **Cash flow with complex logic**:
 
 ```pigment
-'Cash Balance' =
-  PREVIOUSOF('Cash Balance', 'Starting') +
-  IF('Cash Balance' < 'Minimum', 'Credit Line Draw', 0) +
+// Metric — 'Beginning Cash Balance'
+PREVIOUSOF('Ending Cash Balance')
+
+// Metric — 'Ending Cash Balance'
+'Beginning Cash Balance' +
+  IF('Beginning Cash Balance' < 'Minimum', 'Credit Line Draw', 0) +
   'Inflows' - 'Outflows'
 ```
 
 **Inventory with reorder logic**:
 
 ```pigment
-'Inventory' =
-  PREVIOUSOF('Inventory', 'Starting') +
-  IF(PREVIOUSOF('Inventory', 'Starting') < 'Reorder Point', 'Order Quantity', 0) +
+// Metric — 'Beginning Inventory'
+PREVIOUSOF('Ending Inventory')
+
+// Metric — 'Ending Inventory'
+'Beginning Inventory' +
+  IF('Beginning Inventory' < 'Reorder Point', 'Order Quantity', 0) +
   'Receipts' - 'Sales'
 ```
 

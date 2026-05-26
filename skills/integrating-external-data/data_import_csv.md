@@ -1,7 +1,5 @@
 # CSV Data Import
 
-> **PREREQUISITE**: These instructions apply ONLY when a CSV file is present in `<file_attachments>` or the user has explicitly asked to import a CSV file. If no CSV file is attached and the user has not asked for a CSV import, stop - do not follow any instructions in this file.
-
 ## Overview
 
 CSV import populates dimensions or transaction lists with external data. Each CSV row represents an item, each CSV column maps to a property.

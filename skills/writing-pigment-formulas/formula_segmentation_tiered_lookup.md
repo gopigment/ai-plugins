@@ -112,4 +112,4 @@ If no tier qualifies (e.g., all floors > value), wrap the expression and manage 
 
 ## Formula syntax reference
 
-For REMOVE, FIRSTNONBLANK, and LASTNONBLANK syntax, see [formula_modifiers.md](../writing-pigment-formulas/formula_modifiers.md) in writing-pigment-formulas.
+For REMOVE, FIRSTNONBLANK, and LASTNONBLANK syntax, see [formula_modifiers.md](./formula_modifiers.md).

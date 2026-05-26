@@ -8,18 +8,6 @@ metadata:
     - "*.md"
 ---
 
-# How to Use This Skill
-
-**Progressive Disclosure Pattern**: This `SKILL.md` provides an overview. Most details live in supporting files.
-
-**This file alone is often not sufficient**
-
-**Required workflow**:
-
-1. **Read this file first** - Understand available resources and when to use them
-2. **Identify relevant topics** - Match your task to any of the supporting documents
-3. **Read supporting files** - Use `tool:read_file` or `tool:grep` to access detailed documentation
-4. **Explore as needed** - Use `tool:ls`, `tool:grep`, or `tool:glob` to discover additional resources in this directory (some might not be explicitly mentioned in this file)
 
 # Pigment Use Cases — Introduction
 
@@ -34,6 +22,8 @@ Read this skill when:
 - You are deciding **which patterns, dimensions, and structures** are appropriate for a specific use case
 - You want to understand **how different planning domains connect** within a single Pigment organization
 - You are designing or integrating **FX currency conversion** (Hub app, rates by version, entity mapping, AVG/END, reporting currency)
+
+> **Planning-cycle topics (Version Dimension, Budget vs Actual, Forecast, Reforecast, switchover, Actual/Plan layering, scenarios, snapshots) are NOT covered here.** They are owned by `skill:planning-cycles-pigment-applications`. Most patterns below (Centralized Reporting Metric, OPEX, Workforce, FX) assume a Version Dimension already exists; consult that skill before building the planning-cycle layer of the model.
 
 ---
 
@@ -90,6 +80,7 @@ Required reading for this pattern: [Workforce Planning – Snapshot Spread Logic
 ## Cross-References
 
 - **Modeling foundations:** `skill:modeling-pigment-applications` (dimensions, folder structure, Push/Pull)
+- **Planning cycles, Versions, Scenarios, Snapshots:** `skill:planning-cycles-pigment-applications` -- always use this when a use case involves a Version Dimension, Budget vs Actual, Forecast, Reforecast, switchover, or Actual/Plan layering (most FP&A, OPEX, and Workforce patterns do)
 - **Formula implementation:** `skill:writing-pigment-formulas` (BY modifier, aggregation functions)
 - **Performance:** `skill:optimizing-pigment-performance` (large aggregation optimization)
 - **FP&A pattern — Centralized Reporting Metric (Nexus):** [finance_nexus_financial_statements.md](./finance_nexus_financial_statements.md)

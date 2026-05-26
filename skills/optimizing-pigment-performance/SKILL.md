@@ -1,6 +1,6 @@
 ---
 name: optimizing-pigment-performance
-description: Always use this skill when troubleshooting slow calculations or timeouts, analyzing profiler output to identify bottlenecks, understanding scope propagation, managing sparsity, optimizing formula performance, improving iterative calculations, optimizing access rights performance, or conducting systematic performance audits. This skill includes supporting files in this directory - explore as needed.
+description: Always use this skill when troubleshooting slow calculations or timeouts, analyzing profiler output to identify bottlenecks, understanding scope propagation, managing sparsity, optimizing formula performance, improving iterative calculations, optimizing access rights performance, or conducting systematic performance audits. Provides the optimization mental model (profile -> classify bottleneck -> apply pattern -> re-profile), the five core principles, an anti-pattern table, profiler chip and scope notation references, and the pre-delivery performance checklist. Always profile first; never optimize based on assumptions.
 metadata:
   skill_path: /optimizing-pigment-performance/SKILL.md
   base_directory: /optimizing-pigment-performance
@@ -8,263 +8,154 @@ metadata:
     - "*.md"
 ---
 
-# How to Use This Skill
-
-**Progressive Disclosure Pattern**: This `SKILL.md` provides an overview. Most details live in supporting files.
-
-**This file alone is often not sufficient**
-
-**Required workflow**:
-
-1. **Read this file first** - Understand available resources and when to use them
-2. **Identify relevant topics** - Match your task to any of the supporting documents
-3. **Read supporting files** - Use `tool:read_file` or `tool:grep` to access detailed documentation
-4. **Explore as needed** - Use `tool:ls`, `tool:grep`, or `tool:glob` to discover additional resources in this directory (some might not be explicitly mentioned in this file)
-
 # Optimizing Pigment Performance
 
-This skill provides guidance for optimizing performance in Pigment applications.
+Performance optimization for Pigment applications: profiler-driven, sparsity-aware, scope-conscious. Read first to get the mental model and pick the right deep dive.
 
 ## When to Use This Skill
 
-- **Troubleshoot slow calculations** - Identifying and resolving timeouts
-- **Analyze profiler output** - Understanding scope chips, computation chains
-- **Optimize formulas** - Applying scope-first and reduce-first principles
-- **Manage sparsity** - Avoiding densification with ISDEFINED vs ISBLANK
-- **Optimize iterative calculations** - Improving PREVIOUS, CUMULATE performance
-- **Improve access rights** - Optimizing AR-heavy formulas
-- **Conduct audits** - Systematic bottleneck identification
+- Slow calculations or timeouts
+- Profiler analysis (chips, scope notation, computation chains)
+- Densification or sparsity loss
+- Iterative calculations (PREVIOUS, PREVIOUSOF, CUMULATE) over long horizons
+- Access Rights-heavy formulas
+- Systematic performance audit on an application
 
 ---
 
-## Performance Optimization Workflow
+## Mental Model
 
-### Step 1: Use the Profiler First
+Every optimization follows the same loop. Skipping the profile step is the most common failure mode.
 
-- [ ] Open profiler and analyze actual bottleneck
-- [ ] Identify scope chips (⚫ black / 🔵 blue / 🔘 gray)
-- [ ] Note scope notation (2/2, 0/3, etc.)
-- [ ] Trace computation chains
-- [ ] Document findings before optimizing
+1. **Profile** (mandatory). No optimization without a profiler reading.
+2. **Classify the bottleneck.** One of: scope loss, sparsity densification, iterative horizon, AR overhead, calendar iteration, or formula shape (`IF` / `FILTER` / `BY`).
+3. **Apply the right pattern.** Scope-first, BY over ADD, IFDEFINED over ISBLANK, etc.
+4. **Re-profile, compare, document** the gain.
 
-### Step 2: Search & Read Documentation
+---
 
-- [ ] Identify issue type from profiler (scope loss, densification, iteration, etc.)
-- [ ] Search this SKILL.md for relevant section
-- [ ] Read documentation files listed
+## Core Principles
 
-### Step 3: Optimize and Re-Profile
+1. **Scope First.** Start formulas with scoping clauses (FILTER, EXCLUDE, IFDEFINED).
+2. **Preserve Sparsity.** Use ISDEFINED instead of ISBLANK. Use BLANK instead of 0 or FALSE.
+3. **Reduce Early.** Aggregate or filter data before downstream operations.
+4. **Profile Systematically.** Use the profiler, not assumptions. Measure before and after every change; document the delta.
+5. **Understand Scope Propagation.** Know when and why scope is lost (REMOVE, CUMULATE, AR).
 
-- [ ] Apply optimization patterns
-- [ ] Re-profile to verify improvement
-- [ ] Document before/after measurements
+---
+
+## Optimization Workflow
+
+1. **Profile.** Identify chips (black / blue / gray), scope notation (3/3, 0/3), and the dominant computation chain.
+2. **Classify the bottleneck.** Scope loss, densification, iterative horizon, AR overhead, calendar iteration, or formula shape.
+3. **Pick the deep dive** from the routing table below.
+4. **Apply the pattern.** Validate the formula syntax with `tool:validate_formula` when relevant.
+5. **Re-profile.** Compare before / after. Document the gain.
+
+---
+
+## Bottleneck Routing
+
+| Bottleneck signal | Read |
+|---|---|
+| Reading profiler output, chip colors, scope notation | [./performance_profiler_usage.md](./performance_profiler_usage.md) |
+| Analyzing a profile response from the MCP tool (`GetChangeProfileResponse`) | [./performance_profiler_analysis.md](./performance_profiler_analysis.md) |
+| Scope loss after REMOVE, CUMULATE, AR; scope propagation rules | [./performance_scoping_patterns.md](./performance_scoping_patterns.md) |
+| Metric is much bigger than expected, ISBLANK / ISNOTBLANK in formulas | [./performance_sparsity_deep_dive.md](./performance_sparsity_deep_dive.md) |
+| Formula shape (IF vs FILTER, REMOVE vs SELECT, BY vs ADD) | [./performance_formula_optimization.md](./performance_formula_optimization.md) |
+| PREVIOUS, PREVIOUSOF, CUMULATE over long horizons | [./performance_iterative_calculations.md](./performance_iterative_calculations.md) |
+| AR-heavy formulas, `ISDEFINED(User)` pattern | [./performance_access_rights.md](./performance_access_rights.md) |
+| Calendar-driven iteration, time dimension granularity | [./performance_calendar_considerations.md](./performance_calendar_considerations.md) |
+| Systematic audit, where to start | [./performance_troubleshooting_workflow.md](./performance_troubleshooting_workflow.md) |
+
+---
+
+## Anti-Patterns (Quick Reference)
+
+| Anti-Pattern | Why it hurts | Fix |
+|---|---|---|
+| `ISBLANK` instead of `ISDEFINED` | Densifies the metric | Use `ISDEFINED` |
+| `IF(ISBLANK(A), B, A)` | Verbose, densifies | Use `IFBLANK(A, B)` |
+| `ISBLANK` / `ISNOTBLANK` for sparsity gates | Densifies over a large space | Use `BY` on a dimension-typed metric, or `ISDEFINED` / `IFDEFINED` / `IFBLANK` / `EXCLUDE` |
+| `IF(ISBLANK(metric), BLANK, ...)` guarding a `BY` | Redundant, densifies | Use `BY` alone; the dimension-typed metric drives sparsity |
+| No scoping at the start of the formula | Computes unnecessarily | Add `FILTER` or `EXCLUDE` first |
+| Unnecessary `REMOVE` | Loses scope | Remove only when needed |
+| Long dense horizons in `PREVIOUS` | Exponential time | Subset the time dimension |
+| AR formula without `ISDEFINED(User)` guard | Computes for all users | Wrap AR in `ISDEFINED(User)` |
+
+---
+
+## Profiler Reference
+
+### Scope Chips
+
+| Chip | Meaning |
+|---|---|
+| Black | Scope preserved and passed downstream |
+| Blue | New scope introduced (dimension added) |
+| Gray | Computation triggered but no output change |
+
+### Scope Notation
+
+| Notation | Meaning |
+|---|---|
+| `3/3` | Full scope (all dimensions scoped) |
+| `2/3` | Partial scope (some dimensions scoped) |
+| `0/3` | No scope (full recomputation required) |
+
+---
+
+## Pre-Delivery Checklist
+
+Every optimized formula must pass:
+
+- [ ] Scoping clauses appear first (FILTER, EXCLUDE, IFDEFINED)
+- [ ] Use ISDEFINED instead of ISBLANK
+- [ ] Use IFBLANK instead of IF(ISBLANK())
+- [ ] Use BY with dimension-typed metrics for sparsity; avoid ISBLANK / ISNOTBLANK for sparsity
+- [ ] Aggregate early with BY
+- [ ] Avoid unnecessary REMOVE
+- [ ] Subset time dimensions for iterative calculations
+- [ ] AR-heavy formulas wrapped in ISDEFINED(User)
+- [ ] Profile before and after the change; document the delta
+
+---
+
+## Glossary
+
+- **Scope**: the dimensional context in which a formula evaluates.
+- **Scope chip**: profiler color marker (black / blue / gray) indicating scope behavior at a node.
+- **Scope notation**: `X/Y` ratio of scoped vs total dimensions at a profiler node.
+- **Densification**: turning a sparse metric into a fuller one (often by FALSE, 0, or ISBLANK / ISNOTBLANK).
+- **Sparsity-first**: pattern that preserves blanks and never materializes 0 / FALSE cells.
+- **Reduce early**: aggregate or filter as close to the source as possible.
+- **AR overhead**: cost of evaluating Access Rights formulas; mitigated with `ISDEFINED(User)` and structural choices.
 
 ---
 
 ## Prerequisites
 
-**From other skills:**
+- **modeling-pigment-applications**: core concepts, dimensional design
+- **writing-pigment-formulas**: formula syntax, modifiers, functions
 
-- **modeling-pigment-applications** - Core concepts, Pigment Modeling Best Practices standards, dimensional design
-- **writing-pigment-formulas** - Formula syntax, modifiers, functions
-
-**If unfamiliar** → Use those skills first
+If unfamiliar with these, read them first.
 
 ---
 
-## Core Performance Principles
+## Critical Rules
 
-1. **Scope First** - Start formulas with scoping clauses
-2. **Preserve Sparsity** - Use ISDEFINED instead of ISBLANK
-3. **Reduce Early** - Aggregate or filter data early
-4. **Profile Systematically** - Use profiler, not assumptions
-5. **Understand Scope Propagation** - Know when and why scope is lost
-
----
-
-## Essential Files
-
-**[./performance_profiler_usage.md](./performance_profiler_usage.md)** - Complete profiler guide
-
-**Covers**: Scope chips, computation chains, profiler interpretation, scope notation
-
-**Always start with profiler** - Don't optimize based on assumptions
-
-**[./performance_scoping_patterns.md](./performance_scoping_patterns.md)** - Scope mechanics
-
-**Covers**: Scope propagation, early scoping strategies, preservation techniques
-
----
-
-## Task-Based Routing
-
-### Understanding Profiler Output
-
-**Questions**:
-
-- "What does the blue chip mean?"
-- "Why is my scope showing 0/3?"
-- "How do I trace slow computation?"
-
-**Read**: [./performance_profiler_usage.md](./performance_profiler_usage.md)
-
-**Quick Reference**:
-
-- **⚫ Black Chip**: Scope preserved and passed downstream
-- **🔵 Blue Chip**: New scope introduced (dimension added)
-- **🔘 Gray Chip**: Computation triggered but no output change
-
-### Optimizing Slow Formulas
-
-**Questions**:
-
-- "My formula takes 10 seconds, how to speed it up?"
-- "Should I use IF or FILTER?"
-- "How do I scope early?"
-
-**Read in order**:
-
-1. [./performance_formula_optimization.md](./performance_formula_optimization.md)
-2. [./performance_scoping_patterns.md](./performance_scoping_patterns.md)
-3. [./performance_sparsity_deep_dive.md](./performance_sparsity_deep_dive.md)
-
-### Managing Sparsity
-
-**Questions**:
-
-- "Should I use ISBLANK or ISDEFINED?"
-- "Why is my metric suddenly much larger?"
-- "How do I avoid densifying metrics?"
-
-**Read**: [./performance_sparsity_deep_dive.md](./performance_sparsity_deep_dive.md)
-
-**Key principles**: Use **ISDEFINED** instead of **ISBLANK** to preserve sparsity. Use **dimension-typed metrics in BY** to drive sparsity. **Avoid ISBLANK/ISNOTBLANK for sparsity** — they densify over large spaces.
-
-### Understanding Scope Loss
-
-**Questions**:
-
-- "Why did I lose scope after using REMOVE?"
-- "How does CUMULATE affect scope?"
-- "When is scope loss unavoidable?"
-
-**Read**: [./performance_scoping_patterns.md](./performance_scoping_patterns.md)
-
-### Optimizing Iterative Calculations
-
-**Questions**:
-
-- "My PREVIOUS calculation over 3 years of daily data is timing out"
-- "How do I optimize CUMULATE?"
-- "Should I use FILLFORWARD or PREVIOUS?"
-
-**Read**: [./performance_iterative_calculations.md](./performance_iterative_calculations.md)
-
-### Optimizing Access Rights Performance
-
-**Questions**:
-
-- "Why are my AR metrics so slow?"
-- "What's the ISDEFINED(User) pattern?"
-
-**Read**: [./performance_access_rights.md](./performance_access_rights.md)
-
-### Conducting a Performance Audit
-
-**Questions**:
-
-- "Where do I start?"
-- "How do I identify biggest bottlenecks?"
-- "What's the systematic approach?"
-
-**Read**: [./performance_troubleshooting_workflow.md](./performance_troubleshooting_workflow.md)
-
----
-
-## Documentation Files
-
-### Profiler and Scoping
-
-- [./performance_profiler_usage.md](./performance_profiler_usage.md) - Profiler guide
-- [./performance_scoping_patterns.md](./performance_scoping_patterns.md) - Scope propagation
-
-### Sparsity and Formula Optimization
-
-- [./performance_sparsity_deep_dive.md](./performance_sparsity_deep_dive.md) - ISDEFINED vs ISBLANK
-- [./performance_formula_optimization.md](./performance_formula_optimization.md) - Reduce-first principle
-
-### Specialized Optimization
-
-- [./performance_iterative_calculations.md](./performance_iterative_calculations.md) - PREVIOUS, CUMULATE
-- [./performance_access_rights.md](./performance_access_rights.md) - Access rights
-- [./performance_calendar_considerations.md](./performance_calendar_considerations.md) - Time calculations
-
-### Troubleshooting
-
-- [./performance_troubleshooting_workflow.md](./performance_troubleshooting_workflow.md) - Systematic audit
-
----
-
-## Quick Reference Tables
-
-### Common Anti-Patterns
-
-| Anti-Pattern                    | Why Bad                 | Fix                        |
-| ------------------------------- | ----------------------- | -------------------------- |
-| ISBLANK instead of ISDEFINED    | Densifies metrics       | Use ISDEFINED              |
-| IF(ISBLANK(A), B, A)            | More complex            | Use IFBLANK(A, B)          |
-| ISBLANK/ISNOTBLANK for sparsity | Densify over large space | Use BY + dimension-typed metrics or ISDEFINED/IFDEFINED/IFBLANK/EXCLUDE |
-| Guarding BY with IF(ISBLANK(metric), BLANK, …) | Redundant, densifies | Use BY alone; dimension-typed metric in BY drives sparsity |
-| Not scoping early               | Unnecessary computation | Add FILTER/EXCLUDE first   |
-| Unnecessary REMOVE              | Loses scope             | Remove only when needed    |
-| Long dense horizons in PREVIOUS | Exponential time        | Subset time dimensions     |
-| No ISDEFINED(User) in AR        | Computes for all users  | Wrap AR in ISDEFINED(User) |
-
-### Scope Chips
-
-| Chip     | Meaning                          |
-| -------- | -------------------------------- |
-| ⚫ Black | Scope preserved                  |
-| 🔵 Blue  | New scope introduced             |
-| 🔘 Gray  | Computation but no output change |
-
-### Scope Notation
-
-| Notation | Meaning                                |
-| -------- | -------------------------------------- |
-| 2/2      | Full scope (all dimensions scoped)     |
-| 2/3      | Partial scope (some dimensions scoped) |
-| 0/3      | No scope (full recomputation required) |
-
-### Performance Checklist
-
-- [ ] Start formulas with scoping (FILTER, EXCLUDE, ISDEFINED)
-- [ ] Use ISDEFINED instead of ISBLANK
-- [ ] Use IFBLANK instead of IF(ISBLANK())
-- [ ] Use BY with dimension-typed metrics for sparsity; avoid ISBLANK/ISNOTBLANK for sparsity
-- [ ] Aggregate early with BY modifier
-- [ ] Avoid unnecessary REMOVE
-- [ ] Subset time dimensions for iterative calculations
-- [ ] Add ISDEFINED(User) to AR-heavy formulas
-- [ ] Profile before and after optimization
+- **Always profile first.** Identify the actual bottleneck before changing anything.
+- **Measure before and after.** Document baseline and improvement.
+- **ISDEFINED over ISBLANK.** Preserves sparsity.
+- **Scope early.** Start formulas with scoping clauses.
+- **Subset time dimensions** for iterative calculations over long horizons.
+- **ISDEFINED(User)** for AR-heavy formulas.
+- **Document profiler findings.** Explain what the profiler showed and why the change was made.
 
 ---
 
 ## Cross-References
 
-**Related Skills**:
-
-- **modeling-pigment-applications** - Pigment Modeling Best Practices MS rules, dimensional design
-- **writing-pigment-formulas** - Formula syntax, function details
-
----
-
-## Critical Notes
-
-- **Always profile first** - Use profiler to identify actual bottlenecks, not assumptions
-- **Measure before/after** - Document baseline and improvement
-- **Use ISDEFINED, not ISBLANK** - Preserves sparsity
-- **Scope early** - Start formulas with scoping clauses
-- **Subset time dimensions** - For iterative calculations over long horizons
-- **ISDEFINED(User) for AR** - Optimizes access rights formulas
-- **Document profiler findings** - Explain what profiler showed and why optimization was needed
+- **modeling-pigment-applications**: dimensional design, MS rules
+- **writing-pigment-formulas**: formula syntax, function details, conditionals style
+- **securing-pigment-applications**: AR formula patterns

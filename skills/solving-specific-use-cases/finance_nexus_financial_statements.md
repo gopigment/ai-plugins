@@ -40,7 +40,7 @@ Before building:
 
 **Discovering blocks in the live application:** Names like `PnL_GL_Load_ERP` are **illustrative** meaning they are examples. In the user’s workspace, confirm **Company** / **Entity**, **Month**, **StatementAccount** or **PnL_Account**, **CostCenter**, **Version**, **DataFlavor** (or equivalent), and reporting **Currency** using **`tool:search`** (optionally with **`kind`** / **`regexp`**); results include block summaries and identifiers—use those to align Nexus, staging, and reporting metrics to **actual** names in that app—do not assume the template’s naming.
 
-If any of these are not available, create **placeholder metrics** at the same grain and replace them later with `Pull_*` from the Data Hub or planning apps.
+If any of these are not available, create **placeholder metrics** at the same grain and replace them later with `Pull_*` from the Data Hub or planning apps. Use **Option B** in §5.1 for placeholder signs.
 
 ---
 
@@ -111,6 +111,8 @@ PnL_Data_02_Roll-up =
 ```
 
 Same dimensions for both. Operator on PnL_Account (or Category) drives sign; no hard-coded +/- in formulas.
+
+**Sign conventions:** **Option A (ERP GL)** — source revenue negative, expenses positive → `× Operator × -1`. **Option B (mock, budget, plan)** — source all positive → `× Operator` only. Confirm source convention before staging; do not mix.
 
 **Operator formulas** (sign logic via metadata):
 
@@ -224,7 +226,7 @@ Other lines (OPEX, EBITDA drivers, Net Income) follow the same idea: filter by c
 ## 7. Pitfalls and reminders
 
 - **Extra dimensions**: Add them everywhere from the start; retrofitting later is error-prone. Confirm with the user once.
-- **Operator consistency**: Operator on PnL_Account (or Category) must be correct for Revenue, COGS, OPEX, etc.; wrong sign breaks all statement totals.
+- **Operator consistency**: Operator on PnL_Account (or Category) must be correct for Revenue, COGS, OPEX, etc.; wrong sign breaks all statement totals. Pair input signs with the roll-up option in §5.1.
 - **View/pull logic**: Nexus_01 and Nexus_02 depend on view or pull metrics that define “actual months” vs “plan months” per Version; align these with Version properties (Last Actuals Month, etc.).
 - **Plan plugs**: If an app (e.g. Revenue) doesn’t exist yet, use BLANK or a placeholder; do not build that app inside this skill—this skill is the hub only.
 - **Single grain**: All Nexus and Rep metrics share the same dimension set; mismatched grains cause wrong totals or sparse/blank results.
