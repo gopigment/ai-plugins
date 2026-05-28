@@ -9,9 +9,6 @@
 - **Cleaning = Deletion.** Only actions that remove objects from the application belong to the core cleaning phase. Renaming, folders, naming alignment are optional hygiene (Phase 2), not covered here.
 - **System truth over human opinion.** "Unused" is determined exclusively from Pigment settings, dependency graphs, and usage analytics. No interviews, no inferred intent.
 - **No formula changes.** Formulas are optimization; explicitly excluded from cleaning.
-- **Two independent cleaning axes:**
-  1. **Structural objects** (dimensions, metrics, tables, properties)
-  2. **Boards** (usage-based only)
 
 ---
 
@@ -19,10 +16,57 @@
 
 | Phase       | Scope                               | Mandatory               |
 | ----------- | ----------------------------------- | ----------------------- |
-| **Phase 1** | Deletion of unused objects          | Yes — this document     |
+| **Phase 1** | Deletion of unused objects          | Yes -- this document    |
 | **Phase 2** | Renaming, folders, naming alignment | Optional (not cleaning) |
 
 This document covers **Phase 1** only.
+
+---
+
+## Canonical Deletion Order
+
+Cleaning proceeds in two axes, in this sequence:
+
+1. **DEAD boards first** -- classify and delete usage-based DEAD boards (see Board Cleaning below).
+2. **Recompute structural usage** -- board deletions may unlock structural objects that are now unused.
+3. **Structural objects in order:** Dimensions, Metrics, Tables (Transaction Lists), Properties. For each type: identify unused, hide, observe, delete.
+4. **Recompute and iterate** -- deletion of one layer may unlock deletion in the next. Repeat until no new candidates appear.
+
+Changing this order increases the risk of false positives (deleting an object whose consumer has not yet been removed).
+
+---
+
+## Phase 1 -- Board Cleaning (Usage-Based, First)
+
+Boards are evaluated by **usage analytics only**, not by structural references. Board cleaning runs first because boards are frequently the primary trigger that enables deeper structural cleaning.
+
+### Source of Truth for Boards
+
+- `last_viewed_at`
+- `view_count` (rolling window)
+- `unique_viewers`
+- Viewer role (admin vs business user)
+
+A board viewed **only by admins** is **not** considered used for cleaning.
+
+### Board Classification
+
+| Category   | Criteria                                                           |
+| ---------- | ------------------------------------------------------------------ |
+| **ACTIVE** | Viewed by >= 1 business user in the time window                    |
+| **STALE**  | Viewed only by admins/builders in the time window (not auto-deleted, but a strong signal for future cleanup) |
+| **DEAD**   | `view_count = 0` OR `unique_non_admin_viewers = 0` in the time window |
+
+Seasonality or annual-only usage must be explicitly whitelisted (clarify with solution architect).
+
+### Board Deletion Workflow (DEAD only)
+
+1. Auto-tag `TO_BE_DELETED`
+2. Notify owner (if any)
+3. Contestation window (duration agreed with solution architect)
+4. Delete
+
+STALE boards are not automatically deleted. They are flagged for review and often allow downstream structural cleaning once confirmed removable.
 
 ---
 
@@ -44,8 +88,6 @@ No interviews, no inferred intent.
 2. **Metrics**
 3. **Tables** (Tables / Transaction Lists)
 4. **Properties** (list fields)
-
-Changing this order increases the risk of false positives. Cleaning is **iterative**: after deleting boards or metrics, recompute usage and then delete newly unused tables, then dimensions.
 
 ---
 
@@ -118,7 +160,7 @@ Optional strong signal: never populated with data.
 
 1. Identify unused object via settings (dependency + exposure).
 2. Disable / hide object.
-3. **Observation period** (e.g. minimum one business cycle; duration to be agreed with solution architect — e.g. 30 / 60 / 90 days).
+3. **Observation period** (e.g. minimum one business cycle; duration agreed with solution architect, e.g. 30 / 60 / 90 days).
 4. Final deletion after observation.
 5. Log deletion event (who / what / when / why).
 
@@ -126,65 +168,22 @@ Silence during the observation window is treated as approval. For contested or s
 
 ---
 
-## Phase 1 -- Boards Cleaning (Usage-Based)
-
-Boards are **not** evaluated by structural references. Only **usage analytics** apply.
-
-### Source of Truth for Boards
-
-- `last_viewed_at`
-- `view_count` (rolling window)
-- `unique_viewers`
-- Viewer role (admin vs business user)
-
-A board viewed **only by admins** is **not** considered used for cleaning.
-
-### Definition of "Unused Board"
-
-Within a defined time window (e.g. 90 days):
-
-- **Unused** if: `view_count = 0` **OR** `unique_non_admin_viewers = 0`
-- Seasonality or annual-only usage must be explicitly whitelisted (clarify with solution architect).
-
-### Board Classification
-
-| Category   | Criteria                       |
-| ---------- | ------------------------------ |
-| **ACTIVE** | Viewed by >= 1 business user   |
-| **STALE**  | Viewed only by admins/builders |
-| **DEAD**   | No views in the time window    |
-
-### Board Deletion Workflow
-
-**DEAD boards:**
-
-1. Auto-tag `TO_BE_DELETED`
-2. Notify owner (if any)
-3. Contestation window
-4. Delete
-
-**STALE boards:** No automatic deletion. Strong signal for future cleaning; often allows downstream structural cleaning (deleting metrics/tables/dimensions that only served those boards).
-
-Boards are frequently the **primary trigger** that enables deeper structural cleaning. Recommended sequence: delete dead boards -> recompute structural usage -> delete newly unused metrics -> recompute -> tables -> dimensions.
-
----
-
 ## Agent Execution Logic (Conceptual)
 
 When executing a cleaning task:
 
-1. **Start with boards** — classify all boards (ACTIVE / STALE / DEAD) using usage analytics.
-2. **Delete DEAD boards** — follow board deletion workflow.
-3. **Recompute structural usage** — after board deletion, re-evaluate all structural objects.
-4. **Process structural objects in order** — dimensions -> metrics -> tables -> properties.
-5. **For each object type** — identify unused, hide, observe, delete.
-6. **Log all actions** — maintain an audit trail.
-7. **Iterate** — deletion of one layer may unlock deletion in the next.
+1. **Start with boards** -- classify all boards (ACTIVE / STALE / DEAD) using usage analytics.
+2. **Delete DEAD boards** -- follow board deletion workflow.
+3. **Recompute structural usage** -- after board deletion, re-evaluate all structural objects.
+4. **Process structural objects in order** -- Dimensions, Metrics, Tables, Properties.
+5. **For each object type** -- identify unused, hide, observe, delete.
+6. **Log all actions** -- maintain an audit trail.
+7. **Iterate** -- deletion of one layer may unlock deletion in the next.
 
 ---
 
 ## See Also
 
-- [auditing_application.md](./auditing_application.md) - Full app audit (surfaces candidates; this doc defines deletion workflow)
+- [performance_auditing_application.md](./performance_auditing_application.md) - Full app audit (surfaces candidates; this doc defines deletion workflow)
 - [modeling_principles.md](../modeling-pigment-applications/modeling_principles.md) - Folder structure, MP06 hygiene
 - [modeling_naming_conventions.md](../modeling-pigment-applications/modeling_naming_conventions.md) - Naming conventions (including Applications ZZ\_)

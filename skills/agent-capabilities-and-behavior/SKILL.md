@@ -37,7 +37,7 @@ Check this before proposing any action. If listed here, first query the **docume
 | Automations | |
 | Variables | |
 | Subsets | See [modeling_subsets.md](../modeling-pigment-applications/modeling_subsets.md) |
-| Performance Insights | |
+| Performance Insights | When enabled: `tool:performance_profile_change` (one change, scope chain), `tool:get_top_blocks_by_performance` (app hotspots). See `skill:optimizing-pigment-performance`. |
 | Snapshots | |
 | Test & Deploy | |
 

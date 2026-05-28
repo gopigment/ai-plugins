@@ -167,14 +167,15 @@ DAYS('Today', Day.'Start Date')
 
 ### Example: Status Propagation
 
-**Anti-pattern using PREVIOUS**:
+**Anti-pattern** -- iterative carry-forward where no per-period calculation is needed:
 
 ```pigment
-// Metric — 'Current Status'
-IFBLANK('Status Input', PREVIOUSOF('Current Status', "Unknown"))
+// Metric — 'Current Status' (iterative enabled)
+// PREVIOUSOF takes only a metric reference, not a literal.
+IFBLANK('Status Input', PREVIOUSOF('Current Status'))
 ```
 
-**Problem**: Iterative, computes every period even if no change.
+**Problem**: Iterative, computes every period even if no change. Simple carry-forward does not need iteration.
 
 **Optimized using FILLFORWARD**:
 
@@ -187,11 +188,11 @@ FILLFORWARD('Status Input', Month)
 
 ### Example: Employee Assignment
 
-**Anti-pattern using PREVIOUS**:
+**Anti-pattern** -- same carry-forward pattern:
 
 ```pigment
-// Metric — 'Current Department'
-IFBLANK('Department Change', PREVIOUSOF('Current Department', "Unassigned"))
+// Metric — 'Current Department' (iterative enabled)
+IFBLANK('Department Change', PREVIOUSOF('Current Department'))
 ```
 
 **Problem**: Iterative, computes every period even if no change.
@@ -269,7 +270,7 @@ CUMULATE('Total Monthly Sales', Month)
 
 ```pigment
 // Metric — 'Ending Balance'
-PREVIOUSOF('Ending Balance', 0) + 'Change'
+PREVIOUSOF('Ending Balance') + 'Change'
 ```
 
 **Problem**: If data goes back 10 years, iterates from year 1.
@@ -385,7 +386,7 @@ PREVIOUSOF('Ending Loan Balance')
 
 **Before optimization**:
 
-- Note computation time in profiler
+- Note `Duration` from `tool:performance_profile_change`
 - Count number of iteration steps (time periods)
 - Check dimensionality (how many chains)
 
@@ -393,7 +394,7 @@ PREVIOUSOF('Ending Loan Balance')
 
 - Compare computation time
 - Verify correctness
-- Check scope in profiler
+- Check effective scope in profile output (avoid `no scope, full computation` on time dimension)
 
 **Expected improvements**:
 
@@ -447,6 +448,26 @@ PREVIOUSOF('Ending Inventory')
 - Optimize what you can (subsetting, dimensionality)
 - Accept the performance cost
 - Consider if the complexity is truly necessary
+
+## Calendar and Granularity Considerations
+
+Time horizon and granularity are the primary cost drivers for iterative calculations:
+
+| Granularity | Periods/year | 5-year horizon |
+|---|---|---|
+| Monthly | 12 | 60 (fast) |
+| Weekly | 52 | 260 (moderate) |
+| Daily | 365 | 1,825 (slow) |
+
+**Key decisions:**
+
+- Subset iterative calculations to relevant periods (current fiscal year, rolling 90 days, last 12 months).
+- Consider whether daily granularity is truly needed; planning typically works at monthly, actuals may need daily, forecasting is often weekly or monthly.
+- Pre-compute starting points for the iteration window so the engine does not roll forward from the beginning of time.
+
+For calendar configuration and time dimension structure, see [modeling_time_and_calendars.md](../modeling-pigment-applications/modeling_time_and_calendars.md).
+
+---
 
 ## See Also
 

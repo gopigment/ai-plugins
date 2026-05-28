@@ -96,6 +96,7 @@ Invariants the agent must respect:
 Decide in this order. Reversing causes rework.
 
 1. **Application boundary.** One app vs a Hub-and-domain-apps topology. The Hub holds shared Dimensions (Entity, GL, FX, Version, Time) and shared reference/actuals data. Domain apps reference Hub content via shared Blocks (Library), typically metrics with a Push/Pull naming convention.
+2. ```
 2. **Dimensional structure.** List the slicing axes. Target 5 or fewer structural dimensions per metric. Challenge anything above.
 3. **Calendar.** Pick fiscal year, granularity (Month or Quarter), and date range. Use the existing app calendar. Never roll your own time list.
 4. **Version Dimension.** If the app holds any planning cycle (Budget, Forecast, Actual), build a Version Dimension and define switchover and gating Booleans now, not later. See `skill:planning-cycles-pigment-applications`.
