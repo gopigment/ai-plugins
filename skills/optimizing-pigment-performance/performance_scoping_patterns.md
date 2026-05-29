@@ -417,7 +417,7 @@ YEARTODATE('Monthly Revenue')
 
 ### Using the Profiler
 
-1. **Before optimization**: Note the scope column values
+1. **Before optimization**: Note effective scope text from `tool:performance_profile_change`
 2. **After optimization**: Compare scope values
 3. **Look for**: Increased X in X/Y notation
 
@@ -480,7 +480,7 @@ YEARTODATE('Monthly Revenue')
 2. **Scope often**: Add scoping clauses throughout the formula, not just at the start
 3. **Defer aggregations**: Push REMOVE and scope-losing operations to the end
 4. **Use mappings**: Prefer BY with mappings over REMOVE + ADD
-5. **Profile regularly**: Check the scope column in the profiler after changes
+5. **Profile after changes**: Re-run `tool:performance_profile_change` and compare scope text
 6. **Accept unavoidable loss**: Some calculations require full recomputation
 7. **Isolate scope loss**: Keep scope-losing metrics separate from the main computation chain
 
@@ -898,17 +898,36 @@ IFDEFINED('Employee'.'Manager'.'Director'.'VP',
 - Verify all properties are dimension-type
 - Handle blanks with IFDEFINED
 
+## Scenario and Version Cardinality
+
+Version and scenario dimensions multiply the total cell count of every metric that carries them. Growing from 3 to 12 scenarios roughly quadruples computation time for any input that propagates across scenarios.
+
+**Mitigation strategies:**
+
+- Subset inactive scenarios so iterative and AR computations skip them.
+- Archive historical versions that are no longer actively planned.
+- Use `FILTER` or `SELECT` to limit formulas to the active scenario set when full cross-scenario computation is not needed.
+
+See `skill:modeling-pigment-applications` for version and scenario architecture.
+
+---
+
 ## Common Mistakes
 
 ### Mistake 1: Removing Dimensions Too Early
 
 ```pigment
-// Bad: Loses scope immediately
-'Revenue'[REMOVE: Product] * 'Growth Rate'
-
-// Good: Keeps scope longer
-'Revenue' * 'Growth Rate'[REMOVE: Product]
+// Bad: Loses scope immediately, all downstream loses scope
+Step 1: 'Revenue'[REMOVE: Product] * 'Growth Rate'
 ```
+
+```pigment
+// Good: Defer REMOVE to a separate, late metric
+Step 1: 'Revenue' * 'Growth Rate'                // scope preserved
+Step 2: 'Step 1'[REMOVE: Product]                 // scope lost only at end
+```
+
+**Note:** Moving `[REMOVE: Product]` onto a different metric in the same expression (e.g. `'Revenue' * 'Growth Rate'[REMOVE: Product]`) changes semantics; it removes Product from Growth Rate before multiplication, which is a different calculation. Always defer REMOVE to a separate downstream metric.
 
 ### Mistake 2: Not Using ISDEFINED
 
@@ -932,6 +951,6 @@ IFDEFINED('Revenue', 'Revenue' * 'Adjustment')
 
 ## See Also
 
-- [Performance Profiler Usage](./performance_profiler_usage.md) - How to use the profiler to analyze scope
+- [Performance Profiling](./performance_profiling.md) - profiling tools and output parsing
 - [Performance Formula Optimization](./performance_formula_optimization.md) - Formula-level optimization techniques
 - [Performance Sparsity Deep Dive](./performance_sparsity_deep_dive.md) - Sparsity and its relationship to scoping

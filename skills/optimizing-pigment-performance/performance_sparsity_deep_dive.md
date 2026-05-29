@@ -531,11 +531,9 @@ Computation cost: Only defined cells
 
 ### Checking Sparsity
 
-**In the UI**:
+**Agent:** Use `tool:get_top_blocks_by_performance` with `CombinedCardinality` on suspect blocks. After a change, `tool:performance_profile_change` shows whether executions stayed scoped (partial compute) vs full recompute.
 
-- Check metric properties for cell count
-- Compare cell count to dimension cardinality product
-- Sparsity % = (Actual cells / Possible cells) × 100
+**User handoff (if needed):** Ask for metric cell count vs dimension cardinality product. Sparsity % ≈ (actual cells / possible cells) × 100.
 
 **Expected sparsity**:
 

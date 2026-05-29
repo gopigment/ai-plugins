@@ -63,7 +63,7 @@ Every **pivot field** you add in `pages`, `rows`, or `columns` gets a **stable i
 
 - **Values/Rows/Columns/Pages field `id`** — Must always be a **freshly generated UUID**, never the metric ID. Each value entry needs its own unique identifier distinct from the metric/property it references.
 - **Same dimension on Pages and on Rows/Columns is SUPPORTED** — When the user asks to "put X on Pages", **add** to Pages without removing X from Rows/Columns. Page selectors then narrow which modalities appear on the row/column axis. Do not treat this as a conflict. See [view_components.md](./view_components.md) for OK patterns vs. anti-patterns.
-- **New View (greenfield)** — Use **`tool:create_view`**
+- **New View (greenfield)** — Use **`tool:create_view`** then iterate with updates using the other tools.
 - **Editing an existing View** — Call **`tool:update_view`** (or the field-specific variants) directly on the View id. If a Draft was auto-created, the agent should:
   - wire the widget to display it via **`tool:update_view_widget_overrides`** so only this user sees it
   - tell the user they can save the Draft in the Board UI.

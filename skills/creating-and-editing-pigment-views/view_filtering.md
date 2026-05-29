@@ -12,7 +12,9 @@ Grouping pivots can also be used in Pages. Selecting a value on a Grouping Page 
 
 ### Filters
 
-For more control than Pages, use Filters. There are several types:
+For more control than Pages, use Filters. There are several types.
+
+Filters are applied **after** creation via `tool:update_view_filters`, using pivot ids from the `tool:create_view` response.
 
 **CRITICAL REQUIREMENT**: The `pivotFieldId` in filters MUST reference a pivot from the **rows or columns** arrays, NOT from the pages array.
 

@@ -1,27 +1,46 @@
 # Formula Performance Patterns
 
-**Apply these patterns to EVERY formula before delivery.**
+**Apply this checklist proportionally to formula complexity.** Simple arithmetic between existing same-dimensioned metrics (e.g. `'A' + 'B'`, `'A' * 'B'`, `'A' / 'B'`) needs no performance wrapping — deliver as-is. Review these patterns for formulas that involve conditionals, dimensional changes, date-range logic, or that target large/sparse metrics.
 
-This checklist ensures formulas are performant. Do NOT skip this step. For detailed explanations, see the `skill:optimizing-pigment-performance`.
+This checklist ensures formulas are performant. For detailed explanations, see the `skill:optimizing-pigment-performance`.
 
 ---
 
 ## Performance Checklist
 
-Before delivering any formula, verify:
+Before delivering a formula, verify the applicable items:
 
+**Always check (universal):**
+
+- [ ] Identifiers are correctly quoted (single quotes for names, double quotes for items)
+- [ ] Dimensions are aligned — no unintended ADD or dimension mismatch
 - [ ] Scoping clauses appear FIRST (FILTER, EXCLUDE, IFDEFINED)
 - [ ] Aggregations appear AFTER calculations
-- [ ] Avoid ISBLANK - use IFDEFINED or ISDEFINED
+
+**Check when conditionals are present:**
+
+- [ ] Avoid ISBLANK on large sparse metrics — use IFDEFINED or ISDEFINED
 - [ ] Use IFBLANK for defaults, not IF(ISBLANK(...))
-- [ ] Use BLANK instead of 0 or FALSE
 - [ ] Conditional creation: use IF (not ADD + FILTER); subsetting a computed expression: use FILTER: CurrentValue (not IF(expr, expr, BLANK))
+
+**Check when date ranges are defined by Start/End:**
+
+- [ ] Avoid multi-conditional IFs (`Date >= Start AND Date < End`) when PRORATA semantics apply
+- [ ] Prefer `PRORATA()` for "active within a date range" and derive booleans/numeric flags from `PRORATA()` (use ISDEFINED/IFDEFINED, not ISBLANK/ISNOTBLANK)
+
+**Check when prior period lookups are needed:**
+
 - [ ] Using SELECT for prior period lookups, NOT PREVIOUS
+
+**Check when dimensional changes or mappings are involved:**
+
 - [ ] Using BY instead of ADD where mapping exists
+- [ ] Do not use ISBLANK/ISNOTBLANK to guard BY when a dimension-typed metric is in BY; BY respects that metric's sparsity (see [formula_modifiers.md](./formula_modifiers.md))
+
+**Check when the metric is large/sparse or involves access rights:**
+
+- [ ] Use BLANK instead of 0 or FALSE for empty values (see Pattern 9 exception for meaningful zeros)
 - [ ] Access rights wrapped in IFDEFINED(User, ...)
-- [ ] For continuous date ranges defined by Start/End Date, avoid multi-conditional IFs (`Date >= Start AND Date < End`).
-- [ ] Prefer `PRORATA()` for "active within a date range" and derive booleans/numeric flags from `PRORATA()` (use ISDEFINED/IFDEFINED, not ISBLANK/ISNOTBLANK).
-- [ ] Do not use ISBLANK/ISNOTBLANK to guard BY when a dimension-typed metric is in BY; BY respects that metric's sparsity (see [formula_modifiers.md](./formula_modifiers.md)).
 
 ---
 
@@ -102,7 +121,7 @@ Only TRUE values are stored → **blank cells remain blank → sparse**.
 
 **Why**: ISBLANK returns explicit boolean values (TRUE/FALSE) for ALL cells, causing densification. IFDEFINED returns BLANK for undefined cells, preserving sparsity.
 
-**Anti-pattern** (densifies - ISBLANK returns TRUE for blank cells, FALSE for defined cells):
+**Less idiomatic on large sparse metrics** (densifies — ISBLANK returns TRUE for blank cells, FALSE for defined cells):
 
 ```pigment
 IF(ISBLANK('Revenue'), 0, 'Revenue' * 1.1)
@@ -110,7 +129,7 @@ IF(ISBLANK('Revenue'), 0, 'Revenue' * 1.1)
 
 **What happens**: Every cell gets a value (TRUE, FALSE, 0, or calculated result) → dense.
 
-**Optimized** (preserves sparsity - returns BLANK for undefined cells):
+**Optimized** (preserves sparsity — returns BLANK for undefined cells):
 
 ```pigment
 IFDEFINED('Revenue', 'Revenue' * 1.1)
@@ -118,13 +137,15 @@ IFDEFINED('Revenue', 'Revenue' * 1.1)
 
 **What happens**: Only cells where Revenue is defined get calculated; others remain BLANK → sparse.
 
+**Context guard**: On small already-dense metrics or where explicit TRUE/FALSE output is required (e.g. data-completeness exports), `IF(ISBLANK(...))` is acceptable; see [functions_logical.md](./functions_logical.md) allow-list.
+
 ---
 
 ### Pattern 3: Use IFBLANK for Default Values
 
 **Why**: IFBLANK is simpler, clearer, and optimized for the common pattern of providing a default when a value is blank.
 
-**Anti-pattern** (verbose and less efficient):
+**Less idiomatic** (verbose and densifies on large sparse metrics):
 
 ```pigment
 IF(ISBLANK('Revenue'), 'Default Revenue', 'Revenue')
@@ -135,6 +156,8 @@ IF(ISBLANK('Revenue'), 'Default Revenue', 'Revenue')
 ```pigment
 IFBLANK('Revenue', 'Default Revenue')
 ```
+
+**Context guard**: On small already-dense metrics, `IF(ISBLANK(...))` is functionally equivalent and acceptable if readability is the priority; see [functions_logical.md](./functions_logical.md) allow-list.
 
 ---
 
@@ -160,9 +183,11 @@ IF(Month > Month."Jan 25", 10)
 
 #### Case B: Subsetting an expression you're already computing (no ADD)
 
-**Why**: IF forces the expression to be evaluated twice for every cell that passes the condition (once in the condition, once in the body). FILTER evaluates the expression once per cell and reuses the result as `CurrentValue` in the filter — less work and often faster (e.g. ~20% in large metrics). Use FILTER when you want to keep only cells where the computed value meets a threshold.
+**Why**: When IF repeats the same expensive expression in the condition and result, it will be evaluated twice. [FILTER: CurrentValue] computes it only once, then filters on the result — usually faster and clearer for large or complex calculations.
 
-**Anti-pattern** (repeats expression, slower — e.g. tenure only for positive values):
+For simple metric references or arithmetic on small spaces, IF is equally performant and often more readable.
+
+**Less idiomatic on large spaces with expensive expressions** (repeats expression):
 
 ```pigment
 IF(
@@ -182,8 +207,8 @@ IF(
 
 **When to use each**:
 
-- **IF**: Conditional creation — adding values to new cells (no ADD in the alternative). Prefer IF over `value[ADD: Dim][FILTER: condition]`.
-- **FILTER: CurrentValue**: Subsetting a computed expression — you have one expression and want to keep only cells where its value meets a condition. Prefer `(Expression)[FILTER: CurrentValue > threshold]` over `IF(Expression > threshold, Expression, BLANK)`, especially when Expression is non-trivial.
+- **IF**: Conditional creation — adding values to new cells (no ADD in the alternative). Prefer IF over `value[ADD: Dim][FILTER: condition]`. Also acceptable for simple expressions on small spaces where readability matters.
+- **FILTER: CurrentValue**: Subsetting a computed expression — you have one expression and want to keep only cells where its value meets a condition. Prefer `(Expression)[FILTER: CurrentValue > threshold]` over `IF(Expression > threshold, Expression, BLANK)`, especially when Expression is non-trivial and the metric space is large.
 
 ---
 
@@ -243,7 +268,7 @@ IF(
 'MoM Change' = 'Revenue' - 'Revenue'[SELECT: Month-1]
 ```
 
-**When PREVIOUS/PREVIOUSOF is OK**: Only when current period's calculated result depends on prior period's calculated result (e.g., running balances: `PREVIOUSOF('Balance', 0) + 'Inflow' - 'Outflow'`). See [functions_iterative_calculation.md](./functions_iterative_calculation.md) for full guidance.
+**When PREVIOUS/PREVIOUSOF is OK**: Only when current period's calculated result depends on prior period's calculated result (e.g., running balances: `PREVIOUSOF('Balance') + 'Inflow' - 'Outflow'`). See [functions_iterative_calculation.md](./functions_iterative_calculation.md) for full guidance.
 
 ---
 
@@ -265,11 +290,11 @@ IFDEFINED(User, 'Revenue'[AR: 'Rules'])
 
 ---
 
-### Pattern 9: Use BLANK Instead of 0
+### Pattern 9: Use BLANK Instead of 0 (When Zero Has No Meaning)
 
-**Why**: Using 0 creates dense data with explicit zeros stored. BLANK preserves sparsity - empty cells take no storage or computation.
+**Why**: Using 0 creates dense data with explicit zeros stored. BLANK preserves sparsity — empty cells take no storage or computation.
 
-**Anti-pattern** (creates explicit zeros - dense):
+**Less idiomatic on large sparse metrics** (creates explicit zeros — dense):
 
 ```pigment
 IF(condition, value, 0)
@@ -286,6 +311,22 @@ IF(condition, value, BLANK)
 ```pigment
 IF(condition, value)
 ```
+
+**Exception — when 0 is a meaningful business value:**
+
+Use 0 (not BLANK) when zero is a meaningful result that the user expects to see, or when 0 participates in downstream multiplication / summation where the additive identity matters. Examples:
+
+- Zero variance (budget equals actual)
+- Zero balance (account fully settled)
+- Zero growth rate (flat period)
+- A line item is inactive but the total row must show 0, not BLANK
+
+```pigment
+// Budget vs actual variance: show 0 when they match, not BLANK
+IF('Actual' > 'Budget', 'Actual' - 'Budget', 0)
+```
+
+**Rule of thumb**: BLANK means "not applicable / no data at this coordinate." Zero means "the value is zero." Choose based on semantic intent.
 
 ---
 
@@ -323,7 +364,7 @@ IF('Revenue' > 1000, TRUE)
 
 **Why**: Single source of truth for date-range presence, less verbose, correct boundaries (Start included, End+1 for inclusive), sparsity preserved when deriving via ISDEFINED/IFDEFINED.
 
-**Anti-pattern** (multi-conditional IF for presence - verbose, error-prone at boundaries):
+**Less idiomatic on Day-level dimensions or when boundary handling and reuse matter** (multi-conditional IF for presence — verbose, error-prone at boundaries):
 
 ```pigment
 IF(
@@ -352,9 +393,13 @@ IFDEFINED(PRORATA(Day, 'Start Date', 'End Date' + 1), 1)
 
 Do not use ISBLANK/ISNOTBLANK for this pattern — they densify. Use ISDEFINED or IFDEFINED on the PRORATA result.
 
+**When simple IF is acceptable**: On small planning horizons with Month-level presence flags or for one-off single-date cutover comparisons, `IF(Month >= 'Start Month' AND Month <= 'End Month', TRUE)` is acceptable and clearer. Prefer PRORATA when proration semantics, boundary correctness, or cross-metric reuse matter.
+
 ---
 
 ## Quick Decision Guide
+
+**Note**: These defaults assume large/sparse metric spaces. On small dense spaces, several of the "avoid" options are acceptable — see the per-pattern context guards above.
 
 | Situation                        | Use                            | Avoid                                     |
 | -------------------------------- | ------------------------------ | ----------------------------------------- |
@@ -364,7 +409,7 @@ Do not use ISBLANK/ISNOTBLANK for this pattern — they densify. Use ISDEFINED o
 | Provide default for blank        | IFBLANK                        | IF(ISBLANK(), default, value)             |
 | Add values conditionally         | IF                             | ADD + FILTER                              |
 | Subset computed expression by value | `(Expression)[FILTER: CurrentValue > threshold]` | IF(Expression > threshold, Expression, BLANK) |
-| Empty/no value                   | BLANK or omit                  | 0                                         |
+| Empty/no value                   | BLANK or omit                  | 0 (unless 0 is a meaningful business value)  |
 | Boolean flag (sparse)            | TRUE or BLANK                  | TRUE or FALSE (FALSE densifies!)          |
 | Replicate value to dimension     | BY CONSTANT (with mapping)     | ADD CONSTANT                              |
 | Aggregate via mapping            | BY                             | ADD                                       |

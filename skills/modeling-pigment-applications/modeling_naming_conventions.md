@@ -97,8 +97,8 @@ Agent behavior:
 ### Best Practices
 
 1. **Always set friendly names** following your naming convention (e.g., two-prefix system for metrics)
-2. **Set display names for user-facing metrics** that appear in Views and Boards
-3. **Use display names for multi-language support** — localize what end users see
+2. **Set a display name on every block by default**, in both `en-US` and `fr-FR`
+3. **Skip the display name only when** the block will never be surfaced to any end user (purely internal/technical block, that will never appear in any View, Board, Table) and if no simple, clear display name exists without being confusing or overly complicated, skip it entirely - do not force a display name for compliance.
 4. **Use clear, non-technical language in display names** — "Forecast Revenue" instead of "CALC_REV_Forecast"
 
 ### Agent Guidance

@@ -1,6 +1,6 @@
 ---
 name: optimizing-pigment-performance
-description: Always use this skill when troubleshooting slow calculations or timeouts, analyzing profiler output to identify bottlenecks, understanding scope propagation, managing sparsity, optimizing formula performance, improving iterative calculations, optimizing access rights performance, or conducting systematic performance audits. Provides the optimization mental model (profile -> classify bottleneck -> apply pattern -> re-profile), the five core principles, an anti-pattern table, profiler chip and scope notation references, and the pre-delivery performance checklist. Always profile first; never optimize based on assumptions.
+description: Always use this skill when troubleshooting slow calculations or timeouts, analyzing profiler output to identify bottlenecks, understanding scope propagation, managing sparsity, optimizing formula performance, improving iterative calculations, optimizing access rights performance, conducting systematic performance audits, auditing a Pigment application (modeling, formula hygiene, folders, boards, governance), cleaning unused dimensions, metrics, tables, properties, or boards, identifying dead or stale boards, or removing unused metrics. Modeler-agent skill for Performance Insights tools (performance_profile_change, get_top_blocks_by_performance), then classify and fix. Provides the optimization loop, audit vs cleaning modes, and routing to deep dives. Always profile before formula changes; never optimize from assumptions.
 metadata:
   skill_path: /optimizing-pigment-performance/SKILL.md
   base_directory: /optimizing-pigment-performance
@@ -10,152 +10,136 @@ metadata:
 
 # Optimizing Pigment Performance
 
-Performance optimization for Pigment applications: profiler-driven, sparsity-aware, scope-conscious. Read first to get the mental model and pick the right deep dive.
+Profiler-driven performance optimization, sparsity-aware patterns, and application audit/cleaning for the modeler agent. Read this overview first, then the matching deep dive.
 
 ## When to Use This Skill
 
-- Slow calculations or timeouts
-- Profiler analysis (chips, scope notation, computation chains)
-- Densification or sparsity loss
-- Iterative calculations (PREVIOUS, PREVIOUSOF, CUMULATE) over long horizons
-- Access Rights-heavy formulas
+- Slow calculations, timeouts, or profiler analysis
+- Scope loss, densification, iterative horizons, AR overhead, calendar iteration
 - Systematic performance audit on an application
+- App audit (modeling, formulas, folders, boards, governance) with severity-tagged findings
+- Cleaning unused dimensions, metrics, tables, properties, or boards (deletion only)
+- Identifying dead or stale boards, removing unused metrics
+- Board loads slowly but profiler shows fast metric compute (rendering vs compute)
+- Planning cycle grew many scenarios/versions and inputs feel much slower
 
 ---
 
-## Mental Model
+## Performance Mental Model
 
 Every optimization follows the same loop. Skipping the profile step is the most common failure mode.
 
-1. **Profile** (mandatory). No optimization without a profiler reading.
-2. **Classify the bottleneck.** One of: scope loss, sparsity densification, iterative horizon, AR overhead, calendar iteration, or formula shape (`IF` / `FILTER` / `BY`).
-3. **Apply the right pattern.** Scope-first, BY over ADD, IFDEFINED over ISBLANK, etc.
+1. **Profile** (mandatory). Call `tool:get_top_blocks_by_performance` and/or `tool:performance_profile_change` (see below). No optimization without tool output.
+2. **Classify the bottleneck.** Scope loss, sparsity densification, iterative horizon, AR overhead, calendar iteration, formula shape, or board-render overhead (widget count, heavy views).
+3. **Apply the right pattern.** Scope-first, `BY` over `ADD`, `ISDEFINED` over `ISBLANK`, etc.
 4. **Re-profile, compare, document** the gain.
 
+### Core Principles
+
+1. **Scope first.** Start formulas with scoping clauses (`FILTER`, `EXCLUDE`, `IFDEFINED`).
+2. **Preserve sparsity.** Use `ISDEFINED` instead of `ISBLANK`. Use `BLANK` instead of `0` or `FALSE`.
+3. **Filter early, defer aggregations.** Apply `FILTER`/`EXCLUDE` before computation; push `REMOVE` to the end of the chain.
+4. **Profile systematically.** Measure before and after every change.
+5. **Understand scope propagation.** Know when scope is lost (`REMOVE`, `CUMULATE`, AR).
+
+### Performance profiling tools (modeler agent)
+
+Requires Performance Insights (`use_performance_tools`). Profiling tools and output parsing: [./performance_profiling.md](./performance_profiling.md).
+
+| Tool | When to use | Input highlights |
+|---|---|---|
+| `tool:performance_profile_change` | A **specific slow user action** is known; you have (or can get) its `change_id` from audit trail | `change_id` (UUID). Returns execution chain with duration, scope, dependencies. |
+| `tool:get_top_blocks_by_performance` | **Exploratory** app-wide triage: which blocks cost the most over a period | `scenario_id`, `criteria` (`ExecutionCount`, `ExecutionTimeAvgMs`, `ExecutionTimeSumMs`, `CombinedCardinality`), `range_start`, `range_end`, `top_n`. Returns ranked blocks with cardinality and job stats. |
+
+**Workflow:** Start with `get_top_blocks_by_performance` when the hotspot block is unknown. Use `performance_profile_change` after reproducing a slow change to analyze scope propagation and the execution chain for that change.
+
 ---
 
-## Core Principles
+## Audit vs Cleaning (Application Hygiene)
 
-1. **Scope First.** Start formulas with scoping clauses (FILTER, EXCLUDE, IFDEFINED).
-2. **Preserve Sparsity.** Use ISDEFINED instead of ISBLANK. Use BLANK instead of 0 or FALSE.
-3. **Reduce Early.** Aggregate or filter data before downstream operations.
-4. **Profile Systematically.** Use the profiler, not assumptions. Measure before and after every change; document the delta.
-5. **Understand Scope Propagation.** Know when and why scope is lost (REMOVE, CUMULATE, AR).
+Two modes; never mix in the same pass.
 
----
+| Mode | Purpose | Output | Never |
+|---|---|---|---|
+| **Audit** | Diagnostic, non-destructive | Findings with HIGH / MEDIUM / LOW + proposed fixes | Deletes, renames, refactors |
+| **Cleaning** | Deletion only | Removes unused objects in strict order | Formula edits, renames, folder moves |
 
-## Optimization Workflow
+### Severity (canonical)
 
-1. **Profile.** Identify chips (black / blue / gray), scope notation (3/3, 0/3), and the dominant computation chain.
-2. **Classify the bottleneck.** Scope loss, densification, iterative horizon, AR overhead, calendar iteration, or formula shape.
-3. **Pick the deep dive** from the routing table below.
-4. **Apply the pattern.** Validate the formula syntax with `tool:validate_formula` when relevant.
-5. **Re-profile.** Compare before / after. Document the gain.
+| Severity | Meaning |
+|---|---|
+| **HIGH** | Breaks critical rules, blocks T&D, or data-loss risk |
+| **MEDIUM** | Performance, maintainability, or governance harm |
+| **LOW** | Cosmetic or minor hygiene |
+
+### Deletion Order (canonical)
+
+Cleaning uses two independent axes executed in this order:
+
+1. **DEAD boards first.** Classify boards (ACTIVE / STALE / DEAD) from usage analytics. Delete DEAD boards (tag, notify, contestation window, delete). STALE boards are not deleted automatically but signal future cleanup.
+2. **Recompute structural usage** after board deletion.
+3. **Structural objects in order:** Dimensions, Metrics, Tables, Properties. Hide, observe, delete. Recompute usage after each pass; iterate until no new candidates.
+
+System truth (settings, dependency graph, usage analytics) defines "unused", not agent judgment. Always validate deletions with the user before irreversible removal.
+
+### Scenario Cardinality
+
+Version and scenario proliferation multiplies work per input (roughly linear in active scenario count, often felt as much worse when scope and AR compound). When an application grows from 3 to 12 scenarios, expect at least ~4x more computation and plan for higher perceived slowdown. Audit scenario cardinality as a structural performance factor; recommend subsetting inactive scenarios or archiving historical versions. See also `skill:modeling-pigment-applications` for version/scenario architecture.
+
+| Need | Doc |
+|---|---|
+| Full app audit (modeling, UX, governance, cleanup candidates) | [./performance_auditing_application.md](./performance_auditing_application.md) |
+| Deletion workflow, unused definitions, board usage rules | [./performance_cleaning_application.md](./performance_cleaning_application.md) |
 
 ---
 
 ## Bottleneck Routing
 
-| Bottleneck signal | Read |
+| Signal | Read |
 |---|---|
-| Reading profiler output, chip colors, scope notation | [./performance_profiler_usage.md](./performance_profiler_usage.md) |
-| Analyzing a profile response from the MCP tool (`GetChangeProfileResponse`) | [./performance_profiler_analysis.md](./performance_profiler_analysis.md) |
-| Scope loss after REMOVE, CUMULATE, AR; scope propagation rules | [./performance_scoping_patterns.md](./performance_scoping_patterns.md) |
-| Metric is much bigger than expected, ISBLANK / ISNOTBLANK in formulas | [./performance_sparsity_deep_dive.md](./performance_sparsity_deep_dive.md) |
-| Formula shape (IF vs FILTER, REMOVE vs SELECT, BY vs ADD) | [./performance_formula_optimization.md](./performance_formula_optimization.md) |
-| PREVIOUS, PREVIOUSOF, CUMULATE over long horizons | [./performance_iterative_calculations.md](./performance_iterative_calculations.md) |
-| AR-heavy formulas, `ISDEFINED(User)` pattern | [./performance_access_rights.md](./performance_access_rights.md) |
-| Calendar-driven iteration, time dimension granularity | [./performance_calendar_considerations.md](./performance_calendar_considerations.md) |
-| Systematic audit, where to start | [./performance_troubleshooting_workflow.md](./performance_troubleshooting_workflow.md) |
+| Profiling (tools, parse output, report) | [./performance_profiling.md](./performance_profiling.md) |
+| Rank app hotspots over a time window | `tool:get_top_blocks_by_performance` (see tools table above) |
+| Scope loss after `REMOVE`, `CUMULATE`, AR | [./performance_scoping_patterns.md](./performance_scoping_patterns.md) |
+| Unexpected metric size, `ISBLANK` / `ISNOTBLANK` | [./performance_sparsity_deep_dive.md](./performance_sparsity_deep_dive.md) |
+| Formula shape (`IF` vs `FILTER`, `BY` vs `ADD`) | [./performance_formula_optimization.md](./performance_formula_optimization.md) |
+| `PREVIOUS`, `PREVIOUSOF`, `CUMULATE` horizons, calendar iteration | [./performance_iterative_calculations.md](./performance_iterative_calculations.md) |
+| AR-heavy formulas, `ISDEFINED(User)` wrapper | [./performance_access_rights.md](./performance_access_rights.md) |
+| Board slow to load, profiler shows fast compute | [./performance_troubleshooting_workflow.md](./performance_troubleshooting_workflow.md) (board-render fork); `skill:designing-pigment-boards` |
+| Many scenarios/versions, inputs much slower | [./performance_scoping_patterns.md](./performance_scoping_patterns.md) (scenario cardinality); `skill:modeling-pigment-applications` |
+| Where to start a systematic audit | [./performance_troubleshooting_workflow.md](./performance_troubleshooting_workflow.md) |
 
 ---
 
-## Anti-Patterns (Quick Reference)
+## Quick Reference: Common Anti-Patterns
 
-| Anti-Pattern | Why it hurts | Fix |
-|---|---|---|
-| `ISBLANK` instead of `ISDEFINED` | Densifies the metric | Use `ISDEFINED` |
-| `IF(ISBLANK(A), B, A)` | Verbose, densifies | Use `IFBLANK(A, B)` |
-| `ISBLANK` / `ISNOTBLANK` for sparsity gates | Densifies over a large space | Use `BY` on a dimension-typed metric, or `ISDEFINED` / `IFDEFINED` / `IFBLANK` / `EXCLUDE` |
-| `IF(ISBLANK(metric), BLANK, ...)` guarding a `BY` | Redundant, densifies | Use `BY` alone; the dimension-typed metric drives sparsity |
-| No scoping at the start of the formula | Computes unnecessarily | Add `FILTER` or `EXCLUDE` first |
-| Unnecessary `REMOVE` | Loses scope | Remove only when needed |
-| Long dense horizons in `PREVIOUS` | Exponential time | Subset the time dimension |
-| AR formula without `ISDEFINED(User)` guard | Computes for all users | Wrap AR in `ISDEFINED(User)` |
+For detailed patterns with examples, see [./performance_formula_optimization.md](./performance_formula_optimization.md) and [./performance_sparsity_deep_dive.md](./performance_sparsity_deep_dive.md).
 
----
-
-## Profiler Reference
-
-### Scope Chips
-
-| Chip | Meaning |
+| Anti-Pattern | Fix |
 |---|---|
-| Black | Scope preserved and passed downstream |
-| Blue | New scope introduced (dimension added) |
-| Gray | Computation triggered but no output change |
-
-### Scope Notation
-
-| Notation | Meaning |
-|---|---|
-| `3/3` | Full scope (all dimensions scoped) |
-| `2/3` | Partial scope (some dimensions scoped) |
-| `0/3` | No scope (full recomputation required) |
-
----
-
-## Pre-Delivery Checklist
-
-Every optimized formula must pass:
-
-- [ ] Scoping clauses appear first (FILTER, EXCLUDE, IFDEFINED)
-- [ ] Use ISDEFINED instead of ISBLANK
-- [ ] Use IFBLANK instead of IF(ISBLANK())
-- [ ] Use BY with dimension-typed metrics for sparsity; avoid ISBLANK / ISNOTBLANK for sparsity
-- [ ] Aggregate early with BY
-- [ ] Avoid unnecessary REMOVE
-- [ ] Subset time dimensions for iterative calculations
-- [ ] AR-heavy formulas wrapped in ISDEFINED(User)
-- [ ] Profile before and after the change; document the delta
-
----
-
-## Glossary
-
-- **Scope**: the dimensional context in which a formula evaluates.
-- **Scope chip**: profiler color marker (black / blue / gray) indicating scope behavior at a node.
-- **Scope notation**: `X/Y` ratio of scoped vs total dimensions at a profiler node.
-- **Densification**: turning a sparse metric into a fuller one (often by FALSE, 0, or ISBLANK / ISNOTBLANK).
-- **Sparsity-first**: pattern that preserves blanks and never materializes 0 / FALSE cells.
-- **Reduce early**: aggregate or filter as close to the source as possible.
-- **AR overhead**: cost of evaluating Access Rights formulas; mitigated with `ISDEFINED(User)` and structural choices.
-
----
-
-## Prerequisites
-
-- **modeling-pigment-applications**: core concepts, dimensional design
-- **writing-pigment-formulas**: formula syntax, modifiers, functions
-
-If unfamiliar with these, read them first.
-
----
-
-## Critical Rules
-
-- **Always profile first.** Identify the actual bottleneck before changing anything.
-- **Measure before and after.** Document baseline and improvement.
-- **ISDEFINED over ISBLANK.** Preserves sparsity.
-- **Scope early.** Start formulas with scoping clauses.
-- **Subset time dimensions** for iterative calculations over long horizons.
-- **ISDEFINED(User)** for AR-heavy formulas.
-- **Document profiler findings.** Explain what the profiler showed and why the change was made.
+| `ISBLANK` / `ISNOTBLANK` for sparsity gates | `ISDEFINED` / `IFDEFINED` / `IFBLANK` / `EXCLUDE`, or `BY` on dimension-typed metric |
+| No scoping at formula start | Add `FILTER` or `EXCLUDE` first |
+| Early `REMOVE` in chain | Defer `REMOVE` to end; use `BY` with mappings |
+| Long dense horizons in `PREVIOUS` | Subset time dimension |
+| AR formula without `ISDEFINED(User)` guard | Wrap in `IFDEFINED(User, ...)` |
+| Fast profiler, slow board load | Check widget count, view filters, displayed volume; see troubleshooting workflow |
+| Many active scenarios/versions | Subset inactive scenarios; archive historical versions |
 
 ---
 
 ## Cross-References
 
-- **modeling-pigment-applications**: dimensional design, MS rules
-- **writing-pigment-formulas**: formula syntax, function details, conditionals style
-- **securing-pigment-applications**: AR formula patterns
+- **modeling-pigment-applications**: dimensional design, principles, folders, version/scenario architecture
+- **writing-pigment-formulas**: syntax, modifiers, functions
+- **securing-pigment-applications**: AR patterns and AR metric construction
+- **designing-pigment-boards**: board design (audit section)
+- **agent-capabilities-and-behavior**: UI-only operations the agent cannot perform
+
+---
+
+## Critical Rules
+
+- **Always profile with performance tools first** before formula changes (or ask user for `change_id` if tools disabled).
+- **Audit is diagnostic; cleaning is deletion only.**
+- **DEAD boards first, then structural objects in order (Dimensions, Metrics, Tables, Properties).** Recompute usage between passes.
+- **Validate cleanup with the user** before irreversible deletions.
+- **ISDEFINED over ISBLANK**; scope early; document profiler findings.
