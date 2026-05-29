@@ -2,6 +2,8 @@
 
 UI: order of rows/columns (and chart categories). Tool payloads use `pivotFieldId` and **`sorts`** (same pivot list as filters).
 
+Sorts are applied **after** creation via `tool:update_view_sorts`, using pivot ids from the `tool:create_view` response.
+
 Sorting controls how data is ordered in the View. It applies to both **Grid** and **Chart** display (e.g., bar order in a bar chart). Multiple sorting options can be applied, with the first option having the highest priority.
 
 ### Types of Sorting

@@ -1,6 +1,6 @@
 ---
 name: writing-pigment-formulas
-description: Always use this skill when writing, editing, or debugging Pigment formulas. Pigment uses a proprietary formula language — NEVER assume you know the syntax, and ALWAYS read the full documentation before writing any formula. Covers data types, modifiers, functions, calculation patterns, and formula performance best practices. Pigment has its own formula syntax, NEVER write formulas in any other language. This skill includes supporting files in this directory - explore as needed.
+description: Always use this skill when writing, editing, or debugging Pigment formulas — including conditional logic, blank handling, date-range logic, aggregation, prior-period lookups, and dimensional transformations. Pigment uses a proprietary formula language — NEVER assume you know the syntax, and ALWAYS read the documentation before writing any formula. Covers data types, modifiers, functions, calculation patterns, and performance trade-offs (calibrated by formula complexity). This skill includes supporting files in this directory; explore as needed.
 metadata:
   skill_path: /writing-pigment-formulas/SKILL.md
   base_directory: /writing-pigment-formulas
@@ -31,20 +31,6 @@ ONLY Pigment syntax exists when writing formulas.
 - **Allocate data** - Distributing values across dimensions
 - **Match and lookup** - Finding data across dimensions
 
-### Required reading for conditional logic
-
-**MUST read [formula_conditionals_style.md](./formula_conditionals_style.md) when** the task involves any of:
-
-- Nested IF chains or deep IF/AND/OR trees
-- IFBLANK, ISBLANK, or IF(ISBLANK(...)) patterns
-- FILTER vs IF tradeoffs (when to use each)
-- EXCLUDE vs NOT on booleans
-- Boolean logic with many AND/OR branches
-- Repeated condition blocks across branches
-- Optimizing conditional logic for performance or sparsity
-
-Do not rely on SKILL.md summaries alone — open and read the full document for conditional design decisions.
-
 ---
 
 ## Syntax Fundamental
@@ -71,7 +57,7 @@ Do not rely on SKILL.md summaries alone — open and read the full document for 
 - The explicit form `Dimension.Property."Value"` is valid when that property is the identifier used to resolve the item (e.g. `Country.Code."FR"` if the dimension uses Code as identifier).
 - Property chaining: dimension-type properties can be chained with dot notation: `'Dimension'.'Property'.'Property'...` (e.g. `City.Country.Currency`).
 
-**Best practice (MP02):** Hard-coding dimension items in formulas (e.g. `Country."France"`, `Version."Budget"`) is discouraged. Prefer an input metric of type Dimension (e.g. VAR_Budget_Version) or other structural references. See [modeling_principles – Formula Best Practices and MP02](../modeling-pigment-applications/modeling_principles.md). When the formula references the Version dimension or planning-cycle items (Budget, Forecast, Actual, etc.), also use `skill:planning-cycles-pigment-applications` for the Version Dimension setup, switchover semantics, and Is Actual / Is Plan / Is Version Boolean metrics.
+**Best practice** Hard-coding dimension items in formulas (e.g. `Country."France"`, `Version."Budget"`) is discouraged. Prefer an input metric of type Dimension (e.g. VAR_Budget_Version) or other structural references. See [modeling_principles – Formula Best Practices and MP02](../modeling-pigment-applications/modeling_principles.md). When the formula references the Version dimension or planning-cycle items (Budget, Forecast, Actual, etc.), also use `skill:planning-cycles-pigment-applications` for the Version Dimension setup, switchover semantics, and Is Actual / Is Plan / Is Version Boolean metrics.
 
 **Common Mistakes:**
 
@@ -83,92 +69,45 @@ Do not rely on SKILL.md summaries alone — open and read the full document for 
 
 ## Performance Patterns
 
-**Every formula MUST apply performance patterns before delivery.**
+**Apply this checklist proportionally to formula complexity.** Simple arithmetic between existing same-dimensioned metrics (e.g. `'A' + 'B'`, `'A' * 'B'`, `'A' / 'B'`) needs no performance wrapping — deliver as-is. Use the checklist as a review gate for formulas that introduce conditionals, dimensional changes, date-range logic, or that target large/sparse metrics.
 
 Read [formula_performance_patterns.md](./formula_performance_patterns.md) and verify:
 
+**Always check (universal):**
+
+- [ ] Identifiers are correctly quoted (single quotes for names, double quotes for items)
+- [ ] Dimensions are aligned — no unintended ADD or dimension mismatch
 - [ ] Scoping clauses appear FIRST (FILTER, EXCLUDE, IFDEFINED)
 - [ ] Aggregations (REMOVE, BY) appear AFTER calculations
-- [ ] Using IFDEFINED instead of IF(ISBLANK())
-- [ ] Using IFBLANK instead of IF(ISBLANK(...), default, ...)
+
+**Check when conditionals are present:**
+
+- [ ] Using IFDEFINED instead of IF(ISBLANK()) for existence checks
+- [ ] Using IFBLANK instead of IF(ISBLANK(...), default, ...) for defaults
 - [ ] Conditional creation: use IF (not ADD + FILTER); subsetting a computed expression: use FILTER: CurrentValue (not IF(expr, expr, BLANK))
-- [ ] Prefer sparsity-first conditionals (IFBLANK, FILTER/EXCLUDE, EXCLUDE not NOT) — **MUST read** [formula_conditionals_style.md](./formula_conditionals_style.md) when conditionals are present
+
+**Check when date ranges are defined by Start/End:**
+
+- [ ] Avoid multi-conditional IFs (`Date >= Start AND Date < End`) when PRORATA semantics apply
+- [ ] Prefer `PRORATA()` to express "active within a date range" and derive booleans or numeric flags from `PRORATA()` using ISDEFINED/IFDEFINED
+
+**Check when prior period lookups are needed:**
+
 - [ ] Using SELECT for prior period lookups (NOT PREVIOUS)
+
+**Check when dimensional changes or mappings are involved:**
+
 - [ ] Using BY instead of ADD where mapping exists
-- [ ] Using BLANK instead of 0 for empty values
-- [ ] Using BLANK instead of FALSE for boolean flags (FALSE is stored, BLANK is not)
+- [ ] If you BY on a dimension-typed metric, do not add IF/ISBLANK guards; BY respects that metric's sparsity
+
+**Check when the metric is large/sparse or involves access rights:**
+
+- [ ] Avoid ISBLANK/ISNOTBLANK on large sparse metrics — use ISDEFINED/IFDEFINED
+- [ ] Use BLANK instead of 0 for empty values (see exception below for meaningful zeros)
+- [ ] Use BLANK instead of FALSE for boolean flags (FALSE is stored, BLANK is not)
 - [ ] Access rights wrapped in IFDEFINED(User, ...)
-- [ ] For continuous date ranges defined by Start/End Date, avoid multi-conditional IFs (`Date >= Start AND Date < End`).
-- [ ] Prefer `PRORATA()` to express "active within a date range" and derive booleans or numeric flags from `PRORATA()` instead of using ISBLANK/ISNOTBLANK.
-- [ ] If you BY on a dimension-typed metric, do not add IF/ISBLANK guards; BY respects that metric's sparsity.
 
-### Date Range Presence (Prefer PRORATA over multi-conditional IF)
-
-**Anti-pattern (to avoid):**
-
-Using IF with multiple date comparisons to flag whether something is active between two dates:
-
-```pigment
-// Presence flag on Day (anti-pattern)
-IF(
-  Day >= 'Start Date'
-  AND Day <= 'End Date',
-  1,
-  BLANK
-)
-```
-
-This is:
-
-- Verbose and harder to read
-- Easy to get wrong at boundaries (inclusive vs exclusive)
-- Duplicates logic that PRORATA already encodes
-
-**Preferred Pattern: PRORATA for presence**
-
-For any continuous interval defined by Start/End Date, use `PRORATA()` as the source of truth for presence.
-
-**Step 1 — Numeric presence factor on a time dimension:**
-
-```pigment
-// Each active day = 1, outside range = BLANK
-PRORATA(Day, 'Start Date', 'End Date' + 1)
-
-// Each active month gets the proportional factor of active days in that month
-PRORATA(Month, 'Start Date', 'End Date' + 1)
-```
-
-- Start Date is included
-- End Date is excluded, so use End Date + 1 to make it inclusive
-- On the Day dimension, this behaves as a sparse numeric flag (1 or BLANK)
-
-**Step 2 — Boolean or numeric presence derived from PRORATA:**
-
-Instead of using ISBLANK / ISNOTBLANK (which densify), derive presence as:
-
-```pigment
-// Boolean presence: TRUE when active, FALSE otherwise
-ISDEFINED(
-  PRORATA(Day, 'Start Date', 'End Date' + 1)
-)
-```
-
-If you explicitly need a numeric 1/BLANK flag:
-
-```pigment
-IFDEFINED(
-  PRORATA(Day, 'Start Date', 'End Date' + 1),
-  1
-)
-```
-
-**Guideline:** Encode the date-range logic once with `PRORATA(TimeDim, Start, End + 1)`. Derive booleans or numeric flags from `PRORATA()` using ISDEFINED / IFDEFINED. Do not use multi-conditional IFs (>= Start AND <= End) or ISBLANK / ISNOTBLANK for this pattern.
-
-### Pre-delivery checklist (governance)
-
-Before delivering any formula:
-
-- **Dimension item literals:** Does the formula contain a literal dimension item (e.g. `Month."Jan 25"`, `Version."Budget"`, `Country."France"`)? If **yes**: have you applied MP02 (input metric of type Dimension or other structural reference)? If not, do not deliver the formula as-is; propose the MP02-compliant solution. See [modeling_principles](../modeling-pigment-applications/modeling_principles.md) section 4 and MP02. If the literal is a Version Item (Budget, Forecast, Reforecast, Actual...), also consult `skill:planning-cycles-pigment-applications` so the Version Dimension is wired correctly (switchover, Is Actual / Is Plan).
+For the full date-range presence pattern (PRORATA worked examples, ISDEFINED/IFDEFINED derivation, when simple IF is acceptable), see **Pattern 11** in [formula_performance_patterns.md](./formula_performance_patterns.md).
 
 ---
 
@@ -179,7 +118,7 @@ Before delivering any formula:
 **Follow the complete 8-step workflow**: [./formula_writing_workflow.md](./formula_writing_workflow.md)
 
 - **Critical**: Always search documentation first before writing
-- **Governance check (MP02):** If the formula will reference a specific dimension item (e.g. a month, version, country), read [modeling_principles](../modeling-pigment-applications/modeling_principles.md) section 4 and MP02 **before** writing the formula. Do not hard-code `Dimension."Item"`; propose or use an input metric of type Dimension (e.g. VAR_Selected_Month) unless the user explicitly accepts a one-off hard-coded reference.
+- **Governance check:** If the formula references a specific dimension item (aka hard-coded item), prefer an input metric of type Dimension.
 - **Validation & Delivery**: Use Formula Builder Tools to validate and deliver formulas
 
 ---
@@ -220,7 +159,6 @@ This skill focuses on formula **implementation**. Before writing formulas, under
 - Pigment Modeling Best Practices standards (sparsity preservation, dimension alignment, formatting)
 - Dimensional design concepts (source-to-target relationships, transformation cases)
 - Modifier concepts
-- **Governance (MP02):** Before writing any formula that filters or selects on a dimension member (e.g. "revenue for January 25", "revenue for Budget version"), you **must** read [modeling_principles](../modeling-pigment-applications/modeling_principles.md) section 4 and MP02 and apply the input-metric-of-type-Dimension pattern; do not output a formula with hard-coded `Dimension."Item"` without having checked MP02.
 
 ### Type Considerations
 
@@ -318,7 +256,7 @@ Formulas produce results that must match the target metric or property type:
 - **ABSOLUTE: Pigment syntax ONLY**: You MUST NEVER write functions in other languages like Excel, SQL, Python, JavaScript, MDX, DAX, or ANY other language. Think ONLY in Pigment terms.
 - **Search first**: Always search documentation to discover functions and patterns before writing
 - **Follow workflow**: Complete the 8-step process in [./formula_writing_workflow.md](./formula_writing_workflow.md)
-- **Apply performance patterns**: Every formula must pass the checklist in [formula_performance_patterns.md](./formula_performance_patterns.md) before delivery
+- **Review performance patterns**: Formulas with conditionals, dimensional changes, date ranges, or large/sparse targets must pass the checklist in [formula_performance_patterns.md](./formula_performance_patterns.md) before delivery. Simple arithmetic between same-dimensioned metrics does not require this review.
 - **Prerequisites matter**: Understand modeling concepts from modeling-pigment-applications skill first
 - **Document your work**: List which files you consulted for transparency
 
@@ -391,9 +329,9 @@ Comments must be included in the formula string passed to `tool:create_or_update
 
 **Sparsity:**
 
-- NEVER use ISBLANK/ISNOTBLANK — use ISDEFINED (returns TRUE/BLANK, not TRUE/FALSE); they are densifying. See allow list and anti-patterns in [functions_logical.md](./functions_logical.md).
+- Avoid ISBLANK/ISNOTBLANK on large sparse metrics — use ISDEFINED instead (returns TRUE/BLANK, not TRUE/FALSE). For small already-dense metrics or where explicit TRUE/FALSE output is required (e.g. data-completeness exports), ISBLANK is acceptable; see [functions_logical.md](./functions_logical.md) allow-list.
 - If you BY on a dimension-typed metric, its sparsity is respected automatically; do not add IF/ISBLANK guards.
 - Use IFBLANK(A, B) instead of IF(ISBLANK(A), B, A) - cleaner and doesn't densify
-- Use BLANK, not 0 or FALSE for empty values
-- Prefer sparsity-first conditionals: IFBLANK for override/precedence/case-style, FILTER/EXCLUDE when else is BLANK, EXCLUDE not NOT. See [formula_conditionals_style.md](./formula_conditionals_style.md).
+- Use BLANK for empty values when the cell genuinely has no data. Use 0 (not BLANK) when zero is a meaningful business value (zero variance, zero balance, zero growth) that must be displayed or that participates in downstream multiplication.
+- EXCLUDE, not FILTER: NOT — see [formula_conditionals_style.md](./formula_conditionals_style.md)
 - See [functions_logical.md](./functions_logical.md) for detailed blank handling guidance

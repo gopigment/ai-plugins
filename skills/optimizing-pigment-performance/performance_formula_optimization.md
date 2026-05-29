@@ -4,7 +4,7 @@
 
 Formula optimization is about writing formulas that produce the correct result while minimizing computation time and resource usage. Small changes in formula structure can lead to dramatic performance improvements.
 
-This guide covers the core principles of formula optimization: scope-first, reduce-first, execution order, and common anti-patterns to avoid.
+This guide covers the core principles of formula optimization: scope-first, filter-early with deferred aggregations, execution order, and common anti-patterns to avoid.
 
 ## Core Optimization Principles
 
@@ -16,13 +16,13 @@ This guide covers the core principles of formula optimization: scope-first, redu
 
 **Implementation**: Use FILTER, EXCLUDE, or IFDEFINED at the beginning of formulas.
 
-### Principle 2: Reduce First
+### Principle 2: Filter Early, Defer Aggregations
 
-**Definition**: Aggregate or filter data as early as possible in the computation chain.
+**Definition**: Apply **filtering** (`FILTER`, `EXCLUDE`, `SELECT`) as early as possible to shrink the dataset. **Defer scope-losing aggregations** (`REMOVE`) to the end of the chain to preserve scope.
 
-**Why it matters**: Operating on smaller datasets is faster at every subsequent step.
+**Why it matters**: Filtering reduces cells without losing scope (faster at every subsequent step). `REMOVE` loses scope, so deferring it keeps downstream metrics fast.
 
-**Implementation**: Apply BY, FILTER, or SELECT modifiers before complex calculations.
+**Implementation**: Apply `FILTER`/`EXCLUDE`/`SELECT` before complex calculations. Push `REMOVE` to the end. `BY` with property mappings can replace `REMOVE + ADD` without scope loss.
 
 ### Principle 3: Understand Execution Order
 
@@ -205,21 +205,17 @@ IFDEFINED('Revenue',
 
 **Improvement**: Excludes test accounts before any computation.
 
-## Reduce-First Patterns
+## Filter-Early Patterns
 
-### Pattern 1: Aggregate Before Complex Calculations
+### Pattern 1: BY Before Complex Calculations (When Equivalent)
 
-**Anti-pattern**:
+When downstream granularity is lower than the source, aggregate with `BY` before computing (only when mathematically equivalent):
 
 ```pigment
-// Complex calculation at transaction level, then aggregate
+// Anti-pattern: complex calculation at transaction level, then aggregate
 ('Transaction Amount' * 'Exchange Rate' + 'Fee')[BY: 'Transaction'.'Customer']
-```
 
-**Optimized pattern**:
-
-```pigment
-// Aggregate first, then calculate (if mathematically equivalent)
+// Optimized: aggregate first, then calculate
 'Transaction Amount'[BY: 'Transaction'.'Customer'] * 'Exchange Rate' + 'Fee'
 ```
 
@@ -542,7 +538,7 @@ Before finalizing a formula, check:
 ### Before Optimization
 
 1. **Profile the formula**: Note computation time
-2. **Check scope**: Look at scope column in profiler
+2. **Check scope**: Re-run `tool:performance_profile_change`; read effective/output scope per execution
 3. **Identify bottleneck**: Which part is slow?
 
 ### After Optimization
@@ -572,10 +568,10 @@ Before finalizing a formula, check:
 ## Best Practices Summary
 
 1. **Scope first**: Start with FILTER, EXCLUDE, or IFDEFINED
-2. **Reduce early**: Aggregate or filter before complex calculations
-3. **Use IF for conditional creation**: Don't create then filter
-4. **Preserve sparsity**: Use ISDEFINED, not ISBLANK
-5. **Defer aggregations**: Push REMOVE to the end
+2. **Filter early**: Apply FILTER/EXCLUDE/SELECT before complex calculations to shrink the dataset
+3. **Defer aggregations**: Push REMOVE to the end of the chain to preserve scope
+4. **Use IF for conditional creation**: Don't create then filter
+5. **Preserve sparsity**: Use ISDEFINED, not ISBLANK
 6. **Optimize execution order**: Filter before expand
 7. **Profile regularly**: Measure before and after
 8. **Keep formulas readable**: Don't sacrifice clarity for micro-optimizations
@@ -584,4 +580,4 @@ Before finalizing a formula, check:
 
 - [Performance Scoping Patterns](./performance_scoping_patterns.md) - Deep dive into scope preservation
 - [Performance Sparsity Deep Dive](./performance_sparsity_deep_dive.md) - Sparsity management techniques
-- [Performance Profiler Usage](./performance_profiler_usage.md) - How to measure optimization impact
+- [Performance Profiling](./performance_profiling.md) - profiling tools and output parsing

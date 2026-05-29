@@ -1,10 +1,8 @@
-# Formula Conditionals Style (Sparsity-First)
+# Formula Conditionals Style
 
-**When to use this doc**: You are writing conditional logic, inclusion/exclusion rules, or filtering data — either with IF/SWITCH or with modifiers (FILTER, EXCLUDE). This document defines the **canonical Pigment-native style** for conditionals so formulas stay sparse, readable, and consistent.
+**When to use this doc**: Conditional logic with IF/SWITCH or modifiers (FILTER, EXCLUDE), or highly complex formulas that require performance optimization.
 
-**MUST read this doc when** the formula involves any of: nested IF chains, IFBLANK/ISBLANK patterns, FILTER vs IF tradeoffs, EXCLUDE vs NOT, boolean logic with many AND/OR branches, repeated condition blocks that can be normalized, or optimization of conditional logic for performance/sparsity.
-
-**Goal**: Write Pigment-native formulas, not Excel-style formulas in Pigment syntax. Prefer sparsity and modifiers (FILTER, EXCLUDE, ADD) as first-class tools; use IFBLANK / IFDEFINED / ISDEFINED as the primary way to branch on data presence; avoid deeply nested IF/AND/OR and unnecessary densification.
+**Goal**: Readable Pigment-native formulas. Use IF to scope early; IFBLANK for overrides/precedence; `[FILTER: ...]` to subset an existing metric when that reads most naturally. Avoid ISBLANK/ISNOTBLANK and unnecessary densification.
 
 **Related**: Syntax and function reference → [functions_logical.md](./functions_logical.md), [formula_modifiers.md](./formula_modifiers.md). Performance (scoping, densification) → [formula_performance_patterns.md](./formula_performance_patterns.md).
 
@@ -12,30 +10,30 @@
 
 ## Quick Reference: When to Use What
 
+**Note**: IFBLANK is the right tool for sparsity-driven branching (presence checks, override hierarchies). For value-based branching where both branches return non-blank values, IF and SWITCH are equally idiomatic and often more readable.
+
 | Situation | Prefer | Avoid |
 | --------- | ------ | ----- |
+| Choose between two scalar values based on a comparison or classification (value-based branching) | `IF(condition, A, B)` or `SWITCH(...)` | Wrapping in IFBLANK when both values are always defined |
 | "First non-blank wins" (override hierarchy) | `IFBLANK(Expr1, IFBLANK(Expr2, ...))` | Nested `IF(cond1, Expr1, IF(cond2, Expr2, ...))` |
 | Override when present, else base | `IFBLANK('Override', 'Base')` | `IF(ISBLANK('Override'), 'Base', 'Override')` |
-| Branch on "is this input defined?" | `IFBLANK(ISDEFINED('Input'), 'Fallback'[EXCLUDE: ...])` | Nested IF with AND/OR on flags |
-| Mutually exclusive cases (e.g. Case A vs Case B) | `IFBLANK(Expr_A[FILTER: condA], Expr_B[EXCLUDE: condA])` | `IF(condA, Expr_A, Expr_B)` with dense condition |
-| "Which rows should this apply to?" | `'Metric'[FILTER: ...]` or `[EXCLUDE: ...]` | `IF(condition, 'Metric', BLANK)` when ELSE is BLANK |
+| Branch on "is this input defined?" | `IFDEFINED('Input', 'Input', 'Fallback')` or `IFBLANK(ISDEFINED('Input'), 'Fallback'[EXCLUDE: ...])` (advanced) | Nested IF with AND/OR on flags |
+| Subset an existing metric by row | `'Metric'[FILTER: ...]` or `[EXCLUDE: ...]` | Repeating the metric in both IF branches |
 | Exclude a flagged subset | `'Metric'[EXCLUDE: 'Entity'.'Is_Archived']` | `'Metric'[FILTER: NOT 'Entity'.'Is_Archived']` |
 | Sparse boolean "tag where condition holds" | `IF(condition, TRUE)` or `IF(condition, TRUE, BLANK)` | `condition` alone (densifies to TRUE/FALSE) |
 | Both IF branches share same expression (e.g. same metric + modifiers) | Factor out: `Expr * IF(cond, a, b)` or `Expr + IF(cond, x, y)` | Repeating `Expr` in both branches |
-| Multiple branches repeat same FILTER/EXCLUDE conditions (4+ similar blocks) | Nested IF that factors common expression; vary only the differing part | IFBLANK with repeated FILTER/EXCLUDE on each branch (can degrade performance) |
+| Multiple branches repeat same FILTER/EXCLUDE conditions (3+ similar blocks) | Nested IF that factors common expression; vary only the differing part (see section 2.5) | IFBLANK with repeated FILTER/EXCLUDE on each branch (can degrade performance) |
 
 ---
 
-## 1. IFBLANK as the Primary Tool for Conditionals
+## 1. IFBLANK for presence-driven branching
 
-IFBLANK is the preferred building block for:
+IFBLANK is for **presence-driven branching**:
 
 - Precedence / case chains ("first non-blank wins")
 - Override vs default logic
-- Sparsity-driven branching based on data presence
-- Case-style branching where each case is scoped with FILTER / EXCLUDE
 
-Prefer it over deeply nested IF + AND/OR trees.
+For **value-based branching** (comparison-driven classification, threshold assignment), prefer IF or SWITCH — they are the natural tool when both branches always produce a value.
 
 ### 1.1 Precedence chains ("first non-blank wins")
 
@@ -81,7 +79,19 @@ IF(ISBLANK('Override_Metric'), 'Base_Metric', 'Override_Metric')
 
 **Goal**: When the driver for branching is "does this input exist?", not its value.
 
-**Canonical pattern**:
+**Default pattern** (when you need "use override if present, else fallback"):
+
+```pigment
+IFDEFINED('Input', 'Input', 'Fallback')
+```
+
+Or equivalently:
+
+```pigment
+IFBLANK('Input', 'Fallback')
+```
+
+**Advanced pattern** (when you need a TRUE-or-BLANK signal as the branch trigger, e.g. to scope the fallback with EXCLUDE):
 
 ```pigment
 IFBLANK(
@@ -90,42 +100,35 @@ IFBLANK(
 )
 ```
 
-- First argument: test signal (TRUE where context input exists, BLANK where it doesn’t).
+- First argument: test signal (TRUE where context input exists, BLANK where it doesn't).
 - Second argument: fallback expression when there is no context-specific input.
 - Use EXCLUDE (or FILTER) to scope the fallback by row, not AND/OR inside the expression.
 
-### 1.4 Case-style branching with FILTER/EXCLUDE-scoped expressions
+Use the advanced form only when you need EXCLUDE/FILTER scoping on the fallback branch. For most override-vs-fallback formulas, `IFBLANK('Override', 'Fallback')` or `IFDEFINED('Input', 'Input', 'Fallback')` are clearer.
 
-**Goal**: Mutually exclusive cases (e.g. TBH vs in-seat) without one giant IF with AND/OR.
+### 1.4 When to refactor a nested IF chain into IFBLANK
 
-**Canonical pattern**:
+**Nested IF is the natural form for**:
 
-```pigment
-IFBLANK(
-  'TBH Comp Calc'[FILTER: 'Roster'.'Is_TBH'],
-  'Inseat Comp Calc'[EXCLUDE: 'Roster'.'Is_TBH']
-)
-```
+- Value-based threshold classification (e.g. risk tiers, margin buckets, score bands)
+- Exact-match multi-way branching (prefer SWITCH for this)
+- Cases where both branches always produce a defined value
 
-- Each branch is scoped by FILTER or EXCLUDE; IFBLANK just picks "first non-blank".
-- For 3+ cases, nest IFBLANK and scope the default with EXCLUDE for the union of case conditions.
+**Refactor to IFBLANK when** the branching driver is data presence (one or more branches may be BLANK).
 
-**Avoid**: One IF with a dense boolean condition and two scalar expressions.
-
-### 1.5 Replacing deep IF trees with IFBLANK
-
-**Avoid**:
+**Less idiomatic for presence-driven logic**:
 
 ```pigment
 IF(cond1, Expr1, IF(cond2, Expr2, IF(cond3, Expr3, Expr4)))
 ```
 
-**Prefer** one of:
+**Prefer** one of (when presence is the driver):
 
 - Precedence chain: `IFBLANK(Expr1, IFBLANK(Expr2, IFBLANK(Expr3, Expr4)))` (when "first defined wins").
 - Override vs base: `IFBLANK('Override', 'Base')`.
-- Signal-based: `IFBLANK(ISDEFINED('Input'), 'Fallback'[EXCLUDE: ...])`.
-- Case-style: `IFBLANK(Expr_A[FILTER: condA], Expr_B[EXCLUDE: condA])`.
+- Signal-based: `IFBLANK(ISDEFINED('Input'), 'Fallback'[EXCLUDE: ...])` (advanced).
+
+For 3+ branches with the same FILTER/EXCLUDE stack repeating, see section 2.5 — nested IF with factored conditions is often faster.
 
 ---
 
@@ -179,47 +182,7 @@ This avoids repeating the expression and keeps value rules and property rules se
 
 EXCLUDE keeps semantics positive ("drop these rows") and preserves sparsity; NOT over a boolean that can be BLANK densifies. See section 3.
 
-### 2.4 Replace IF(condition, expr, BLANK) with FILTER when ELSE is BLANK
-
-When the else branch is BLANK and the condition is "which rows should be present", use FILTER (or EXCLUDE) instead of IF.
-
-**Anti-pattern**:
-
-```pigment
-IF('Entity'.'Status' = "Active", 'Metric', BLANK)
-```
-
-**Canonical**:
-
-```pigment
-'Metric'[FILTER: 'Entity'.'Status' = "Active"]
-```
-
-Same for multiple conditions: prefer stacked FILTER/EXCLUDE over IF with AND.
-
-**Anti-pattern**:
-
-```pigment
-IF('Entity'.'Status' = "Active" AND NOT 'Entity'.'Is_Archived', 'Metric', BLANK)
-```
-
-**Canonical**:
-
-```pigment
-'Metric'[EXCLUDE: 'Entity'.'Is_Archived'][FILTER: 'Entity'.'Status' = "Active"]
-```
-
-### 2.5 Heuristic: when to choose FILTER/EXCLUDE vs IF
-
-- **Use FILTER/EXCLUDE** when:
-  - The else branch is BLANK (or empty).
-  - The condition is about which rows exist, not which of two scalar values to choose.
-  - You have mutually exclusive cases that can be written as expressions scoped with FILTER/EXCLUDE.
-- **Use IF** when:
-  - You are choosing between two scalar expressions with one or two simple conditions.
-  - You are doing conditional creation (no existing expression to subset) — see [formula_performance_patterns.md](./formula_performance_patterns.md) Pattern 4.
-
-### 2.6 Factorize common subexpressions in IF branches
+### 2.4 Factorize common subexpressions in IF branches
 
 When **both branches** of an IF use the **same expression** (e.g. the same metric with the same FILTER/EXCLUDE), prefer **factoring it out** so the IF only chooses the differing part (multiplier, constant, etc.). This keeps expressions small and composable (DRY).
 
@@ -253,15 +216,15 @@ IF(
 
 Apply the same idea when the only difference between branches is an additive constant, a divisor, or another scalar: factor the common expression once and use IF for the varying part.
 
-### 2.7 When nested IF is acceptable (repeated FILTER/EXCLUDE)
+### 2.5 When nested IF is acceptable (repeated FILTER/EXCLUDE)
 
-When **multiple branches** (e.g. 4+) use the **same FILTER/EXCLUDE conditions** with only a varying expression or multiplier, the IFBLANK/FILTER pattern can degrade performance. Each branch evaluates its own scoped expression; repeated modifiers across many branches add overhead.
+When **multiple branches** (e.g. 3+) use the **same FILTER/EXCLUDE conditions** with only a varying expression or multiplier, the IFBLANK/FILTER pattern can degrade performance. Each branch evaluates its own scoped expression; repeated modifiers across many branches add overhead.
 
 **Prefer** a nested IF that factors out the common logic and uses IF only for the varying part:
 
 ```pigment
-// Multiple branches with same Approved?, Merit Effective, Backfill conditions
-// Prefer: factor common conditions, vary only the salary expression
+// Multiple branches with same conditions
+// Prefer: factor common conditions, vary only the differing expression
 IF(
   'Headcount ID'.Approved? AND (
     'WFP_Elect to Backfill?' = FALSE
@@ -275,9 +238,9 @@ IF(
 )
 ```
 
-**Avoid** when the same FILTER/EXCLUDE stack repeats on many IFBLANK branches — benchmarks show nested IF can be ~40% faster in such cases.
+**Guidance**: When the same `[FILTER: X][FILTER: Y][EXCLUDE: Z]` would repeat on 3+ IFBLANK branches, consider a nested IF that factors the common conditions instead. Benchmarks have shown nested IF can be meaningfully faster in such cases; verify on your workload before committing to either form.
 
-**Rule of thumb**: If you would write the same `[FILTER: X][FILTER: Y][EXCLUDE: Z]` on 4+ branches, consider a nested IF that factors the common conditions instead.
+**Rule of thumb**: If you would write the same `[FILTER: X][FILTER: Y][EXCLUDE: Z]` on 3+ branches, consider a nested IF that factors the common conditions instead.
 
 ---
 
@@ -304,6 +267,8 @@ Prefer patterns that preserve BLANK as a distinct state (IFBLANK, ISDEFINED, FIL
 
 Same for IF: avoid `IF(NOT 'Entity'.'Flag', 'Metric', BLANK)`. Use `'Metric'[EXCLUDE: 'Entity'.'Flag']`.
 
+**Exception**: When the boolean is known to be TRUE/FALSE (no BLANK values, e.g. imported from an ERP system or explicitly set for every item), `FILTER: NOT 'Flag'` is acceptable and may be more readable. EXCLUDE is the safer default when the boolean's BLANK behavior is uncertain or when sparsity matters.
+
 ### 3.3 Sparse boolean masks: IF(condition, TRUE, BLANK)
 
 A bare comparison like `'Metric' = 'Other'` yields a **dense** boolean (TRUE/FALSE everywhere). To keep a **sparse** boolean (TRUE only where the condition holds, BLANK elsewhere):
@@ -317,24 +282,3 @@ IF('Metric' = 'Something Else', TRUE, BLANK)
 ```
 
 Use this when you need a sparse "tag" of cells that meet a condition, without densifying the rest to FALSE.
-
----
-
-## 4. Densification: When ADD + FILTER Is Acceptable
-
-- **Small dimensional spaces**: `TRUE[ADD: Entity, Version][FILTER: condition]` can be acceptable and readable.
-- **Large dimensional spaces**: Densifying a scalar with ADD then FILTER is a performance anti-pattern; prefer IF(condition, expr, BLANK) or FILTER on an expression that already has the right dimensions.
-
-See [formula_performance_patterns.md](./formula_performance_patterns.md) Pattern 4 (conditional creation vs subsetting) and Pattern 6 (BY over ADD). When in doubt, prefer IF or FILTER on an existing expression over ADD + FILTER on a scalar.
-
----
-
-## Summary Checklist for Conditionals
-
-- [ ] Prefer IFBLANK for override/default, precedence chains, and case-style logic with FILTER/EXCLUDE.
-- [ ] Use FILTER/EXCLUDE when the else branch is BLANK and the condition is "which rows apply".
-- [ ] Use separate FILTER (and EXCLUDE) modifiers instead of one big AND.
-- [ ] Use EXCLUDE for exclusions; do not use FILTER: NOT.
-- [ ] Use IF(condition, TRUE, BLANK) when you need a sparse boolean mask.
-- [ ] Avoid NOT on booleans that can be BLANK; use EXCLUDE or positive conditions instead.
-- [ ] When both IF branches share the same expression (e.g. same metric with same modifiers), factor it out so the IF only chooses the differing part (multiplier, constant).

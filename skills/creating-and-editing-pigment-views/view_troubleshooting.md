@@ -23,8 +23,8 @@
 
 **Symptoms:**
 
-- Filter was provided in the create_view call but is missing from the created View
-- Filter appears to be ignored during view creation
+- Filter was sent to `tool:update_view_filters` but is missing from the updated View
+- Filter appears to be ignored
 - No error message, but the filter just doesn't appear
 
 **Root Cause:**

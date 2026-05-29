@@ -166,8 +166,8 @@ Select only the time dimensions required for your use case:
 **4. Reuse Calendar Dimensions:**
 Always use the built-in calendar dimensions provided by your application's calendar. Do not create custom time dimensions. Calendar dimensions are optimized and consistent across the application.
 
-**5. Consider Actual vs Forecast:**
-Enable Actual vs Forecast if you need to distinguish between historical actuals and future forecasts in your planning model.
+**5. Actuals vs Plan separation:**
+To distinguish historical Actuals from Plan periods, use the Version Dimension Switchover pattern (see `skill:planning-cycles-pigment-applications`). Do not rely on the calendar's Actual vs Forecast toggle for this purpose.
 
 **6. Document Calendar Settings:**
 Document your calendar configuration: Fiscal year start month, date range, selected time dimensions, Actual vs Forecast settings.
@@ -180,7 +180,6 @@ Document your calendar configuration: Fiscal year start month, date range, selec
 - Fiscal Year: January (calendar year) or April/July/October
 - Dimensions: Year, Quarter, Month
 - Date Range: 3 years historical + 5 years forward
-- Actual vs Forecast: Enabled (if needed)
 
 **Operations Planning:**
 
@@ -194,7 +193,6 @@ Document your calendar configuration: Fiscal year start month, date range, selec
 - Type: Gregorian
 - Dimensions: Year, Half, Quarter
 - Date Range: 5 years historical + 10 years forward
-- Actual vs Forecast: Usually not needed
 
 ---
 

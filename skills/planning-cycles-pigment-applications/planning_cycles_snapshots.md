@@ -4,7 +4,7 @@ A **Snapshot** is a point-in-time copy of an entire Pigment Application. It is t
 
 ## 1. When to Snapshot
 
-- **At the end of a planning cycle.** Close `Budget FY26` once `Budget FY27` is live.
+- **At the end of a planning cycle.** Close the prior Budget Version once the new Budget Version is live.
 - **At each cycle for Rolling Forecasting.** Snapshot the Application monthly (or per cycle cadence) so each cycle has a frozen reference.
 - **Before a major model change** that may affect prior results.
 
@@ -19,7 +19,7 @@ This pairs naturally with the Version Dimension pattern. See [planning_cycles_ve
 
 ## 3. Performance Budget
 
-- Keep **~6 live Versions max** in the Version Dimension.
+- Target **~6-10 live Versions** in the Version Dimension; review when above 10.
 - Archive older Versions via Snapshots; do not leave them as live Items.
 - Live Versions inflate recalculation cost.
 
@@ -31,12 +31,12 @@ This pairs naturally with the Version Dimension pattern. See [planning_cycles_ve
 
 ## Anti-Patterns
 
-1. **Keeping more than ~6 live Versions** instead of archiving via Snapshots.
+1. **Keeping more than 10 live Versions without review** instead of archiving via Snapshots.
 2. **Editing data in a frozen cycle** by re-adding live Versions instead of restoring from a Snapshot.
 
 ## See Also
 
 - [planning_cycles_versions.md](./planning_cycles_versions.md): Version Dimension setup.
 - [planning_cycles_scenarios.md](./planning_cycles_scenarios.md): Native Scenarios for sensitivity.
-- [`../auditing-and-cleaning-pigment-applications/auditing_application.md`](../auditing-and-cleaning-pigment-applications/auditing_application.md): reviewing live Versions.
+- [`../optimizing-pigment-performance/performance_auditing_application.md`](../optimizing-pigment-performance/performance_auditing_application.md): reviewing live Versions.
 - Pigment KB: [Compare Data with Data slices](https://kb.pigment.com/docs/compare-versions-with-data-slices).

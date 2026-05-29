@@ -100,6 +100,8 @@ Dimension-type properties create hierarchies **without adding dimensions to metr
 
 ### Mapped Dimensions (Dynamic Relationships)
 
+Also called **time-dependent hierarchy**, **slowly changing hierarchy**, or **slowly moving dimensions**: the parent of a child item **changes over time**, and reporting must respect history (past periods keep the old parent; future periods use the new one).
+
 **When to Use:**
 
 **Dimension-type properties** for **static** relationships:
@@ -109,22 +111,23 @@ Dimension-type properties create hierarchies **without adding dimensions to metr
 
 **Mapped Dimensions** for **dynamic** relationships that change over time:
 
+- Cost Center → Department (re-org: historical actuals stay under the old department)
 - Employee → Team (changes monthly)
 - Product → Promotion (varies by period)
 - Customer → Segment (behavior-based)
 
-**Implementation:**
+**Implementation (modeler workflow):**
 
-1. Create mapping Metric with dimension data type: `Employee × Month` (type: Team)
-2. In View: "Map a Dimension to the View"
-3. View aggregates using time-varying relationships
+1. **`tool:create_metric`** — mapping metric, Dimension-typed, structured on the **source** dimensions only (e.g. `Cost Center × Month` → Department).
+2. Populate values with a **formula** on the mapping metric, or manually via **`tool:set_metric_input`**.
+3. **Views** — add a **Mapped Dimension** (Joined Pivot) on the core metric or Table; do **not** add the parent dimension to every underlying metric.
 
-**Example:** Salary (`Employee × Month`) mapped to Team via mapping Metric. Employees automatically aggregate to correct Team per month.
+**Example:** Salary (`Employee × Month`) mapped to Team via mapping metric. Employees automatically aggregate to correct Team per month.
 
 **Comparison:**
 
-- **Property**: Static, works in formulas/views, same for all periods
-- **Mapped Dimension**: Dynamic, views only, varies by time
+- **Property**: Static — updating the parent **moves all history** with the child; fine when the relationship never changes
+- **Mapped Dimension**: Dynamic — **views only**, varies by time; core metrics stay lean
 
 Reference: [Mapped Dimensions docs](https://kb.pigment.com/docs/mapped-dimensions)
 

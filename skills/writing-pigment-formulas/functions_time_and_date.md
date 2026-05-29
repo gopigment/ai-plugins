@@ -189,7 +189,7 @@ IF(
 To get a boolean flag from the same logic:
 
 ```pigment
-// TRUE when the day is within [Start Date, End Date], FALSE otherwise
+// TRUE when the day is within [Start Date, End Date], BLANK otherwise
 ISDEFINED(
   PRORATA(Day, 'Start Date', 'End Date' + 1)
 )
@@ -289,11 +289,11 @@ Returns the value of the previous cell in the iteration dimension of any metric 
 **Syntax**: `PREVIOUSOF(Metric [, Offset])`
 
 **⚠️ PREREQUISITE — Iterative Calculation (PREVIOUSOF) Configuration Required:**
-PREVIOUSOF can ONLY be used on metrics that have been configured for iterative calculation in the Pigment application settings. This configuration **cannot be done via the AI tools** — it must be set up by the user in the Pigment UI.
+PREVIOUSOF can ONLY be used on metrics that have been configured for iterative calculation in the Pigment application settings. Use `tool:create_cycle` when available, or `tool:list_cycles` / `tool:update_cycle` to inspect or adjust an existing cycle. If MCP cycle tools are unavailable, ask the user to configure the cycle in the Pigment UI.
 
 **Before writing any formula with PREVIOUSOF:**
 1. Ask the user whether iterative calculation is already configured for the target metric(s)
-2. If not configured, instruct the user to set it up in the Pigment UI before you apply the formula
+2. If not configured, create or update the cycle with available tools.
 3. Do NOT apply a PREVIOUSOF formula to a metric that is not configured for iterative calculation — it will fail with: "PREVIOUSOF can only be used in a Metric used by an iterative calculation"
 
 **Examples**:
@@ -481,7 +481,7 @@ IF(INPERIOD('Order'.'Date', Quarter), 'Order'.'Amount', BLANK)
 ## Critical Rules
 
 - **Use `[SELECT: Month-N]` for simple lookups** - Not `PREVIOUS`/`PREVIOUSOF`. Reserve iterative functions for true iterative calculations (balances, accumulators)
-- **PREVIOUS/PREVIOUSOF are iterative** - Slow, sequential computation. Only use when current value depends on prior calculated value. **Requires iterative calculation to be configured on the metric in the Pigment UI — no AI tool exists for this. Always confirm with the user before applying.**
+- **PREVIOUS/PREVIOUSOF are iterative** - Slow, sequential computation. Only use when current value depends on prior calculated value. **Requires iterative calculation to be configured on the metric. Use available cycle tools when possible; otherwise ask the user to configure it in the Pigment UI. Always confirm before applying.**
 - **WEEKDAY starts at 0 (Sunday)** - Unlike Excel
 - **PREVIOUS moves on all time dimensions** - Use PREVIOUSOF for single dimension
 - **PREVIOUSOF offset is positive** - Always backward movement

@@ -12,10 +12,7 @@ Produce:
 
 1. **Structured audit report** grouped by: **Modeling** | **Performance** | **UX** | **Governance** | **Cleanup**
 2. **Actionable recommendations** per issue: what to change, why it matters, how to fix it
-3. **Severity**
-   - **HIGH** — performance or correctness risk
-   - **MEDIUM** — maintainability or UX risk
-   - **LOW** — hygiene or style
+3. **Severity** — use HIGH / MEDIUM / LOW as defined in [SKILL.md](./SKILL.md#severity-canonical)
 4. **Delegated skill references** when a finding comes from or should be deepened in another skill (e.g. Formula Optimization / Performance skill, Board design skill, **Application Cleaning** skill for deletion workflow)
 
 ---
@@ -56,7 +53,7 @@ Produce:
 
 ## 3. Metric Hygiene & Cleanup
 
-**For strict deletion workflow and machine-readable definition of "unused", use [cleaning_application.md](./cleaning_application.md).** The audit surfaces **candidates** and **recommendations**; the application cleaning doc defines order of deletion, observation period, and board usage rules.
+**For strict deletion workflow and machine-readable definition of "unused", use [performance_cleaning_application.md](./performance_cleaning_application.md).** The audit surfaces **candidates** and **recommendations**; the application cleaning doc defines order of deletion, observation period, and board usage rules.
 
 ### 3.1 Unused Metrics (Audit View)
 
@@ -65,7 +62,7 @@ Produce:
 - Are not referenced anywhere (no other metric, table, or board references them) — aligns with application cleaning's "unused" for metrics when downstream + UI exposure = 0
 - Look like legacy remnants of past refactors
 
-**Recommend:** Flag as deletion candidates. For actual deletion, follow [cleaning_application.md](./cleaning_application.md): hide -> observe -> delete, in mandatory order (dimensions -> metrics -> tables -> properties). Validate with user before deletion when uncertain.
+**Recommend:** Flag as deletion candidates. For actual deletion, follow [performance_cleaning_application.md](./performance_cleaning_application.md): DEAD boards first, then structural objects (dimensions -> metrics -> tables -> properties) with recompute between passes. Validate with user before deletion when uncertain.
 
 ### 3.2 Temporary / Copy Metrics
 
@@ -106,7 +103,7 @@ Produce:
 - Outputs
 - Technical / Helper (and consider hiding non-business blocks from end users)
 
-**Note:** Folder organization is **Phase 2 / optional** in [cleaning_application.md](./cleaning_application.md); audit can recommend it as hygiene, but it is not part of deletion-only cleaning.
+**Note:** Folder organization is **Phase 2 / optional** in [performance_cleaning_application.md](./performance_cleaning_application.md); audit can recommend it as hygiene, but it is not part of deletion-only cleaning.
 
 ### 4.2 "No Folder" Cleanup
 
@@ -136,7 +133,7 @@ Produce:
 
 ### 5.3 Board Size & Performance
 
-**Flag boards with:** More than **20 widgets**.
+**Flag boards with:** More than ~20 widgets (heuristic; actual threshold depends on widget complexity, data volume, and view types).
 
 **Risks:** Slower load times, harder maintenance, poor UX.
 
@@ -144,7 +141,7 @@ Produce:
 
 ### 5.4 Unused Boards (Audit vs Cleaning)
 
-**Audit:** Flag boards that appear unused (e.g. no recent use, or only admin viewers). For **deletion** and classification (ACTIVE / STALE / DEAD), use [cleaning_application.md](./cleaning_application.md): definition is usage-based (view_count, unique_non_admin_viewers, time window); DEAD boards follow tag -> notify -> contestation -> delete. Audit does not replace the application cleaning workflow.
+**Audit:** Flag boards that appear unused (e.g. no recent use, or only admin viewers). For **deletion** and classification (ACTIVE / STALE / DEAD), use [performance_cleaning_application.md](./performance_cleaning_application.md): definition is usage-based (view_count, unique_non_admin_viewers, time window); DEAD boards follow tag -> notify -> contestation -> delete. Audit does not replace the application cleaning workflow.
 
 ---
 
@@ -163,7 +160,7 @@ Produce:
 
 ## 7. App Cleanup & Maintenance (Validate with User)
 
-**For strict deletion workflow and definitions, see [cleaning_application.md](./cleaning_application.md).** Below is the audit-oriented view.
+**For strict deletion workflow and definitions, see [performance_cleaning_application.md](./performance_cleaning_application.md).** Below is the audit-oriented view.
 
 ### 7.1 Restored Blocks
 
@@ -188,17 +185,13 @@ Pigment’s **Restore block** feature restores previously deleted blocks by crea
 - **Optimize for future maintainers:** Prefer explicit structure over convenience.
 - **Technical debt:** Treat hardcodes, temporary metrics (ZZ/TMP/COPY/test/TBD), and oversized boards as debt; call them out and prioritize by severity.
 - **Scale assumption:** Assume the app will grow in users, time horizon, and scenario complexity; flag design choices that will not scale.
-- **Delegation:** When a finding is about formula quality or performance, point to the relevant skill. When it is about **deletion of unused objects**, point to [cleaning_application.md](./cleaning_application.md) for workflow and definitions.
+- **Delegation:** When a finding is about formula quality or performance, point to the relevant skill. When it is about **deletion of unused objects**, point to [performance_cleaning_application.md](./performance_cleaning_application.md) for workflow and definitions.
 
 ---
 
-## 9. Severity Classification (Summary)
+## 9. Severity Classification
 
-| Severity   | Use when                                                                                    |
-| ---------- | ------------------------------------------------------------------------------------------- |
-| **HIGH**   | Performance or correctness risk (e.g. wrong results, timeouts, security gap)                |
-| **MEDIUM** | Maintainability or UX risk (e.g. unmaintainable formulas, confusing boards, poor structure) |
-| **LOW**    | Hygiene or style (e.g. naming, folder placement, minor cleanup)                             |
+Canonical severity definitions are in [SKILL.md](./SKILL.md#severity-canonical). Use HIGH / MEDIUM / LOW as defined there.
 
 ---
 
@@ -206,12 +199,12 @@ Pigment’s **Restore block** feature restores previously deleted blocks by crea
 
 When findings come from or require deeper use of another skill, state it explicitly in the report:
 
-- **Formula quality / optimization:** `skill:writing-pigment-formulas`, `skill:optimizing-pigment-performance` (including [performance_troubleshooting_workflow.md](../optimizing-pigment-performance/performance_troubleshooting_workflow.md))
+- **Formula quality / optimization:** `skill:writing-pigment-formulas`, `skill:optimizing-pigment-performance` (including [performance_troubleshooting_workflow.md](./performance_troubleshooting_workflow.md))
 - **Time & dates / T&D risks:** [modeling_principles.md](../modeling-pigment-applications/modeling_principles.md) (sections 4 & 9 for T&D), [modeling_time_and_calendars.md](../modeling-pigment-applications/modeling_time_and_calendars.md), `skill:writing-pigment-formulas` (time/date functions)
 - **Folder structure / governance:** [modeling_principles.md](../modeling-pigment-applications/modeling_principles.md). **Naming:** [modeling_naming_conventions.md](../modeling-pigment-applications/modeling_naming_conventions.md)
 - **Boards / UX:** `skill:designing-pigment-boards` (or advanced boards skill)
 - **Access rights:** `skill:securing-pigment-applications` ([securing_access_rights.md](../securing-pigment-applications/securing_access_rights.md))
-- **Application cleaning (deletion workflow):** [cleaning_application.md](./cleaning_application.md) — for definition of "unused", order of deletion, observation period, board usage-based cleaning
+- **Application cleaning (deletion workflow):** [performance_cleaning_application.md](./performance_cleaning_application.md) — for definition of "unused", order of deletion, observation period, board usage-based cleaning
 
 ---
 
@@ -219,7 +212,7 @@ When findings come from or require deeper use of another skill, state it explici
 
 - [modeling_principles.md](../modeling-pigment-applications/modeling_principles.md) - Folder structure, MP06 hygiene
 - [modeling_naming_conventions.md](../modeling-pigment-applications/modeling_naming_conventions.md) - Naming conventions (including Applications ZZ\_)
-- [cleaning_application.md](./cleaning_application.md) - Deletion-only application cleaning, unused definitions, mandatory order, boards by usage
-- [performance_troubleshooting_workflow.md](../optimizing-pigment-performance/performance_troubleshooting_workflow.md) - Performance audit methodology
+- [performance_cleaning_application.md](./performance_cleaning_application.md) - Deletion-only application cleaning, unused definitions, mandatory order, boards by usage
+- [performance_troubleshooting_workflow.md](./performance_troubleshooting_workflow.md) - Performance audit methodology
 - `skill:writing-pigment-formulas` - Formula workflow and quality
 - `skill:designing-pigment-boards` - Board structure and naming

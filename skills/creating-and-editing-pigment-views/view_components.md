@@ -63,10 +63,10 @@ Pivot fields can have different types (kinds) depending on their configuration:
    - Has no `dimensionId` (null)
    - Used for scenario selection
 
-4. **Joined Pivot**: Uses a mapping Metric to join data
+4. **Joined Pivot** aka Mapped Dimensions. Uses a mapping Metric to join data.
    - Has `dimensionId` and `mappingMetricId`
 
-5. **Slice Pivot**: Uses a slice configuration
+5. **Slice Pivot**, aka Data Slice: Uses a slice configuration
    - Has `dimensionId` and `sliceConfigurationId`
 
 ### How List Properties Work in Pivots (Grouping)

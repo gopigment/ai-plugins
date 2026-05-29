@@ -43,7 +43,6 @@ _Feedback loops: Step 3→Step 1, Step 5→Step 3, Step 6→Step 5, Step 7→app
 - Review ALL returned documentation chunks
 - Read discovered files completely
 - Note performance patterns mentioned
-- **If the formula has conditional logic** (IF, IFBLANK, FILTER, EXCLUDE, AND/OR branches): **MUST read** [formula_conditionals_style.md](./formula_conditionals_style.md) before designing or optimizing. Do not skip this — conditional patterns affect correctness and performance.
 - **If the request involves a specific dimension member** (e.g. a month, version, country): consult [modeling_principles](../modeling-pigment-applications/modeling_principles.md) (section 4, MP02) and decide whether to use an input metric of type Dimension before writing the formula; do not hard-code `Dimension."Item"` without having checked MP02.
 
 **Why search matters:** Discovers functions you don't know exist and verifies proper parameter usage.
@@ -145,8 +144,6 @@ You MUST call `tool:validate_formula` before calling `tool:create_or_update_form
 ## Step 6: Optimize for Performance
 
 **REQUIRED: Read [formula_performance_patterns.md](./formula_performance_patterns.md) and apply ALL applicable patterns.**
-
-**If the formula has conditional logic** (IF, IFBLANK, FILTER, EXCLUDE, nested branches): **MUST read** [formula_conditionals_style.md](./formula_conditionals_style.md) before optimizing. Section 2.7 covers when nested IF is preferable to IFBLANK/FILTER when the same conditions repeat across branches.
 
 **Pre-Delivery Checklist:**
 

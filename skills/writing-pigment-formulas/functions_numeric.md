@@ -171,7 +171,7 @@ SPREAD(10[BY: Month."Feb 20"], Month, 6) // Spread 10 from Feb 20 over 6 months
 CUMULATE('Monthly Revenue', Month)
 
 // Month-over-Month Change
-'Revenue' - PREVIOUSOF('Revenue', 1)
+'Revenue' - 'Revenue'[SELECT: Month-1]
 
 // 3-Month Moving Average
 MOVINGAVERAGE('Sales', 3)

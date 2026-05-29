@@ -223,8 +223,8 @@ Modeling and Views are different teams, but in practice modeling and reporting a
 - Example: Creating `Revenue by Region` metric when Revenue is by `Country × Month` and Country has Region property
 
 **Correct Approach:**
-- Use **mapped dimensions** in Views to pivot by dimension-type properties
-- Views can aggregate across property hierarchies without metric structure changes
+- When the parent-child relationship **varies by period**, create a **mapping metric** and use **Mapped Dimensions** in Views (Joined Pivot)
+- When the relationship is **static**, use dimension-type **properties** in Views for grouping without changing metric structure
 - Multiple Views can show the same metric at different aggregation levels
 
 **4. Filtering and Sorting Requirements**

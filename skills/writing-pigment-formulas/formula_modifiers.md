@@ -4,8 +4,6 @@ Dimensional transformations using modifiers for aggregation (N→1 or N→none) 
 
 **Key Concept**: Modifiers are used for dimensional transformations and require square brackets with a colon: `[BY: ...]`, `[REMOVE: ...]`, `[KEEP: ...]`, `[ADD: ...]`, `[SELECT: ...]`, `[FILTER: ...]`, `[EXCLUDE: ...]`, `[TOPARENTLIST: ...]`, `[TOSUBSET: ...]`.
 
-**Conditionals style**: When to use FILTER/EXCLUDE vs IF, canonical patterns (separate FILTERs, EXCLUDE not FILTER: NOT), and case-style branching with IFBLANK → [formula_conditionals_style.md](./formula_conditionals_style.md).
-
 ---
 
 ## Understanding Source and Target
@@ -279,8 +277,6 @@ See [functions_time_and_date.md](./functions_time_and_date.md) for SELECT vs PRE
 ### FILTER Modifier
 
 Filter data based on a boolean condition. **Keeps the dimension** (unlike SELECT which removes it).
-
-**When to use FILTER vs IF**: If the else branch would be BLANK and the condition is "which rows should this apply to?", prefer FILTER over `IF(condition, expr, BLANK)`. See [formula_conditionals_style.md](./formula_conditionals_style.md) for heuristics and canonical patterns.
 
 **Syntax**: `Block[FILTER: BooleanCondition]`
 
