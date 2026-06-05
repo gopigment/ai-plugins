@@ -63,9 +63,9 @@ IF(IFDEFINED('Price'), 'Price' * 'Quantity', BLANK)
 **Dimension Conditions**:
 
 ```pigment
-// Condition with dimension value - use Dimension.Dimension."item" syntax
-IF(Country = Country."France", 'France Rate', 'Default Rate')
-IF(Month = Month."Jan 25", 'Budget', 'Forecast')
+// Condition with dimension member — use VAR_ input metric of type Dimension
+IF(Country = VAR_Selected_Country, 'Local Rate', 'Default Rate')
+IF(Month = VAR_Reference_Month, 'Budget', 'Forecast')
 
 // Condition with metric value
 IF('Revenue' > 1000000, "High", "Low")
@@ -491,8 +491,8 @@ Check if any value in a Boolean block is TRUE.
 **Examples**:
 
 ```pigment
-// Any product in Electronics category
-ANYOF('Product'.'Category' = Category."Electronics")
+// Any product in target category — prefer boolean property on Product
+ANYOF('Product'.'Include Category')
 
 // Any employee in Sales department
 ANYOF('Employee'.'Department' = "Sales")
@@ -533,11 +533,11 @@ Check if items in a List/Block belong to a given set, or fall within a numeric/d
 **Examples**:
 
 ```pigment
-// Specific dimension items
-Country IN (Country."France", Country."UK")
+// Specific members — prefer boolean property or mapping metric (MP02)
+Country IN (VAR_Primary_Country, VAR_Secondary_Country)
 
-// Negation
-NOT Month IN (Month."Jan 22", Month."Feb 22", Month."Mar 22")
+// Negation over a subset property
+NOT Month IN (VAR_Excluded_Month_1, VAR_Excluded_Month_2, VAR_Excluded_Month_3)
 
 // Range over a Year property
 'Switchover Date'[ADD: Year] IN (Year.'Start Date' : Year.'End Date')
@@ -545,7 +545,7 @@ NOT Month IN (Month."Jan 22", Month."Feb 22", Month."Mar 22")
 
 **Returns**: Boolean (TRUE if Block matches any item / falls in the range).
 
-**Key Point**: Cleaner than multiple OR conditions. Prefer `Dimension."Item"` references over raw text strings so renames in the source dimension stay in sync.
+**Key Point**: Cleaner than multiple OR conditions. **MP02:** Do not list `Dimension."Item"` literals — use `VAR_` metrics or boolean properties (see examples above).
 
 ---
 

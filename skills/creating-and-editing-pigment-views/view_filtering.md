@@ -1,19 +1,30 @@
-# Filtering
+# Narrowing data in a View
 
-**UI:** **Pages** (selectors) vs **Filters** on row/column pivots.
+## Terminology (do not confuse)
 
-Narrow the View with **Pages** (default items, etc.) or **Filters** when you need more than page selection.
+| Pigment feature | UI label | API / tool | When to use |
+| --- | --- | --- | --- |
+| **Page Selector** | Pages | `pages[]` + default items | **Default** when user asks to "filter", "focus on", "for Year X", "show only France", pick Version/Scenario |
+| **View Filter** | Filters (on row/column pivots) | `filters[]` | Exclusion, top-N **by metric value**, property-based rules Page Selectors cannot express |
+| **Board Page Selector** | Board Pages | `update_board` page config | Same as Page Selector, but shared across widgets on a Board |
 
-### Pages (Default Items)
+## Interpreting user language
 
-The simplest way to reduce what's shown: configure **Default Items** on a Page to restrict which data is displayed. For example, setting Default Items to "Q1 2024" on a Quarter Page means only Q1 data is displayed — no filter configuration needed.
+When the user says **"filter"**, **"for 2024"**, **"focus on EMEA"**, **"Actuals only"** — they almost always mean a **Page Selector** (View `pages` with a default item), **not** a View Filter object.
 
-Grouping pivots can also be used in Pages. Selecting a value on a Grouping Page filters base items (e.g., Months) whose property chain matches the selected target (e.g., Year = FY 2024 → only Months with `_year` = FY 2024).
+Use **View Filters** only when the request is clearly value-based (e.g. "top 10 suppliers **by cost**") or exclusion logic Page Selectors cannot do.
 
-### Filters
+**Both can apply:** e.g. "top 10 suppliers for Year 2024" → Year via **Page Selector**; top 10 via **View Filter** (ValueField).
 
-For more control than Pages, use Filters. There are several types.
+### Page Selectors (Pages)
 
+The simplest way to reduce what's shown: configure **Default Items** on a Page Selector to restrict which data is displayed. For example, setting Default Items to "Q1 2024" on a Quarter Page Selector means only Q1 data is displayed — no View Filter configuration needed.
+
+Grouping pivots can also be used in Pages. Selecting a value on a Grouping Page Selector narrows base items (e.g., Months) whose property chain matches the selected target (e.g., Year = FY 2024 → only Months with `_year` = FY 2024).
+
+### View Filters (API `filters[]`)
+
+For more control than Page Selectors, use View Filters. There are several types.
 Filters are applied **after** creation via `tool:update_view_filters`, using pivot ids from the `tool:create_view` response.
 
 **CRITICAL REQUIREMENT**: The `pivotFieldId` in filters MUST reference a pivot from the **rows or columns** arrays, NOT from the pages array.
@@ -22,7 +33,7 @@ Filters are applied **after** creation via `tool:update_view_filters`, using piv
 
 Used to exclude Dimension items based on which modalities are present in a pivot.
 
-**Note**: To filter on specific items (inclusion), prefer using **Pages** instead. Use PivotField Filters only when you need to exclude items or apply complex filtering logic.
+**Note**: To narrow to specific items (inclusion), prefer **Page Selectors** instead. Use PivotField Filters only when you need to exclude items or apply complex filtering logic.
 
 **Configuration:**
 

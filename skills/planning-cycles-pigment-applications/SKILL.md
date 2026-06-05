@@ -1,6 +1,6 @@
 ---
 name: planning-cycles-pigment-applications
-description: Always use this skill when the user mentions or implies versions, Budget, Actual, Forecast, Reforecast, Rolling Forecast, switchover, scenarios, snapshots, planning cycles, Actual/Plan layering, plan vs actual, "create version dimension", "set up versioning", or asks for Actual Budget Forecast best practices. Covers Version Dimensions (foundational to all planning applications), Native Scenarios (what-if), and Snapshots (freeze data).
+description: Always use this skill when the user mentions or implies versions, Actual, Actuals, Budget, Budgeting, Forecast, Reforecast, Rolling Forecast, Version, Versioning, Plan, switchover, scenarios, snapshots, planning cycles, Actual/Plan layering, plan vs actual, "create version dimension", "set up versioning", or asks for Actual Budget Forecast best practices — or when they extend realized data into a plan or budget (Actual/Budget/Plan layering, forward forecast from actuals) or need to combine or compare actual and plan versions and periods. Covers Version Dimensions (foundational to all planning applications), Native Scenarios (what-if), and Snapshots (freeze data).
 metadata:
   skill_path: /planning-cycles-pigment-applications/SKILL.md
   base_directory: /planning-cycles-pigment-applications
@@ -18,7 +18,7 @@ Read this skill whenever the user touches metric structure or mentions:
 
 - Versions, Budget, Actual, Forecast, Reforecast, Rolling Forecast
 - "Create version dimension", "set up versioning", "best practices for Actual Budget Forecast"
-- Switchover, lock, layering Actual with Plan, Is Actual / Is Plan / Is Version
+- Switchover, lock, layering Actual with Plan, IsActual / IsPlan / IsVersion
 - Native Scenarios, what-if, Optimistic / Pessimistic / Stress
 - Snapshots, archiving, closing a planning cycle
 
@@ -33,7 +33,7 @@ Planning lifecycle in Pigment is three orthogonal features at the application le
   - For rolling forecast / multi-cycle: cycle-explicit names (`Budget FY<n>`, `Reforecast Q<n> FY<n>`)
   - Mandatory companion: `Version Type` Dimension (Actual, Budget, Forecast, Reforecast, Rolling Forecast, Long Range Planning)
   - Properties: Start / End Month, Switchover Month, Active Version, Lock Version, Version Type
-  - Boolean Metrics: Is Version, Is Actual, Is Plan (gate Actual vs Plan layering)
+  - Boolean Metrics: IsVersion, IsActual, IsPlan (gate Actual vs Plan layering)
 - **Native Scenarios** -- app-level overlay, not a dimension
   - Optimistic, Pessimistic, Stress
   - Formula Groups for safe formula trials
@@ -64,7 +64,7 @@ Invariants:
 1. **Identify the intent.** Structured plan with governance and cross-plan formulas → Version Dimension. Ad-hoc sensitivity → Native Scenario. Archiving a state → Snapshot.
 2. **Build the Version Dimension** with its mandatory companion `Version Type` Dimension. Default items: `Actual`, `Budget`, `Forecast`. Use cycle-explicit names (`Budget FY<n>`) only for rolling forecast / multi-cycle setups.
 3. **Add all mandatory properties in one pass:** `Start Month`, `End Month`, `Switchover Month`, `Active Version` (Bool), `Lock Version` (Bool), `Version Type` (Dimension). Populate values immediately using calendar and current date.
-4. **Build the three Boolean Metrics:** `Is Version` (inside window), `Is Actual` (inside window up to Switchover Month inclusive), `Is Plan` (inside window after Switchover Month).
+4. **Build the three Boolean Metrics:** IsVersion (inside window), IsActual (inside window up to Switchover Month inclusive), IsPlan (inside window after Switchover Month).
 5. **Deliver everything atomically.** Dimension + companion Version Type + properties populated + boolean metrics. Nothing is "phase 2."
 6. **Wire Access Rights** from `Active Version` and `Lock Version`: locked Versions are read-only, active Versions are open for edit. See `skill:securing-pigment-applications`.
 7. **Use Native Scenarios only for overlays** (Optimistic, Pessimistic, Stress) or for trialing formula changes in a Formula Group.
@@ -104,7 +104,7 @@ Do **not** use Calendar tools (`calendar_create`, `calendar_expand`, `calendar_a
 - **Start Month / End Month**: per-version properties defining the planning window of that Version.
 - **Active Version**: Boolean property flagging Versions currently displayed for input or reporting.
 - **Lock Version**: Boolean property flagging Versions locked from edits once approved. Drives the read-only AR rule.
-- **Is Version / Is Actual / Is Plan**: three Boolean metrics over Version × Time. `Is Version` = inside the window. `Is Actual` = inside the window up to Switchover Month inclusive. `Is Plan` = inside the window after Switchover Month.
+- **IsVersion / IsActual / IsPlan**: three Boolean metrics over Version × Time. IsVersion = inside the window. IsActual = inside the window up to Switchover Month inclusive. IsPlan = inside the window after Switchover Month.
 - **Layering**: combining Actuals up to Switchover Month with Plan beyond it, inside a single metric.
 - **Formula Group**: a set of formula overrides scoped to a Native Scenario, used to trial alternative logic without touching the base model.
 - **Shared vs Local Scenario**: scope of a Native Scenario (shared across users, or private to one user).
@@ -119,7 +119,7 @@ Do **not** use Calendar tools (`calendar_create`, `calendar_expand`, `calendar_a
 - **Never use Calendar tools to implement versioning.**
 - **Never use the calendar Actual vs Forecast toggle** for version-level switchover. Use the Version Dimension Switchover pattern.
 - **Never model Budget, Actual or Forecast as Native Scenarios.** Use a Version Dimension.
-- **Never hard-code Version Items in formulas.** Use a `VAR_` input Metric of type Dimension or filter via Version Type.
+- **Never hard-code Version Items in formulas (MP02).** Use IsActual / IsPlan or `VAR_` metrics — see [planning_cycles_versions.md](./planning_cycles_versions.md).
 - **Never use `REMOVE` on Version.** Use `FILTER` or `SELECT`.
 - **Keep the Version Dimension lean.** Only keep active Versions in use and locked Versions needed for reference. Regularly review and clean up; archive older Versions via Snapshots.
 - **Deliver the full setup atomically.** Dimension + Version Type + properties populated + boolean metrics in one pass.

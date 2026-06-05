@@ -159,7 +159,7 @@ Distribute a value evenly across a specified number of items along a dimension.
 
 ```pigment
 SPREAD('Quantity Sold', Month, 3) // Split value over 3 months
-SPREAD(10[BY: Month."Feb 20"], Month, 6) // Spread 10 from Feb 20 over 6 months
+SPREAD(10[BY: VAR_Spread_Start_Month], Month, 6) // VAR_Spread_Start_Month: input metric, type Dimension
 ```
 
 ---

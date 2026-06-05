@@ -8,7 +8,7 @@ Complete guide for dimensional modeling, hierarchy implementation, and strategic
 - Creating hierarchies with dimension-type properties
 - Deciding whether to add dimensions to structure or use properties
 - Working with multi-level or ragged hierarchies
-- Handling dynamic relationships (mapped dimensions)
+- Handling dynamic relationships (mapped dimensions, time-dependent hierarchy)
 
 ## Prerequisites
 
@@ -100,7 +100,7 @@ Dimension-type properties create hierarchies **without adding dimensions to metr
 
 ### Mapped Dimensions (Dynamic Relationships)
 
-Also called **time-dependent hierarchy**, **slowly changing hierarchy**, or **slowly moving dimensions**: the parent of a child item **changes over time**, and reporting must respect history (past periods keep the old parent; future periods use the new one).
+Also called **time-dependent hierarchy**, **slowly changing hierarchy**, or **slowly moving dimensions**. Parent-child relationships can **change across periods**; past periods keep the old parent, future ones the new. The mapping metric usually varies by **time**, sometimes by **Version**.
 
 **When to Use:**
 
@@ -109,7 +109,7 @@ Also called **time-dependent hierarchy**, **slowly changing hierarchy**, or **sl
 - Product → Category (rarely changes)
 - Store → Region (fixed)
 
-**Mapped Dimensions** for **dynamic** relationships that change over time:
+**Mapped Dimensions** for **dynamic** relationships (most often varying by **Month**; sometimes by **Version**):
 
 - Cost Center → Department (re-org: historical actuals stay under the old department)
 - Employee → Team (changes monthly)
@@ -127,7 +127,7 @@ Also called **time-dependent hierarchy**, **slowly changing hierarchy**, or **sl
 **Comparison:**
 
 - **Property**: Static — updating the parent **moves all history** with the child; fine when the relationship never changes
-- **Mapped Dimension**: Dynamic — **views only**, varies by time; core metrics stay lean
+- **Mapped Dimension**: Dynamic — **views only**, varies by period or version; core metrics stay lean
 
 Reference: [Mapped Dimensions docs](https://kb.pigment.com/docs/mapped-dimensions)
 

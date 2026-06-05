@@ -190,24 +190,19 @@ When **both branches** of an IF use the **same expression** (e.g. the same metri
 
 ```pigment
 IF(
-  Month.'Period type' = 'Period type'.Name."Forecast"
+  IsForecast
     AND ( ... segment test ... ),
-  'Revenue'[EXCLUDE: Customers.'ARR Segment' = 'ARR Segment'.Name."Test"
-    OR Customers.'ARR Segment' = 'ARR Segment'.Name."Internal"],
-  'Revenue'[EXCLUDE: Customers.'ARR Segment' = 'ARR Segment'.Name."Test"
-    OR Customers.'ARR Segment' = 'ARR Segment'.Name."Internal"]
+  'Revenue'[EXCLUDE: Customers.'Exclude from ARR Report'],
+  'Revenue'[EXCLUDE: Customers.'Exclude from ARR Report']
 )
 ```
 
 **More idiomatic** (one EXCLUDE, IF only on the multiplier):
 
 ```pigment
-'Revenue'[EXCLUDE:
-  Customers.'ARR Segment' = 'ARR Segment'.Name."Test"
-    OR Customers.'ARR Segment' = 'ARR Segment'.Name."Internal"
-]
+'Revenue'[EXCLUDE: Customers.'Exclude from ARR Report']
 * IF(
-    Month.'Period type' = 'Period type'.Name."Forecast"
+    IsForecast
       AND ( ... segment test ... ),
     1.10,
     1

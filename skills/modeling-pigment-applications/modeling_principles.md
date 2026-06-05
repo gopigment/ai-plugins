@@ -63,19 +63,15 @@ For Applications, Folders, Blocks (metrics and lists), Tables, and Boards naming
 
 **Deployment-safe and maintainable formulas**
 
-Do not hard-code **values** or **dimension items** in formulas. Even if unlikely to change, use an input metric instead. Hard-coding dimension items (e.g. `Country."France"`, `Version."Budget"`) is brittle (renames or missing items break formulas) and blocks safe deployment across environments. See **MP02 - No Hard-Coding** (section 9)
+**MP02 (hard constraint):** Do not hard-code **values** or **dimension items** in formulas — especially on **Time** and **Version**. Do not use `DATE(...)` for planning period bounds or embed fixed periods in metric names. Never write `Dimension."Item"` in formulas; use a `VAR_` input metric of type Dimension or Date, or a structural boolean (e.g. IsActual).
 
-**Preferred approaches:**
+**When a formula depends on a specific member:** (1) Create a `VAR_` input metric of type Dimension. (2) Set its default to the item — the **only** place the literal may appear. (3) Reference the metric in formulas. (4) Expose it on a Board. For Version semantics (actual vs plan), prefer IsActual / `'Version Type'` — see `skill:planning-cycles-pigment-applications`.
 
-- **Input metric of type Dimension (recommended):** Create an input metric (e.g. `VAR_Budget_Version`) of type Dimension that references the desired item (e.g. Version."Budget"). Use it in formulas: `IF(Version = VAR_Budget_Version, ...)`. Document the metric and make it easily editable via a Board so the reference can change without touching formulas.
-- **Other structural references:** Mapping metrics, dimension properties, `SELECT()`, or filters based on properties. If a formula must depend on specific items, reference them via a list property or a mapping metric rather than hard-coding `Dimension."Item"` in the formula.
+**Metric names:** Use relative temporal labels (`'Next Period Forecast'`, `'Budget Current Year'`) — not absolute years or months (`Forecast 2026`). User mentions of a period in the request are context; do not copy them into formulas or names.
 
-Only hard-code dimension items in formulas if you are **absolutely certain** they will never change.
+**Exceptions:** User may explicitly accept a one-off hard-code after you propose the compliant alternative. Stable type/class/category dimensions may stay hard-coded in formulas (e.g. `'FX Rate Types'."AVG"`) — not Time, Version, countries, or planning periods.
 
-When the user asks for a metric or formula that filters or selects on a specific dimension member (e.g. "revenue for January 25", "revenue for current Budget version", "filter to France"), you **must** not output a formula containing `Dimension."Item"` without first having read this section and MP02. Propose the MP02-compliant pattern (input metric of type Dimension, e.g. VAR_Current_Budget_Version) unless the user explicitly accepts a one-off hard-coded reference.
-
-
-For comprehensive guidance on writing formulas, see `skill:writing-pigment-formulas`.
+See **MP02 - No Hard-Coding** (section 8). Formula patterns: `skill:writing-pigment-formulas` ([formula_modifiers](../writing-pigment-formulas/formula_modifiers.md), [formula_writing_workflow](../writing-pigment-formulas/formula_writing_workflow.md)).
 
 ---
 
@@ -374,7 +370,7 @@ The **Scenario** feature that Pigment offers natively, as opposed to a classical
 
 **Recommendation:** For more flexibility and to fully accommodate your planning needs, using a normal **Dimension** to model your planning cycle is recommended. Begin by creating a Version Dimension in your central hub Application. Incorporate this Dimension into your Metrics structure, either for input data (usually in Tables) or for building your calculation logic. Maintain a live version of data that is regularly updated, and couple it with the **Clone data to** functionality, which replicates inputs across various planning phases. Finally, configure read and write access rights to effectively manage visibility and editing permissions for the different planning stages.
 
-**ALWAYS read `skill:planning-cycles-pigment-applications` before structuring any planning metric.** The Version Dimension is foundational: switchover semantics, the Is Actual / Is Plan / Is Version Boolean metrics, and Actual/Plan layering must be wired correctly upfront. Treat that skill as a required companion to this one, not an optional reference.
+**ALWAYS read `skill:planning-cycles-pigment-applications` before structuring any planning metric.** The Version Dimension is foundational: switchover semantics, the IsActual / IsPlan / IsVersion Boolean metrics, and Actual/Plan layering must be wired correctly upfront. Treat that skill as a required companion to this one, not an optional reference.
 
 ### MS - Modeling for Speed
 
@@ -402,7 +398,7 @@ Performance optimization rules. For comprehensive guidance, see:
 
 - **MP01 - Readability:** Indent formulas and use comments (`//` or `/* */`).
 
-- **MP02 - No Hard-Coding:** Do not hard-code values or dimension items in formulas. Even if unlikely to change, use an input metric instead. For **values**: e.g. Conversion Rate, Growth Percentage, Fixed Rate (instead of typing numbers). For **dimension items**: create an input metric of type Dimension (e.g. `VAR_Budget_Version` referencing Version."Budget") and use it in formulas (e.g. `IF(Version = VAR_Budget_Version, ...)`). Replacing hard-coded references with input metrics ensures flexibility and maintainability. Only hard-code items if you are absolutely certain they will never change. See section 4 for the recommended pattern.
+- **MP02 - No Hard-Coding:** Hard constraint — see section 4.
 
 - **MP03 - Naming:** Adhere strictly to the naming convention.
 
@@ -426,7 +422,25 @@ Performance optimization rules. For comprehensive guidance, see:
 
 ## 9. When Test & Deploy is used
 
-When **Test & Deploy** is enabled (deployment across environments, e.g. Dev → Prod), two rules become **hard constraints**. The agent must determine the Test & Deploy context before applying them.
+When **Test & Deploy** is enabled (deployment across environments, e.g. Dev → Prod), **MP02 (section 4) is always enforced** — hard-coded dimension items break deployment across environments. Test & Deploy adds one additional hard constraint (Rule 2 below). Determine Test & Deploy context before applying Rule 2.
+
+### MP02 — always enforced
+
+MP02 applies **whether or not** Test & Deploy is active. See section 4.
+
+**Disallowed patterns** (never emit in formulas unless the user explicitly overrides after you propose a `VAR_` alternative):
+
+```pigment
+Country."France"
+IF(Country = Country."France", 1, 0)
+'Sales'[FILTER: Country = Country."France"]
+IF(Country = Country."France", 'Revenue', 0)
+'Revenue'[SELECT SUM: Country = Country."France"]
+IF(Version = Version."Budget", 'Actual_Revenue', 'Plan_Revenue')
+'Revenue'[FILTER: Country = Country."France" OR Country = Country."UK"]
+```
+
+**Agent behavior:** Refuse to produce or keep such formulas. Propose compliant alternatives per section 4 (`VAR_` metrics, property-based filters, IsActual).
 
 ### Determining Test & Deploy context
 
@@ -437,26 +451,13 @@ When **Test & Deploy** is enabled (deployment across environments, e.g. Dev → 
 
 | Test & Deploy status | Enforcement |
 | -------------------- | ----------- |
-| **Active**           | Both rules are **hard constraints** and must not be violated. |
-| **Not active**       | Rule 1 remains a baseline best practice (see section 4). Rule 2 does not apply. For Rule 1, if the user insists on direct item references, warn explicitly and only proceed after explicit user confirmation. |
+| **Active**           | MP02 (section 4) is a **hard constraint**. Rule 2 is a **hard constraint**. |
+| **Not active**       | MP02 (section 4) is still a **hard constraint**. Rule 2 does not apply. |
 
-### Rule 1 – No direct dimension item reference in formulas (when T&D is active)
+### Rule 2 – No disconnected dimension as property type on a connected dimension (T&D only)
 
-When Test & Deploy is active, the agent must not create, modify, or retain formulas that reference an item via `Dimension."Item"`, compare against a specific item using that syntax, or use an item as a Boolean condition.
+**Terminology:** **Connected** and **disconnected** describe whether **items** in the dimension are synchronized across environments (connected) or may differ between them (disconnected).
 
-**Disallowed patterns:**
+When Test & Deploy is active, a **disconnected** dimension must not be used as the type of a property on a **connected** dimension. Using a disconnected dimension as the property type on a connected one can cause deployment failures or inconsistent structure across environments.
 
-```
-Country."France"
-IF Country = Country."France" THEN 1 ELSE 0
-Sales[Country = Country."France"]
-IF Country."France" THEN Revenue ELSE 0
-```
-
-**Agent behavior:** Refuse to produce or keep such formulas, explain why the pattern is not deployment-safe, and propose a compliant alternative: **input metric of type Dimension** (e.g. VAR_Budget_Version), mapping metric, property, or SELECT. When T&D is not active, follow the baseline practice in section 4 and warn if the user requests direct item references.
-
-### Rule 2 – No non managed dimension as property type on a managed dimension (T&D only)
-
-When Test & Deploy is active, a **non managed** dimension must not be used as the type of a property on a **managed** dimension. Managed dimensions are synchronized across environments; non managed dimensions may have different items per environment. Using a non managed dimension as a property type on a managed one can cause deployment failures or inconsistent structure across environments.
-
-**Agent behavior:** When T&D is active and you create or modify dimension properties, ensure the property type is not a non managed dimension when the host dimension is managed. If management status is unknown, ask the user before proceeding.
+**Agent behavior:** When T&D is active and you create or modify dimension properties, ensure the property type is not a disconnected dimension when the host dimension is connected. If whether items are connected or disconnected is unknown, ask the user before proceeding.

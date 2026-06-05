@@ -46,7 +46,7 @@ Value labels in Pivot panel in the UI are different:
 
 ### `pivotFieldId`
 
-Every **pivot field** you add in `pages`, `rows`, or `columns` gets a **stable id** (GUID) in the View. **`pivotFieldId`** in other structures (filters, sorts, etc.) points to that pivot.
+Every **pivot field** placed in `pages`, `rows`, or `columns` gets a **stable id** (GUID) assigned by the server. **`pivotFieldId`** in other structures (filters, sorts, etc.) points to that pivot — read it back from the `tool:create_view` / `tool:update_view_pivots` response, do not invent it.
 
 ### `listPropertyPath` on pivots (grouping / hierarchy)
 
@@ -61,10 +61,19 @@ Every **pivot field** you add in `pages`, `rows`, or `columns` gets a **stable i
 
 # CRITICAL RULES
 
-- **Values/Rows/Columns/Pages field `id`** — Must always be a **freshly generated UUID**, never the metric ID. Each value entry needs its own unique identifier distinct from the metric/property it references.
+- **Value and pivot ids** — Assigned by the server. For a NEW pivot/value, omit `id`. To KEEP an existing one, echo back the id from a prior `tool:create_view` / `tool:update_view_*` / `tool:get_view` response. Never invent UUIDs.
 - **Same dimension on Pages and on Rows/Columns is SUPPORTED** — When the user asks to "put X on Pages", **add** to Pages without removing X from Rows/Columns. Page selectors then narrow which modalities appear on the row/column axis. Do not treat this as a conflict. See [view_components.md](./view_components.md) for OK patterns vs. anti-patterns.
-- **New View (greenfield)** — Use **`tool:create_view`** then iterate with updates using the other tools.
-- **Editing an existing View** — Call **`tool:update_view`** (or the field-specific variants) directly on the View id. If a Draft was auto-created, the agent should:
+- **"Filter" from users → Page Selector first** — Restricting to a dimension item (Year, Country, Version, …) = **`pages`** + default item, not `filters[]`. View Filters only for top-N-by-metric, exclusion, or logic Page Selectors cannot express. See [view_filtering.md](./view_filtering.md).
+- **New View (greenfield)** — Two-step flow:
+  1. Call **`tool:create_view`**. Leave `pivotLayout` **null** to let the server build a sensible default layout for the underlying block. To override, send a complete `pivotLayout` with all three axes (`rows`, `columns`, `pages`) populated — each entry is a **simplified pivot seed** (`dimensionId` + optional `listPropertyPath`); use an empty array for an axis with no pivot. Half-specified layouts are rejected. Values and hidden-dim aggregations are created with sensible defaults; refine them in step 2 if needed.
+  2. Iterate with **`tool:update_view_pivots`**, **`tool:update_view_values`** (and the other `update_view_*` tools) to refine the configuration. None of those refinements are accepted by `tool:create_view`.
+- **Editing an existing View** — Use the field-specific variants directly on the View id:
+  - Values (add/remove value fields, `showValueAsConfiguration`) → `tool:update_view_values`. Echo back existing value ids to keep them stable.
+  - **Pivot edits** (rows / columns / pages / metricsLocation) → `tool:update_view_pivots`. 
+  - Filters → `tool:update_view_filters`. Sorts → `tool:update_view_sorts`. Chart config → `tool:update_view_chart_config`.
+  - Metadata, hidden-dim aggregations, template → `tool:update_view`.
+
+  If a Draft was auto-created, the agent should:
   - wire the widget to display it via **`tool:update_view_widget_overrides`** so only this user sees it
   - tell the user they can save the Draft in the Board UI.
 - **Bulk-save protocol** if `tool:save_draft_views` is available — after creating or editing one or more Draft Views:
@@ -76,6 +85,7 @@ Every **pivot field** you add in `pages`, `rows`, or `columns` gets a **stable i
   - read: [view_widgets.md](../designing-pigment-boards/view_widgets.md).
 - **Name (first signal)** — **"View 1"** and similar are often **placeholders**. Prefer **`create_view`** with a real name and pivots aligned to **this** widget and **other widgets on the same board** unless the existing View already fits.
 - **Shared / external View (other users, other boards)** — Prefer **Draft** (or a **new** View) before overwriting something others rely on or displayed in another board, except if asked explicitely.
+- **Table views — per-view metrics** — When adding or removing metrics on **Table block views**, call `tool:update_view_values` with the full desired value list: **add** a value entry for new metrics, **remove** value entries that are not relevant. Prefer removal over hiding — hidden metrics may still compute. Keep a metric hidden (`displayed: false`) only when the view still depends on it, such as for value-field filtering, sort-by-metric-value, or as an advanced-aggregator operand (ratio, growth, etc.). Do not plan a separate step to update the Table block's metric membership first. Do not add every table metric to each view and hide the rest; configure only the metrics each view should show.
 
 # Definitions
 

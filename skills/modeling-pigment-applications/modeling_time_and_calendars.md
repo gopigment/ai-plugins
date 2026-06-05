@@ -18,7 +18,7 @@ Read when:
 
 ### Overview
 
-Every Pigment application has a **Calendar** that defines the time structure for all time-based operations. The calendar determines how periods are organized, how fiscal years are structured, and which time dimensions are available for use in metrics and formulas.
+Every Pigment application has a **Calendar** that defines the time structure for all time-based operations. The calendar determines how periods are organized, how fiscal years are structured, and which time dimensions are available for use in metrics and formulas. Use `tool:calendar_get` to read the current calendar configuration and `tool:calendar_create` to set up a new one.
 
 ### Calendar Types
 
@@ -70,7 +70,7 @@ For Gregorian calendars, you can configure when the fiscal year starts. This is 
 - Q2 FY 2026 = July, August, September 2025
 
 **Setting Fiscal Year Start:**
-Configure the fiscal year starting month when creating or editing the calendar in Application Settings → Calendar.
+Configure the fiscal year starting month when creating or editing the calendar. Use `tool:calendar_create` to set this when creating a new calendar.
 
 **Best Practice:** Set the fiscal year start early in application setup. Changing it later can affect existing formulas and data.
 
@@ -107,15 +107,14 @@ You can extend a calendar's date range without affecting existing data.
 
 **How to extend:**
 
-- Go to Application Settings → Calendar
-- Update Start Date or End Date
+- Use `tool:calendar_expand` to update Start Date or End Date
 - Existing data remains unchanged
 
 **Important:** Extending forward is safe. Extending backward may create new periods, but existing data is preserved. You cannot shorten the calendar date range (remove periods) if data exists in those periods.
 
 ### Distinguishing Actuals from Plan periods
 
-To distinguish historical Actuals from future Plan periods in a planning model, use the **Version Dimension Switchover** pattern documented in [`../planning-cycles-pigment-applications/SKILL.md`](../planning-cycles-pigment-applications/SKILL.md) (skill: `planning-cycles-pigment-applications`). The pattern uses a **Switchover Month (or Year) Property on the Version Dimension** plus the **Is Version / Is Actual / Is Plan** Boolean Metrics to layer Actuals and plan data per Version. Calendars do not handle this; do not use Calendar tools for versioning.
+To distinguish historical Actuals from future Plan periods in a planning model, use the **Version Dimension Switchover** pattern documented in [`../planning-cycles-pigment-applications/SKILL.md`](../planning-cycles-pigment-applications/SKILL.md) (skill: `planning-cycles-pigment-applications`). The pattern uses a **Switchover Month (or Year) Property on the Version Dimension** plus the **IsVersion / IsActual / IsPlan** Boolean Metrics to layer Actuals and plan data per Version. Calendars do not handle this; do not use Calendar tools for versioning.
 
 ### Time Dimensions Selection
 
@@ -130,7 +129,7 @@ When setting up a calendar, you select which time dimensions to include:
 - **Week**: Weekly periods (optional)
 - **Day**: Daily periods (optional)
 
-**Best Practice:** Include only the time dimensions you need. More dimensions mean more complexity and potential performance impact.
+**Best Practice:** Include only the time dimensions you need. More dimensions mean more complexity and potential performance impact. Use `tool:calendar_add_time_dimension` to add a dimension and `tool:calendar_remove_time_dimension` to remove one.
 
 **Extra Time Dimensions:**
 

@@ -166,7 +166,7 @@ Open only when the task requires the detail.
 | Need | Doc |
 |---|---|
 | Engine, sparsity, dimension list vs transaction list, BY pattern, IFDEFINED vs ISBLANK | [./modeling_fundamentals.md](./modeling_fundamentals.md) |
-| Hierarchies, ragged hierarchies, mapped dimensions, dimension explosion | [./modeling_dimensions_and_hierarchies.md](./modeling_dimensions_and_hierarchies.md) |
+| Hierarchies, ragged hierarchies, mapped dimensions, time-dependent hierarchy, dimension explosion | [./modeling_dimensions_and_hierarchies.md](./modeling_dimensions_and_hierarchies.md) |
 | Calendars, fiscal year, date range, time dimension mechanics | [./modeling_time_and_calendars.md](./modeling_time_and_calendars.md) |
 | End-to-end architecture design (5 pillars, Hub pattern, UX, data flow, governance) | [./modeling_architecture_design.md](./modeling_architecture_design.md) |
 | Naming conventions (prefixes, casing, character rules) | [./modeling_naming_conventions.md](./modeling_naming_conventions.md) |

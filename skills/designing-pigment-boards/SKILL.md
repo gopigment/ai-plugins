@@ -155,14 +155,14 @@ Follow this 4-step workflow when creating a Board:
 
 2. **Use Search tool** to check what Dimensions your Metrics have
 
-3. **Plan Board Pages** (filters to be applied in Step 4):
-   - Time filter (Month, Quarter, Year) - only if Metrics have time Dimensions
-   - Version filter (Actuals, Budget, Forecast, or combinations) - only if Metrics have Version
-   - Scenario filter (Default or multiple scenarios) - only if Metrics have Scenario
-   - Other dimensional filters as needed
+3. **Plan Board Page Selectors** (not View Filters — defaults applied in Step 4):
+   - Time Page Selector (Month, Quarter, Year) - only if Metrics have time Dimensions
+   - Version Page Selector (Actuals, Budget, Forecast, or combinations) - only if Metrics have Version
+   - Scenario Page Selector (Default or multiple scenarios) - only if Metrics have Scenario
+   - Other dimensional Page Selectors as needed
    - See **[board_pages.md](./board_pages.md)** for detailed guidance
 
-4. **Before treating Board Pages as “shared filters” for every widget**, verify that **each View you intend to place on the Board** includes a **compatible** page for every dimension you will set at board level (e.g. if the board should filter by Year, each View must have Year in Pages—or a grouping page that resolves to Year—see **board_pages.md**). If a View is missing that dimension in Pages, **edit or create the View first**; the board cannot force a dimension onto a View that does not expose it in Pages.
+4. **Before treating Board Page Selectors as shared context for every widget**, verify that **each View you intend to place on the Board** includes a **compatible** page for every dimension you will set at board level (e.g. if the board should narrow by Year, each View must have Year in Pages—or a grouping page that resolves to Year—see **board_pages.md**). If a View is missing that dimension in Pages, **edit or create the View first**; the board cannot force a dimension onto a View that does not expose it in Pages.
 
 ### Step 2: Create Board Structure
 
@@ -185,16 +185,16 @@ Follow this 4-step workflow when creating a Board:
 
 ### Step 4: Update Board Pages
 
-1. Use `tool:update_board` to set Board Pages (filters)
-2. Apply the Time, Version, Scenario, and other filters you defined in Step 1
+1. Use `tool:update_board` to set Board Page Selectors
+2. Apply the Time, Version, Scenario, and other Page Selector defaults you defined in Step 1
 3. Set **default selected items** for each Board Page at board level (e.g. default Year to FY25 / 2025 when that is the intended analytical context)
 4. Confirm each View widget is **linked** to the Board Pages you care about (widgets do not “inherit” a dimension the View never had in Pages—see **board_pages.md**, Board-to-Widget Page Compatibility Rule)
 
 **Key Points:**
 
 - Plan Board Pages in Step 1, but apply defaults and selections in Step 4 (after Views are added)
-- Only define Board Page selectors for dimensions that at least one View exposes; for **every** widget that should follow a board-level filter, that widget’s View must include a compatible page on that dimension
-- View widgets **link** to Board Pages when their View has a matching page; they do not automatically receive filters for dimensions absent from the View’s Pages
+- Only define Board Page Selectors for dimensions that at least one View exposes; for **every** widget that should follow a board-level Page Selector, that widget’s View must include a compatible page on that dimension
+- View widgets **link** to Board Page Selectors when their View has a matching page; they do not automatically narrow for dimensions absent from the View’s Pages
 
 ---
 

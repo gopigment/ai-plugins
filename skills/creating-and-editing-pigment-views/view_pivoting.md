@@ -1,6 +1,7 @@
 This guide defines how Dimensions (“pivots”) are ordered and split between rows, columns and pages for boards.
 
 It covers:
+
 1. Ordering pivots Dimensions
 2. Allocating them to Rows vs Columns
 
@@ -32,6 +33,16 @@ Reordered:
 - Country > Region
 - Country
 - Scenario
+
+## **How Order Maps To Display**
+
+Within an axis, the order of pivots determines how the data nests:
+
+- **Rows**: the first pivot is the outermost (leftmost) grouping; each subsequent pivot nests inside it, the last being the most granular.
+- **Columns**: the first pivot is the top-most header band; each subsequent pivot nests beneath it.
+- **Pages**: order changes the order in which the page selectors appear in the UI but has no impact on the data grouping.
+
+Reordering pivots on an axis changes the grouping hierarchy of the rendered data, not just their listing.
 
 ---
 

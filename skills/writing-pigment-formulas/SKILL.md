@@ -42,7 +42,7 @@ ONLY Pigment syntax exists when writing formulas.
 | Metric names    | Single quotes                 | `'Revenue'`, `'Total Sales'`                      |
 | Dimension names | Single quotes                 | `'Product'`, `'Country'`                          |
 | Property access | Dot notation with quotes, chainable | `'Product'.'Category'`, `City.Country.Currency` |
-| Dimension items | Double quotes after dimension | `Month."Jan 25"`, `Country."France"`              |
+| Dimension items | Double quotes after dimension — **MP02:** literal only in `VAR_` default | `Month."Jan 25"` only when setting a `VAR_` metric default |
 | String values   | Double quotes                 | `"Active"`, `"Completed"`                         |
 
 **Cross-app references:** 
@@ -50,20 +50,13 @@ ONLY Pigment syntax exists when writing formulas.
 - The syntax is `'APPLICATION_NAME'::'BLOCK_NAME'`. 
 - If the block name is unique across all activated libraries the application prefix may be omitted, but always use the full form for clarity.
 
-**Dimension items and default property:**
-
-- `Dimension."Item"` is shorthand for `Dimension.<DefaultDisplayProperty>."Item"`.
-- When the default property is `Name`, `Country."France"` and `Country.Name."France"` are equivalent; both are valid.
-- The explicit form `Dimension.Property."Value"` is valid when that property is the identifier used to resolve the item (e.g. `Country.Code."FR"` if the dimension uses Code as identifier).
-- Property chaining: dimension-type properties can be chained with dot notation: `'Dimension'.'Property'.'Property'...` (e.g. `City.Country.Currency`).
-
-**Best practice** Hard-coding dimension items in formulas (e.g. `Country."France"`, `Version."Budget"`) is discouraged. Prefer an input metric of type Dimension (e.g. VAR_Budget_Version) or other structural references. See [modeling_principles – Formula Best Practices and MP02](../modeling-pigment-applications/modeling_principles.md). When the formula references the Version dimension or planning-cycle items (Budget, Forecast, Actual, etc.), also use `skill:planning-cycles-pigment-applications` for the Version Dimension setup, switchover semantics, and Is Actual / Is Plan / Is Version Boolean metrics.
+**No hard-coding (MP02 — hard constraint):** See [modeling_principles §4](../modeling-pigment-applications/modeling_principles.md). Before member-specific or time-bounded formulas, read [formula_writing_workflow.md](./formula_writing_workflow.md) Step 2 and [formula_modifiers.md](./formula_modifiers.md) (FILTER, SELECT, BY CONSTANT).
 
 **Common Mistakes:**
 
 - ❌ `Revenue` → ✅ `'Revenue'` (missing quotes)
 - ❌ `Product.Category` → ✅ `'Product'.'Category'` (missing quotes)
-- ❌ `Month.'Jan 25'` → ✅ `Month."Jan 25"` (items use double quotes)
+- ❌ `Month.'Jan 25'` → ✅ `Month."Jan 25"` (items use double quotes; in formulas use a `VAR_` metric per MP02)
 
 ---
 
@@ -106,6 +99,7 @@ Read [formula_performance_patterns.md](./formula_performance_patterns.md) and ve
 - [ ] Use BLANK instead of 0 for empty values (see exception below for meaningful zeros)
 - [ ] Use BLANK instead of FALSE for boolean flags (FALSE is stored, BLANK is not)
 - [ ] Access rights wrapped in IFDEFINED(User, ...)
+- [ ] **MP02:** No `Dimension."Item"` in formulas; no `DATE(...)` for planning bounds; relative metric names only — see [formula_writing_workflow.md](./formula_writing_workflow.md) Step 6 checklist
 
 For the full date-range presence pattern (PRORATA worked examples, ISDEFINED/IFDEFINED derivation, when simple IF is acceptable), see **Pattern 11** in [formula_performance_patterns.md](./formula_performance_patterns.md).
 
@@ -118,7 +112,7 @@ For the full date-range presence pattern (PRORATA worked examples, ISDEFINED/IFD
 **Follow the complete 8-step workflow**: [./formula_writing_workflow.md](./formula_writing_workflow.md)
 
 - **Critical**: Always search documentation first before writing
-- **Governance check:** If the formula references a specific dimension item (aka hard-coded item), prefer an input metric of type Dimension.
+- **Governance check (MP02 — required):** [modeling_principles §4](../modeling-pigment-applications/modeling_principles.md); Version patterns: `skill:planning-cycles-pigment-applications`.
 - **Validation & Delivery**: Use Formula Builder Tools to validate and deliver formulas
 
 ---
@@ -309,7 +303,7 @@ Comments must be included in the formula string passed to `tool:create_or_update
 **Syntax:**
 
 - Single quotes for identifiers: `'Revenue'`, `'Product'.'Category'`
-- Double quotes for dimension items: `Country."France"`, `Month."Jan 25"` (short form); `Country.Name."France"` is also valid when `Name` is the dimension's default property. In general, avoid hard-coding items; prefer input metrics or structural references (see modeling_principles MP02).
+- Double quotes for dimension items: literal form only when setting a `VAR_` metric default (MP02 — see [modeling_principles §4](../modeling-pigment-applications/modeling_principles.md)).
 - Double quotes for string values: `"Active"`, `"Completed"`
 
 **Modifiers:**

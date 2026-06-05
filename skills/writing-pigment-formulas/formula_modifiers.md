@@ -27,10 +27,10 @@ To verify dimensional alignment, trace how dimensions change through each operat
 | `[BY: Prop]`     | Replaces dim with property's parent | `/*Prod*/[BY: Prod.Category]` → `/*Category*/`  |
 | `[ADD: X]`       | Adds X (densifies!)                 | `/*Reg*/[ADD: Mo]` → `/*Reg,Mo*/`               |
 | `[KEEP: X, Y]`   | Keeps only X and Y                  | `/*Prod,Reg,Mo*/[KEEP: Prod]` → `/*Prod*/`      |
-| `[SELECT: cond]` | Filters AND removes dimension       | `/*Prod,Mo*/[SELECT: Mo."Jan"]` → `/*Prod*/`    |
-| `[FILTER: cond]` | Filters, keeps all dimensions       | `/*Prod,Mo*/[FILTER: Mo."Jan"]` → `/*Prod,Mo*/` |
-| `[TOPARENTLIST: Subset]` | Subset dimension → parent list (1:1; parent items outside subset → blank) | `/*Subset,Mo*/` → `/*Parent,Mo*/` |
-| `[TOSUBSET: Subset]`     | Parent dimension → subset (1:1; filters to subset members only)           | `/*Parent,Mo*/` → `/*Subset,Mo*/` |
+| `[SELECT: cond]` | Filters AND removes dimension       | `/*Prod,Month*/[SELECT: Month = VAR_Reference_Month]` → `/*Prod*/`    |
+| `[FILTER: cond]` | Filters, keeps all dimensions       | `/*Prod,Month*/[FILTER: Month = VAR_Reference_Month]` → `/*Prod,Month*/` |
+| `[TOPARENTLIST: Subset]` | Subset dimension → parent list (1:1; parent items outside subset → blank) | `/*Subset,Month*/` → `/*Parent,Month*/` |
+| `[TOSUBSET: Subset]`     | Parent dimension → subset (1:1; filters to subset members only)           | `/*Parent,Month*/` → `/*Subset,Month*/` |
 
 **Combining Expressions** (union rule):
 
@@ -83,6 +83,9 @@ Lists can have **properties of type "Dimension"** that reference other dimension
 // Split equally
 'Region Revenue'[BY SPLIT: Country.Region]             // Equally distribute
 'Quarterly Target'[BY SPLIT: Month.Quarter]            // Equally distribute
+
+// Seed a specific dimension member (MP02) — VAR_Actual_Version: input metric, type Dimension
+'ActualData'[BY CONSTANT: VAR_Actual_Version]          // not Version."Actual"
 ```
 
 #### Multi-Level Hierarchies
@@ -229,13 +232,14 @@ Conditional aggregation - filters by condition AND removes the filtered dimensio
 
 ```pigment
 // Sum only items matching condition (removes dimension)
-'Labor_Cost' = 'Cost'[SELECT SUM: Type = Type."Labor"]
+// VAR_Labor_Type: input metric, type Dimension
+'Labor_Cost' = 'Cost'[SELECT SUM: Type = VAR_Labor_Type]
 
-// Multiple conditions
-'Q1_North' = 'Revenue'[SELECT SUM: Month.Quarter = Quarter."Q1" AND Region = Region."North"]
+// Multiple conditions — VAR metrics for item-specific members
+'Q1_North' = 'Revenue'[SELECT SUM: Month.Quarter = VAR_Selected_Quarter AND Region = VAR_Selected_Region]
 
-// With parent dimensions
-'Electronics_Revenue' = 'Revenue'[SELECT SUM: Product.Category = Category."Electronics"]
+// With parent dimensions — prefer property-based filter when semantic
+'Category_Revenue' = 'Revenue'[SELECT SUM: Product.'Include Category']
 ```
 
 **Key Behavior**: SELECT with condition = FILTER + REMOVE in one operation
@@ -264,8 +268,8 @@ Works with any ordered dimension (time dimensions, ranked lists, etc.). The offs
 'Sales Rank'[SELECT: Product-1]               // Previous product in ranking
 'Score'[SELECT: Employee+1]                   // Next employee in order
 
-// Specific item selection
-'Revenue'[SELECT: Month = Month."Jan 25"]     // Value for specific month (keeps Month dimension)
+// Specific item selection — VAR_Reference_Month: input metric, type Dimension
+'Revenue'[SELECT: Month = VAR_Reference_Month]     // Value for specific month (keeps Month dimension)
 ```
 
 **Time Dimensions**: For prior period lookups, SELECT is fast (parallel). PREVIOUS/PREVIOUSOF are slow (iterative) - only use when current value depends on calculating prior value first (e.g., running balances). See [functions_iterative_calculation.md](./functions_iterative_calculation.md) for when and how to use PREVIOUS/PREVIOUSOF.
@@ -282,17 +286,17 @@ Filter data based on a boolean condition. **Keeps the dimension** (unlike SELECT
 
 **Style**: Prefer **separate FILTERs** for readability (e.g. one FILTER per condition) instead of one FILTER with a long AND. See [formula_conditionals_style.md](./formula_conditionals_style.md).
 
-**Dimension item syntax in conditions**: Examples below use the short form `Country."France"`. This is shorthand for `Country.Name."France"` when `Name` is the dimension's default property. Both forms are valid; the explicit form `Dimension.Property."Value"` is supported when that property is the identifier for the dimension item. In production, avoid hard-coding items; use an input metric of type Dimension or other structural references. See [modeling_principles](../modeling-pigment-applications/modeling_principles.md) (Formula Best Practices, MP02).
+**MP02 — dimension members in conditions:** **MUST NOT** hard-code `Dimension."Item"`. Create a `VAR_` input metric of type Dimension; the item literal may appear **only** in its default value.
 
 **Examples**:
 
 ```pigment
-// Filter by specific dimension items
-'Revenue'[FILTER: Country = Country."France"]
-'Revenue'[FILTER: Country = Country."France" AND Product = Product."Product 1"]
+// Filter by dimension member via VAR metrics
+'Revenue'[FILTER: Country = VAR_Selected_Country]
+'Revenue'[FILTER: Country = VAR_Selected_Country AND Product = VAR_Selected_Product]
 
-// Filter by multiple items
-'Revenue'[FILTER: Country = Country."France" OR Country = Country."UK"]
+// Filter multiple members — prefer a boolean property or mapping metric
+'Revenue'[FILTER: Country.'Include in Report']
 
 // Filter by value threshold
 'Revenue'[FILTER: 'Revenue' > 1000]
@@ -301,8 +305,8 @@ Filter data based on a boolean condition. **Keeps the dimension** (unlike SELECT
 // Filter by boolean metric
 'Revenue'[FILTER: 'Is Active']
 
-// Filter with parent dimensions
-'Revenue'[FILTER: Product.Category = Category."Electronics"]
+// Filter via parent-dimension property (semantic, MP02-safe)
+'Revenue'[FILTER: Product.'Include Category']
 ```
 
 **CurrentValue Keyword**: Use `CurrentValue` to reference the filtered expression itself, avoiding repetition:
@@ -345,12 +349,12 @@ Exclude data based on a boolean condition. Opposite of FILTER - removes matching
 **Examples**:
 
 ```pigment
-// Exclude specific dimension items
-'Revenue'[EXCLUDE: Country = Country."France"]
-'Revenue'[EXCLUDE: Country = Country."France" AND Product = Product."Product 1"]
+// Exclude specific dimension members via VAR metric or boolean property
+'Revenue'[EXCLUDE: Country = VAR_Excluded_Country]
+'Revenue'[EXCLUDE: Country = VAR_Excluded_Country AND Product = VAR_Excluded_Product]
 
-// Exclude multiple items
-'Revenue'[EXCLUDE: Country = Country."France" OR Country = Country."UK"]
+// Exclude multiple members — prefer boolean property
+'Revenue'[EXCLUDE: Country.'Exclude from Report']
 
 // Exclude by value threshold
 'Revenue'[EXCLUDE: 'Revenue' > 1000]                  // Keep values <= 1000 or BLANK
@@ -366,8 +370,8 @@ Exclude data based on a boolean condition. Opposite of FILTER - removes matching
 
 ```pigment
 // These are equivalent:
-'Revenue'[FILTER: Country = Country."France"]
-'Revenue'[EXCLUDE: NOT(Country = Country."France")]
+'Revenue'[FILTER: Country = VAR_Selected_Country]
+'Revenue'[EXCLUDE: NOT(Country = VAR_Selected_Country)]
 
 // But they differ on BLANK handling:
 // FILTER: condition must be TRUE → BLANKs excluded
