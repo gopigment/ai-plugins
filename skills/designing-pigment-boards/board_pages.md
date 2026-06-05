@@ -1,8 +1,10 @@
-# Board Pages (Board-Level Filters)
+# Board Page Selectors
+
+Board Pages in the UI are **Board Page Selectors** — default selections applied at the Board level (not View Filters).
 
 ## What They Are
 
-Board Pages are **default filters applied at the Board level**. They define the analytical context users expect when opening the Board. **Which widgets actually follow a given Board Page depends on each widget’s View**, not on the Board alone.
+Board Page Selectors define the analytical context users expect when opening the Board. **Which widgets actually follow a given Board Page Selector depends on each widget’s View**, not on the Board alone.
 
 ### Board-to-Widget Page Compatibility Rule (critical)
 
@@ -15,7 +17,7 @@ To make **one** board-level selector (e.g. Year) drive **multiple** widgets toge
 
 **Workflow implication:** Before relying on Board Pages, **verify or edit each widget View** so Pages align with the dimensions you want at board level. Creating the Board first and only then discovering mismatched Views is a common source of “the board filter does nothing.”
 
-**Key rule (configuration):** Board Page **selectors** come from the union of Pages on the Views you add to the Board. You cannot invent a new Page selector on the Board that no View has. You **can** configure **default selected items** for each Board Page at board level (default modalities / page configurations)—for example, default Year to FY26.
+**Key rule (configuration):** Board Page **selectors** come from the union of Pages on the Views you add to the Board. You cannot invent a new Page selector on the Board that no View has. In case of comparison, you **must**  configure **default selected items** for each Board Page at board level (default modalities = compared items). When the user names specific modalities in the prompt - either a single value ("for FY 26") or a subset to compare ("FY 26 and FY 27", "Actuals vs Budget") - those exact modalities are the defaults, single- or multi-select accordingly.
 
 After defaults are set, users can change Board Page selections; widgets whose Views are linked and compatible will update accordingly.
 
@@ -31,10 +33,10 @@ Page selectors can be shown, minimized, or hidden. **Never hide a page selector 
 
 ---
 
-## Filter Strategy by Board Purpose
+## Page Selector strategy by Board purpose
 
-| Board Purpose             | Time Filter     | Version Filter          | Scenario Filter                          |
-| ------------------------- | --------------- | ----------------------- | ---------------------------------------- |
+| Board Purpose             | Time Page Selector | Version Page Selector   | Scenario Page Selector                   |
+| ------------------------- | ------------------ | ----------------------- | ---------------------------------------- |
 | Monthly Review            | Month=Current   | Version=Actuals         | Scenario=Default                         |
 | Quarterly Business Review | Quarter=Current | Version=Actuals,Budget  | Scenario=Default                         |
 | Annual Planning           | Year=Next       | Version=Budget,Forecast | Scenario=Default                         |
@@ -42,6 +44,7 @@ Page selectors can be shown, minimized, or hidden. **Never hide a page selector 
 | Scenario Planning         | Year=Current    | Version=Forecast        | Scenario=Baseline,Optimistic,Pessimistic |
 | Executive Overview        | Quarter=Current | Version=Actuals         | Scenario=Default                         |
 | YTD Performance           | Year=Current    | Version=Actuals,Budget  | Scenario=Default                         |
+| Year-over-Year / Period Comparison | Year=FY N-1, FY N (multi) | Version=Actuals | Scenario=Default                  |
 
 Adapt based on which Dimensions your Views actually have. Skip any column that doesn't apply. Values like "Current" and "Next" are conceptual — resolve them to actual modality IDs from the Dimension's items.
 
@@ -53,9 +56,8 @@ Adapt based on which Dimensions your Views actually have. Skip any column that d
 
 Choose based on Board purpose. Only if Views have time Dimensions:
 
-- `Month = [specific month]` (e.g., "Jan 24")
-- `Quarter = [specific quarter]` (e.g., "Q1 24")
-- `Year = [specific year]` (e.g., "FY 24")
+- **Single period**: `Month=Jan 24`, `Quarter=Q1 24`, `Year=FY 24`
+- **Comparison** (when the user asks to compare specific periods, e.g. "FY 24 vs FY 25", "YoY", "this year vs last year"): multi-select default with exactly those periods, e.g. `Year=FY 24, FY 25`. Use this whenever the same dimension is on a chart axis to span those modalities - the Board Page lets the user change the compared set without editing the View.
 
 ### 2. Version Dimension
 

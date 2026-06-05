@@ -161,7 +161,7 @@ IFDEFINED(
 **Inputs**
 
 - **INP_YoY%** – numeric YoY adjustment per line (default 0).
-- **INP_YoY_Month** – base Month of Year (e.g. IFDEFINED(INP_YoY%, 'Month of Year'."January")).
+- **INP_YoY_Month** – base Month of Year (e.g. IFDEFINED(INP_YoY%, Month."January")).
 
 **CALC_YoY_2_fixblanks**
 

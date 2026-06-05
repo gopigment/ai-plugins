@@ -172,13 +172,14 @@ The rule "use IF, not ADD + FILTER" applies only to **conditional creation**. Wh
 **Anti-pattern** (dense - creates all Month cells, then filters):
 
 ```pigment
-10[ADD: Month][FILTER: Month > Month."Jan 25"]
+10[ADD: Month][FILTER: Month > VAR_Reference_Month]
 ```
 
 **Optimized** (sparse - only creates cells where condition is true):
 
 ```pigment
-IF(Month > Month."Jan 25", 10)
+// VAR_Reference_Month: input metric, type Dimension
+IF(Month > VAR_Reference_Month, 10)
 ```
 
 #### Case B: Subsetting an expression you're already computing (no ADD)

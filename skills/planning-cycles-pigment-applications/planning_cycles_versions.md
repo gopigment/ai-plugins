@@ -15,7 +15,15 @@ Use a Version Dimension for:
 ### Examples
 
 - **Budget vs Actual with variance.** Track Budget and Actual side by side and compute `'Variance' = 'Actual Revenue' - 'Budget Revenue'` per Account and Month.
-- **Rolling Forecast.** Quarterly rolling forecast where each cycle builds on the previous one. Pattern: cycle-explicit Version Items (`Reforecast Q<n> FY<n>`); advance `Switchover Month` by one quarter per cycle; reference the previous Version via an input Metric of type Dimension `VAR_Previous Reforecast Version` (MP02): `'Revenue'[FILTER: 'Version' = 'VAR_Previous Reforecast Version'] * (1 + 'Growth Factor')`.
+- **Rolling Forecast.** Quarterly rolling forecast where each cycle builds on the previous one. Pattern: cycle-explicit Version Items (`Reforecast Q<n> FY<n>`); advance `Switchover Month` by one quarter per cycle; reference the previous Version via input Metrics of type Dimension `VAR_Current Reforecast Version` and `VAR_Previous Reforecast Version`:
+
+```pigment
+IF(
+  'Version' = 'VAR_Current Reforecast Version',
+  'Revenue'[SELECT: 'Version' = 'VAR_Previous Reforecast Version'] * (1 + 'Growth Factor'),
+  BLANK
+)
+```
 
 For ad-hoc what-if sensitivity that does not require cross-version references, see [planning_cycles_scenarios.md](./planning_cycles_scenarios.md).
 
@@ -33,9 +41,9 @@ When the user asks to set up versions, planning cycles, a Budget, or a Forecast,
 - [ ] **Add `End Month` Property** on `Version`, typed `Dimension(Month)`. Populate immediately.
 - [ ] **Add `Active Version` Property** (Boolean) on `Version`. Set TRUE for all initial items.
 - [ ] **Add `Lock Version` Property** (Boolean) on `Version`. Set TRUE for Actual, FALSE for Budget and Forecast.
-- [ ] **Create `Is Version` Boolean Metric** at `Version × Month`. Formula: `'Version'.'Start Month' <= 'Month' AND 'Month' <= 'Version'.'End Month'`.
-- [ ] **Create `Is Actual` Boolean Metric** at `Version × Month`. Formula: `'Is Version' AND 'Month' <= 'Version'.'Switchover Month'`.
-- [ ] **Create `Is Plan` Boolean Metric** at `Version × Month`. Formula: `'Is Version' AND 'Month' > 'Version'.'Switchover Month'`.
+- [ ] **Create IsVersion Boolean Metric** at `Version × Month`. Formula: `'Version'.'Start Month' <= 'Month' AND 'Month' <= 'Version'.'End Month'`.
+- [ ] **Create IsActual Boolean Metric** at `Version × Month`. Formula: `IsVersion AND 'Month' <= 'Version'.'Switchover Month'`.
+- [ ] **Create IsPlan Boolean Metric** at `Version × Month`. Formula: `IsVersion AND 'Month' > 'Version'.'Switchover Month'`.
 
 ### Default Property Values (auto-populate from calendar + current date)
 
@@ -72,9 +80,9 @@ Do not mix patterns within the same Version Dimension.
 
 For each measure, create three Metrics at `<Driver Dimensions> × Version × Month`:
 
-- `<Measure> Actual` gated by `'Is Actual'`.
+- `<Measure> Actual` gated by IsActual.
 - `<Measure> Plan` from forward-looking assumptions.
-- `<Measure>` (final): `IF('Is Actual', '<Measure> Actual', '<Measure> Plan')`.
+- `<Measure>` (final): `IF(IsActual, '<Measure> Actual', '<Measure> Plan')`.
 
 ## 5. Optional: Dedicated `Actual` Version
 
@@ -84,12 +92,12 @@ When present, update its `Switchover Month` each period to bring in the latest A
 
 ## 6. Optional: Display Actual vs Plan in Views via Mapped Dimension
 
-For richer reporting, build a `Data Type` Metric typed `Dimension(Data Type)` over `Version × Month` that returns `Actual` or `Plan` based on `'Is Actual'` / `'Is Plan'`. Use it as a Mapped Dimension in the View; the View then shows `Actual` and `Plan` columns sourced from the same underlying Metric.
+For richer reporting, build a `Data Type` Metric typed `Dimension(Data Type)` over `Version × Month` that returns `Actual` or `Plan` based on IsActual / IsPlan. Use it as a Mapped Dimension in the View; the View then shows `Actual` and `Plan` columns sourced from the same underlying Metric.
 
 ## 7. Do Not
 
 - **Period Type on Month or the calendar Actual vs Forecast toggle.** One global switchover; cannot vary per Version. Use §2 instead.
-- **Hardcoded month IFs for actual/plan split.** Use `'Is Actual'` / `'Is Plan'` from §4.
+- **Hardcoded month IFs for actual/plan split.** Use IsActual / IsPlan from §4.
 - **Partial setup.** Items only, blank properties, or booleans deferred to a second prompt. Deliver §2 in one pass.
 - **Native Scenarios for Budget / Actual / Forecast.** MG12; use a Version Dimension.
 - **Hard-coded Version items in formulas.** Use `VAR_` metrics or `'Version Type'` (MP02). See `skill:writing-pigment-formulas`.

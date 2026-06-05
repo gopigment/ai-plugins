@@ -43,7 +43,7 @@ _Feedback loops: Step 3→Step 1, Step 5→Step 3, Step 6→Step 5, Step 7→app
 - Review ALL returned documentation chunks
 - Read discovered files completely
 - Note performance patterns mentioned
-- **If the request involves a specific dimension member** (e.g. a month, version, country): consult [modeling_principles](../modeling-pigment-applications/modeling_principles.md) (section 4, MP02) and decide whether to use an input metric of type Dimension before writing the formula; do not hard-code `Dimension."Item"` without having checked MP02.
+- **If the request involves a specific dimension member** (e.g. a month, version, country): read [modeling_principles §4](../modeling-pigment-applications/modeling_principles.md) (MP02) and [formula_modifiers.md](./formula_modifiers.md) (FILTER, SELECT, BY CONSTANT).
 
 **Why search matters:** Discovers functions you don't know exist and verifies proper parameter usage.
 
@@ -125,6 +125,7 @@ Compare source vs target dimensions, apply modifiers:
 - Syntax is correct
 - Dimensional alignment makes sense
 - Logic matches requirements
+- **MP02:** No `Dimension."Item"`; use `VAR_` metrics — see [modeling_principles §4](../modeling-pigment-applications/modeling_principles.md)
 **⚠️ REQUIRED — Validate before applying:**
 
 You MUST call `tool:validate_formula` before calling `tool:create_or_update_formula` or `tool:update_list_property_formula`. Applying an invalid formula puts the metric/property into an error state.
@@ -156,6 +157,11 @@ You MUST call `tool:validate_formula` before calling `tool:create_or_update_form
 - [ ] Access rights wrapped in IFDEFINED(User, ...)
 - [ ] Using BLANK instead of 0 for empty values
 - [ ] Using BLANK instead of FALSE for boolean flags (FALSE is stored, BLANK is not)
+- [ ] **MP02:** No `Dimension."Item"` or `Dimension.Property."Item"` in the formula
+- [ ] **MP02:** No `DATE(YYYY, M, D)` for planning bounds — use `VAR_` metrics (Date or Month)
+- [ ] **MP02:** Required `VAR_` metrics exist (create first if missing)
+- [ ] **MP02:** Metric names use relative temporal labels only (e.g. `'Next Period Forecast'`, not `Forecast 2026`)
+- [ ] **MP02:** User has not overridden MP02 without seeing the compliant alternative
 
 **Quick Examples:**
 
@@ -172,11 +178,11 @@ You MUST call `tool:validate_formula` before calling `tool:create_or_update_form
 **IF vs FILTER**: Use IF for sparse operations
 
 ```pigment
-// Good (sparse)
-IF(Month > Month."Jan 25", 10)
+// Good (sparse) — VAR_Reference_Month: input metric, type Dimension
+IF(Month > VAR_Reference_Month, 10)
 
 // Bad (dense)
-10[ADD: Month][FILTER: Month > Month."Jan 25"]
+10[ADD: Month][FILTER: Month > VAR_Reference_Month]
 ```
 
 **Access rights with IFDEFINED(User)**:

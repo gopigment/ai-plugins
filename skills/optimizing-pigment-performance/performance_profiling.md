@@ -4,8 +4,6 @@ Measure compute performance with profiling tools, parse their output, and report
 
 ## Prerequisites
 
-Requires **Performance Insights** (`use_performance_tools`). If unavailable, see `skill:agent-capabilities-and-behavior`. Do not guess bottlenecks. Ask the user to enable Performance Insights or provide a `change_id` after they reproduce the slow action.
-
 | Tool | Use when |
 |---|---|
 | `tool:get_top_blocks_by_performance` | Hotspot block unknown; rank blocks app-wide over a time window |

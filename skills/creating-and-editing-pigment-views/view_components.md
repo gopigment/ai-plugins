@@ -6,7 +6,6 @@ In the **UI** we say **Values** (what appears in the cells) and **Pages / Rows /
 
 ### Values (cells)
 
-
 That is what shows in the **cells**. It depends on the Block:
 
 - **Metric Block**: The Metric itself
@@ -15,11 +14,11 @@ That is what shows in the **cells**. It depends on the Block:
 
 **Configuration options:**
 
-- **`displayed`**: Controls whether the value is visible in the View (set to `true` to show)
+- **`displayed`**: Controls whether the value is visible in the View (UI: eye icon). On **Table views**, prefer removing irrelevant metrics from `values` rather than hiding them — hidden metrics may still compute. Keep a metric hidden only when the view still depends on it, such as for value-field filtering, sort-by-metric-value, or as an advanced-aggregator operand (ratio, growth, etc.).
 - **Formatting**: Can specify number format, decimal places, currency, etc.
 - **Order**: Multiple values can be displayed in a specific sequence
 
-**Example:** For a Table containing "Revenue", "Cost", and "Profit" Metrics, you could display only "Revenue" and "Profit" by setting those value fields to `displayed: true`.
+**Example (Table views):** For a Table containing "Revenue", "Cost", and "Profit", to show only "Revenue" and "Profit" on a given view, include **only those metrics** in `values`. To drop "Cost", **remove** its value entry; do not leave it with `displayed: false`.
 
 ### Pivots (Rows, Columns & Pages)
 
@@ -31,9 +30,11 @@ Dimensions used to organize and break down data:
 
 **CRITICAL — Same dimension on Pages and on Rows or Columns**
 
-In Pigment, the **same dimension** may appear on **Pages** and on **Rows** or **Columns** at the same time. Example: **Month** on **Columns** and **Month > Year** (grouping) on **Pages**—year(s) chosen in the page selector determine which months are shown as columns. **Page selectors** (page filters) **filter which modalities** appear on the row/column axes according to the user’s selection (single- or multi-select depends on the page configuration). **Do not** ask the user to “resolve a conflict” when they request this; it is supported behavior, not a mistake.
+In Pigment, the **same dimension** may appear on **Pages** and on **Rows** or **Columns** at the same time. Example: **Month** on **Columns** and **Month > Year** (grouping) on **Pages**—year(s) chosen in the Page Selector determine which months are shown as columns. **Page Selectors** narrow which modalities appear on the row/column axes according to the user’s selection (single- or multi-select depends on the page configuration). **Do not** ask the user to “resolve a conflict” when they request this; it is supported behavior, not a mistake.
 
 When the goal is to **restrict** what appears on rows/columns, prefer **Pages** (with **Default items** on the relevant page selector) rather than substituting with View **Filter** objects that duplicate the same narrowing—unless you truly need a [view_filtering.md](./view_filtering.md) filter type.
+
+When the goal is to **compare a specific subset of modalities** on an axis (e.g. "compare FY 24 and FY 25", "Actuals vs Budget", "Baseline vs Optimistic"), put that dimension on **both** Pages and Rows/Columns, with the compared modalities as **multi-select Default items** on the page selector. The axis lays them out side-by-side; the page selector lets the user swap the compared set without editing the View.
 
 **Examples: OK patterns vs. anti-patterns**
 
@@ -44,6 +45,10 @@ When the goal is to **restrict** what appears on rows/columns, prefer **Pages** 
 2. **Goal:** show **Country** in **rows** and only countries in region **EMEA**.
    - **Anti-pattern:** **Country** only in **rows**, plus a View **Filter** like _Keep — Country > Region — is in — EMEA_.
    - **OK pattern:** **Country** in **rows** and **Country > Region** (grouping) on **Pages**; set **EMEA** as the **Default item** on that page selector.
+
+3. **Goal:** show a **comparison** of a specific subset of modalities of dimension **D** side-by-side on an axis (e.g. **Actuals vs Budget**, **Baseline vs Optimistic scenario**, **FY 24 vs FY 25**), with some other breakdown on the other axis.
+   - **Anti-pattern:** **D** only on **Rows** or **Columns**, no page selector - the compared modalities are hard-coded in the View and the user cannot swap the compared set from the Board.
+   - **OK pattern:** **D** on the axis AND on **Pages**; set the compared modalities (e.g. **[Actuals, Budget]**) as multi-select **Default items** on the **D** page selector.
 
 **Rows/Columns vs. Pages**: use this to decide what must appear together on the grid for comparison (**Rows** / **Columns**) versus what is driven by **Page** selectors. That guidance does **not** forbid putting the same dimension on **Pages** and on an axis when page selections should narrow the visible rows/columns—see the **CRITICAL** block above.
 

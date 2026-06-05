@@ -103,4 +103,3 @@ For details, examples, and debugging, read [./securing_access_rights.md](./secur
 | Modeling foundations (mental model, core concepts) | `skill:modeling-pigment-applications` |
 | Modeling principles, T&D safety | [`../modeling-pigment-applications/modeling_principles.md`](../modeling-pigment-applications/modeling_principles.md) |
 | Architecture (Hub pattern, AR in Hub) | [`../modeling-pigment-applications/modeling_architecture_design.md`](../modeling-pigment-applications/modeling_architecture_design.md) |
-| What the agent cannot do (UI-only AR config) | `skill:agent-capabilities-and-behavior` |

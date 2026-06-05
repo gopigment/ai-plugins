@@ -39,13 +39,13 @@ This guide covers the core principles of formula optimization: scope-first, filt
 **Anti-pattern**:
 
 ```pigment
-10[ADD: Month][FILTER: Month > Month."Jan 25"]
+10[ADD: Month][FILTER: Month > VAR_Reference_Month]
 ```
 
 **Execution sequence**:
 
 1. `10[ADD: Month]` → Creates value 10 for **every possible Month**
-2. `[FILTER: Month > Month."Jan 25"]` → Removes values where condition is false
+2. `[FILTER: Month > VAR_Reference_Month]` → Removes values where condition is false
 
 **Problem**: Computation happens for all months, even those that will be filtered out.
 
@@ -56,12 +56,13 @@ This guide covers the core principles of formula optimization: scope-first, filt
 **Optimized pattern**:
 
 ```pigment
-IF(Month > Month."Jan 25", 10)
+// VAR_Reference_Month: input metric, type Dimension
+IF(Month > VAR_Reference_Month, 10)
 ```
 
 **Execution sequence**:
 
-1. Evaluates condition `Month > Month."Jan 25"` for each month
+1. Evaluates condition `Month > VAR_Reference_Month` for each month
 2. Creates value 10 **only where condition is TRUE**
 
 **Performance**: Computes only 12 values directly.
@@ -247,14 +248,14 @@ When downstream granularity is lower than the source, aggregate with `BY` before
 
 ```pigment
 // Filter then aggregate
-'Revenue'[FILTER: Month = Month."Jan 25"][REMOVE: Month]
+'Revenue'[FILTER: Month = VAR_Reference_Month][REMOVE: Month]
 ```
 
 **Optimized pattern**:
 
 ```pigment
-// Select removes dimension and filters in one step
-'Revenue'[SELECT: Month = Month."Jan 25"]
+// VAR_Reference_Month: input metric, type Dimension
+'Revenue'[SELECT: Month = VAR_Reference_Month]
 ```
 
 **Improvement**: More efficient, cleaner syntax.

@@ -18,6 +18,8 @@ Functions for date manipulation, time period calculations, and temporal operatio
 
 > **Converting a date to a dimension member (Month, Quarter, Year)?** Use `TIMEDIM(Date, TimeDimension)` from [functions_lookup.md](./functions_lookup.md). TIMEDIM returns a **dimension element** (not a Date value), which is required when mapping transaction dates into time dimensions via the BY modifier or when creating Dimension-typed properties. Prefer TIMEDIM over STARTOFMONTH when the result must be a Month dimension member rather than a plain Date.
 
+**MP02 — planning period bounds:** Do not use `DATE(YYYY, M, D)` for forecast horizon, seed month, or switchover. Use `VAR_` input metrics (type Date or Dimension Month), e.g. `IF(Month >= VAR_Start_Month AND Month <= VAR_End_Month, 'Revenue')` — not `DATE(2026, 1, 1)`.
+
 ---
 
 ## Date Functions Reference

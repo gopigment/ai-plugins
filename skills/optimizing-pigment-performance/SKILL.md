@@ -132,7 +132,6 @@ For detailed patterns with examples, see [./performance_formula_optimization.md]
 - **writing-pigment-formulas**: syntax, modifiers, functions
 - **securing-pigment-applications**: AR patterns and AR metric construction
 - **designing-pigment-boards**: board design (audit section)
-- **agent-capabilities-and-behavior**: UI-only operations the agent cannot perform
 
 ---
 

@@ -116,7 +116,7 @@ Same dimensions for both. Operator on PnL_Account (or Category) drives sign; no 
 
 **Operator formulas** (sign logic via metadata):
 
-- **PnL_Account Category**.Operator (Integer): `IF('PnL_Account Category'."Revenue" OR 'PnL_Account Category'."Other Income", 1, -1)`
+- **PnL_Account Category**.Operator (Integer): `IF('PnL_Account Category'.IsRevenueCategory OR 'PnL_Account Category'.IsOtherIncomeCategory, 1, -1)`
 - **PnL_Account**.Operator: `IFBLANK(PnL_Account.'PnL_Account Category'.Operator, 1)`
 
 ### 5.2 Nexus Actual and Budget
@@ -130,7 +130,7 @@ PnL_Nexus_01_Actual Data =
 PnL_Nexus_02_Budget Data =
   'PnL_Load_Budget'
   [ADD: Version]
-  [BY SUM: Version."Budget"]
+  [BY SUM: VAR_Budget_Version]
   ['Pull_DH_View_Load Plan']
 ```
 
@@ -141,7 +141,7 @@ View/pull metrics restrict which months are Actual vs Plan per Version.
 ```text
 PnL_Nexus_03_Revenue Plan Data =
   IF(
-    NOT Version IN (Version."Actuals", Version."Budget"),
+    NOT Version IN (VAR_Actuals_Version, VAR_Budget_Version),
     'Pull_RE_Revenue Plan Data',
     BLANK
   )
@@ -154,7 +154,7 @@ Same pattern for OPEX and Workforce (`Pull_OP_OPEX Plan Data`, `Pull_WF_Workforc
 ```text
 PnL_Nexus_04_Plan Data =
   IF(
-    Version = Version."Budget",
+    Version = VAR_Budget_Version,
     'PnL_Nexus_02_Budget Data',
     'PnL_Nexus_03_Revenue Plan Data'
     + 'PnL_Nexus_03_OPEX Plan Data'
@@ -167,13 +167,13 @@ PnL_Nexus_04_Plan Data =
 ```text
 PnL_Nexus_99_Actual + Plan Data =
   IF(
-    'Data Type'."Actual",
+    IsActual,
     'PnL_Nexus_01_Actual Data'
       [ADD: 'Data Type']
-      [BY SUM: 'Data Type'."Actual"],
+      [BY SUM: VAR_Actual_Data_Type],
     'PnL_Nexus_04_Plan Data'
       [ADD: 'Data Type']
-      [BY SUM: 'Data Type'."Forecast"]
+      [BY SUM: VAR_Forecast_Data_Type]
   )
 ```
 
@@ -196,7 +196,7 @@ For full FX engine design (Hub app, dimensions, layers, AVG/END, entity mapping)
 ```text
 PnL_Tbl_01_Revenue =
   'Rep_PnL Data'
-  [FILTER: PnL_Account.'PnL_Account Category' = 'PnL_Account Category'."Revenue"]
+  [FILTER: PnL_Account.IsRevenueCategory]
 
 PnL_Tbl_02_Gross Margin =
   (

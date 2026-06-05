@@ -117,10 +117,8 @@ Metric: Revenue by Region  <-- UNNECESSARY
 
 **Best practice:** Maximize use of **calculated items** and **show value as**:
 
-- Use calculated items for variations on P&L. Do not create variations metrics if the variation is only a display, not needed for future calculations.
-- Use "show value as" for ratios and KPIs on account rows (when rows are metrics). Do not create percentages metrics if the percentage is only a display, not needed for future calculations.
-- When these features cannot achieve the desired calculation, create separate metrics and include them in the view.
-- If variations cannot be done with calculated items, change report structure or provide another report/view widget.
+- Use **calculated items** for calculations between items or modalities of a dimension (e.g., FY 2027 vs FY 2026, Actual vs Forecast) in report views.
+- Use **show value as** for display transformations: temporal comparisons, cumulative series, offsets, differences from another item or metric, and derived presentations of a single metric when the view supports it (e.g., YTD). Avoid extra metrics when the display is sufficient and not needed downstream.
 
 ### Workflow and Access Rights
 
