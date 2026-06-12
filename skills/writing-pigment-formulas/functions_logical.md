@@ -112,6 +112,7 @@ SWITCH('Product'.'Category',
 - Evaluates all cases (not short-circuit)
 - Last argument is default if no match
 - More readable for multi-way logic
+- **Do not pass `BLANK` as the default result** - omit the default instead. `SWITCH('X', a, b, BLANK)` is equivalent to `SWITCH('X', a, b)`
 
 ---
 

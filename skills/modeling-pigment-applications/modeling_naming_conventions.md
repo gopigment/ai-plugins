@@ -331,6 +331,30 @@ REV_ACT_DATA_Historical        # Revenue actuals data
 EE_ASM_INPUT_Merit_Tenure      # Existing employees assumption
 ```
 
+### Agent Format Inference from Name
+
+When creating a metric, infer `default_format` from the metric name and type before asking the modeler. Apply the first matching rule:
+
+| Name signal | Formatting to apply |
+|---|---|
+| Contains `%`, `Rate`, `Ratio`, `Margin`, `Growth`, `Share`, `Yield`, `Efficiency` | `multiplier: "percent"`, `numFractionDigits: 1` (use `2` if the name implies precision, e.g. `Margin %`) |
+| Contains `Revenue`, `Cost`, `Spend`, `Budget`, `Price`, `ARR`, `MRR`, `LTV`, `CAC`, `Salary`, `Fee`, `Expense`, `Income` | prefix `$` (or the currency the modeler specified); consider `multiplier: "million"` or `"thousand"` if context implies scale |
+| Contains `Headcount`, `Count`, `Number of`, `#`, `Units`, `Quantity`, `FTE` | `numFractionDigits: 0`, no multiplier |
+| Contains `bp`, `Basis Point` | `multiplier: "basis_point"`, `multiplierSuffix: "bp"` |
+| Friendly name ends with `($)` | prefix `$` |
+| Friendly name ends with `(%)` | `multiplier: "percent"` |
+
+**Type-based defaults (applied when no name signal matches):**
+
+| Metric type | Default |
+|---|---|
+| `Integer` | `numFractionDigits: 0` |
+| `Number` | `numFractionDigits: 0` (increase to 1 or 2 when name/formula implies fractional precision: rates, ratios, averages, unit prices) |
+| `Text` | `textDisplayMode: "Text"` (upgrade to `"RichText"` when name contains `comment`, `note`, `description`, `report`, `URL`, `link`) |
+| `Boolean` | `booleanDisplayMode: "Checkbox"` |
+
+**Modeler context overrides all signals.** If the modeler states a formatting preference in the conversation (e.g. "use 0 decimals by default", "prefix all financial metrics with €"), apply it consistently for all metrics created in that session.
+
 **Formula referencing notes:**
 
 - Use single quotes `'` when starting a metric name with a number: `'01_Revenue`

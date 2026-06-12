@@ -169,7 +169,7 @@ Open only when the task requires the detail.
 | Hierarchies, ragged hierarchies, mapped dimensions, time-dependent hierarchy, dimension explosion | [./modeling_dimensions_and_hierarchies.md](./modeling_dimensions_and_hierarchies.md) |
 | Calendars, fiscal year, date range, time dimension mechanics | [./modeling_time_and_calendars.md](./modeling_time_and_calendars.md) |
 | End-to-end architecture design (5 pillars, Hub pattern, UX, data flow, governance) | [./modeling_architecture_design.md](./modeling_architecture_design.md) |
-| Naming conventions (prefixes, casing, character rules) | [./modeling_naming_conventions.md](./modeling_naming_conventions.md) |
+| Naming conventions (prefixes, sufixes, casing, character rules, default formatting, percentages, number formatting) | [./modeling_naming_conventions.md](./modeling_naming_conventions.md) |
 | Modeling principles, T&D safety, data loading strategy | [./modeling_principles.md](./modeling_principles.md) |
 | Folder placement decisions | [./modeling_working_with_folders.md](./modeling_working_with_folders.md) |
 | List Subsets: safe patterns and data-loss risks | [./modeling_subsets.md](./modeling_subsets.md) |

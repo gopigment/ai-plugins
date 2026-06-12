@@ -341,14 +341,19 @@ FILLFORWARD('Exchange Rate', Date)
 
 ## SELECT vs PREVIOUS/PREVIOUSOF
 
-**⚠️ NEVER use PREVIOUS/PREVIOUSOF for simple prior period lookups. ALWAYS use SELECT.**
+**⚠️ Do not use PREVIOUS/PREVIOUSOF for simple time shifts or comparisons — use SELECT (or Show Value As for MoM in a View).**
 
-**Key question: "Does this period's result depend on calculating the previous period's result first?"**
+**Which applies?**
 
-| Answer                                               | Use                 | Example                                         |
-| ---------------------------------------------------- | ------------------- | ----------------------------------------------- |
-| **No** - Just need prior period's value              | `[SELECT: Month-N]` | `'Revenue'[SELECT: Month-1]` for MoM comparison |
-| **Yes** - Current depends on prior calculated result | `PREVIOUSOF()`      | Running balance where balance builds on itself  |
+1. **Prior cell of this metric** in the same metric → `PREVIOUS(Month)`
+2. **Prior value of another metric** in a period-on-period chain (opening ↔ closing, inventory, etc.) → `PREVIOUSOF('…')` + cycle. Not `[SELECT: Month-1]` between coupled metrics (circular ref).
+3. **Neither** — time shift or comparison only → `[SELECT: Month-N]` (e.g. `[SELECT: Month-12]` for prior-year month)
+
+| Case                             | Use                        | Example                              |
+| -------------------------------- | -------------------------- | ------------------------------------ |
+| Time shift / comparison          | SELECT or Show Value As    | `'Actuals'[SELECT: Month-12]`        |
+| Same metric                      | PREVIOUS                   | `PREVIOUS(Month)`                    |
+| Coupled metrics across periods   | PREVIOUSOF + cycle         | `PREVIOUSOF('Ending Balance')`       |
 
 ### Common Mistakes
 
@@ -356,13 +361,15 @@ FILLFORWARD('Exchange Rate', Date)
 // ❌ WRONG: Using PREVIOUS for simple lookup — 'Last Month Revenue'
 PREVIOUS(Month)
 
-// ✅ CORRECT: Using SELECT for lookup — 'Last Month Revenue'
+// ✅ CORRECT (reporting): Show Value As on the View — prior month / % growth (no formula metric)
+
+// ✅ CORRECT (calculation): prior month of another metric (not iterative)
 'Revenue'[SELECT: Month-1]
 
-// ❌ WRONG: Using PREVIOUSOF for comparison — 'MoM Change'
+// ❌ WRONG: Using PREVIOUSOF for MoM comparison
 'Revenue' - PREVIOUSOF('Revenue')
 
-// ✅ CORRECT: Using SELECT for comparison — 'MoM Change'
+// ✅ CORRECT: MoM formula only when other metrics need the delta
 'Revenue' - 'Revenue'[SELECT: Month-1]
 
 // ✅ CORRECT: PREVIOUSOF for true iterative (balance depends on prior balance) — 'Ending Balance'
@@ -377,17 +384,18 @@ Only use when the **current period's calculated result depends on the prior peri
 // Running balance - current balance = prior balance + changes — 'Ending Balance'
 PREVIOUSOF('Ending Balance', 0) + 'Inflow' - 'Outflow'
 
-// Compounding - current value depends on prior calculated value — 'Compound Value'
-PREVIOUSOF('Compound Value', 'Initial') * (1 + 'Growth Rate')
+// Start position in first period, then prior end position — 'Ending Position'
+IF(Month = 'Start Month', 'Start Position', PREVIOUSOF('End Position'))
 ```
 
-**⚠️ REMINDER:** These formulas will only work if iterative calculation is configured on the metric. There is no AI tool to configure this — the user must do it in the Pigment UI. Always confirm with the user before applying.
+**⚠️ REMINDER:** PREVIOUSOF only works on metrics in an iterative calculation. Use `tool:create_cycle` / `tool:update_cycle` (or ask the user in the UI if MCP cycle tools are unavailable). Configure the cycle **before** applying PREVIOUSOF formulas.
 
 **For everything else, use SELECT or specialized functions:**
 
 - Running totals → `CUMULATE()` (not PREVIOUSOF + value)
 - Fill blanks → `FILLFORWARD()` (not IFBLANK + PREVIOUS)
-- Prior period lookups → `[SELECT: Month-N]`
+- MoM **display** → Show Value As (not `[SELECT: Month-1]` helper metrics)
+- Prior **year** same month → `[SELECT: Month-12]`
 
 ---
 
@@ -421,14 +429,11 @@ WEEKDAY(Month.'Start Date') = 0
 ### Time Series Patterns
 
 ```pigment
-// Month-over-Month Change (use SELECT for simple lookups)
-'Revenue' - 'Revenue'[SELECT: Month-1]
-
-// Month-over-Month % Change (use SELECT for simple lookups)
-('Revenue' - 'Revenue'[SELECT: Month-1]) / 'Revenue'[SELECT: Month-1]
-
 // Year-over-Year Change (use SELECT for simple lookups)
 'Revenue' - 'Revenue'[SELECT: Month-12]
+
+// Plan from prior year same month + growth (each CY month ← matching PY month)
+'Forecast Revenue' = 'Actual Revenue'[SELECT: Month-12] * (1 + 'Monthly Growth Rate')
 
 // Moving Average (3-month)
 MOVINGAVERAGE('Sales', 3)
@@ -439,7 +444,7 @@ CUMULATE('Monthly Revenue', Month)
 // Fill Missing Values (use FILLFORWARD, not IFBLANK + PREVIOUS)
 FILLFORWARD('Exchange Rate', Month)
 
-// True iterative: Ending balance depends on prior balance (use PREVIOUSOF)
+// True iterative: Ending balance depends on prior balance (use PREVIOUSOF; configure cycle via tool:create_cycle / tool:update_cycle)
 PREVIOUSOF('Ending Balance') + 'Inflow' - 'Outflow'
 ```
 

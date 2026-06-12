@@ -255,18 +255,18 @@ IF(
 
 **Why**: SELECT is parallel (fast). PREVIOUS/PREVIOUSOF are sequential iterative functions (slow). Use SELECT for all simple lookups.
 
-**Anti-pattern** (slow - iterative computation):
+**Anti-pattern** — PREVIOUS/PREVIOUSOF for simple lookups (reserve them for true iterative calculations only):
 
 ```pigment
-'Last Month' = PREVIOUS(Month)
-'MoM Change' = 'Revenue' - PREVIOUSOF('Revenue')
+// 'Forecast Sales' metric
+PREVIOUSOF('Actual Sales')
 ```
 
-**Optimized** (fast - parallel computation):
+**Optimized** (fast - parallel computation, not on the same metric):
 
 ```pigment
-'Last Month' = 'Revenue'[SELECT: Month-1]
-'MoM Change' = 'Revenue' - 'Revenue'[SELECT: Month-1]
+// 'Forecast Sales' metric
+'Actual Sales'[SELECT: Month-1] * (1 + 'Growth rate')
 ```
 
 **When PREVIOUS/PREVIOUSOF is OK**: Only when current period's calculated result depends on prior period's calculated result (e.g., running balances: `PREVIOUSOF('Balance') + 'Inflow' - 'Outflow'`). See [functions_iterative_calculation.md](./functions_iterative_calculation.md) for full guidance.
@@ -402,9 +402,11 @@ Do not use ISBLANK/ISNOTBLANK for this pattern — they densify. Use ISDEFINED o
 
 **Note**: These defaults assume large/sparse metric spaces. On small dense spaces, several of the "avoid" options are acceptable — see the per-pattern context guards above.
 
-| Situation                        | Use                            | Avoid                                     |
-| -------------------------------- | ------------------------------ | ----------------------------------------- |
-| Prior period lookup              | `[SELECT: Month-1]`            | PREVIOUS, PREVIOUSOF                      |
+| Situation                              | Use                                      | Avoid                          |
+| -------------------------------------- | ---------------------------------------- | ------------------------------ |
+| Iterative calculation (same metric)    | PREVIOUS(Month)                          | SELECT (circular ref)          |
+| Iterative calculation (multi-metric)   | PREVIOUSOF('Ending Inventory') + cycle   | SELECT (circular ref)          |
+| Simple lookup / time shift             | SELECT (`[SELECT: Month-12]`)            | PREVIOUS / PREVIOUSOF (overkill) |
 | Check if value exists            | ISDEFINED (returns TRUE/BLANK) | ISBLANK (returns TRUE/FALSE - densifies!) |
 | Conditional with existence check | IFDEFINED                      | IF(ISBLANK())                             |
 | Provide default for blank        | IFBLANK                        | IF(ISBLANK(), default, value)             |

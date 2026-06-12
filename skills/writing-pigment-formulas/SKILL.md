@@ -205,7 +205,7 @@ Formulas produce results that must match the target metric or property type:
 - **MATCH** → [./functions_lookup.md](./functions_lookup.md) - Lookup by non-unique property
 - **MOVINGSUM** → [./functions_numeric.md](./functions_numeric.md) - Rolling sums
 - **MOVINGAVERAGE** → [./functions_numeric.md](./functions_numeric.md) - Rolling averages
-- **SELECT with time offset** → [./formula_modifiers.md](./formula_modifiers.md) - Prior period lookup: `'Revenue'[SELECT: Month-1]`
+- **SELECT with time offset** → [./formula_modifiers.md](./formula_modifiers.md) - Month-12 (prior year same month), Month-1 (prior month, formulas only); MoM reporting → Show Value As
 - **PREVIOUS/PREVIOUSOF** → [./functions_iterative_calculation.md](./functions_iterative_calculation.md) - Iterative calculations (circular dependencies, configuration, syntax); see also [functions_time_and_date.md](./functions_time_and_date.md) for SELECT vs PREVIOUS
 - **SHIFT** → [./functions_lookup.md](./functions_lookup.md) - Shift dimension-typed properties
 - **SWITCH** → [./functions_logical.md](./functions_logical.md) - Multi-way branching
