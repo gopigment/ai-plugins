@@ -62,14 +62,16 @@ Skills can be set up in two ways:
 | Skill | Description |
 |-------|-------------|
 | **Analyzing Data** | Query formulation, data discovery, analysis patterns, result interpretation |
-| **Modeling Applications** | Architecture, dimensions, metrics, tables, calendars, subsets, access rights |
+| **Modeling Applications** | Architecture, dimensions, metrics, tables, calendars, subsets, folders, sparsity |
+| **Planning Cycles** | Version dimensions, Actual/Budget/Forecast, scenarios, snapshots, switchover |
+| **Securing Applications** | Access rights design, AR metrics, apply rules, debugging visibility |
 | **Solving Specific Use Cases** | FP&A (Nexus, OPEX, FX hub), Workforce Planning patterns, and other domain-specific modeling guidance |
 | **Writing Formulas** | Pigment's proprietary formula language — syntax, modifiers, functions, performance |
-| **Optimizing Performance** | Profiling, scoping, sparsity, iterative calculations, troubleshooting |
+| **Optimizing Performance** | Profiling, scoping, sparsity, iterative calculations, troubleshooting, application audit |
 | **Designing Boards** | Board structure, widget sizing, layout rules, page organization |
-| **Creating Views** | View creation, draft/override workflow, pivots, filters, sorting |
-| **Integrating Data** | Data import, CSV mapping, cross-app imports, troubleshooting |
-| **Agent Capabilities** | What the AI can and cannot do, behavioral protocols, handoff guidance |
+| **Designing Views** | View creation, draft/override workflow, pivots, filters, sorting, aggregators |
+| **Formatting & Highlighting** | Metric default formatting — decimals, currency, percent, K/M scaling, text and boolean display |
+| **Integrating External Data** | CSV and Excel import, column mapping, cross-app imports, troubleshooting |
 
 ## Example Prompts
 
