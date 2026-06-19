@@ -10,7 +10,7 @@ Agent workflow for compute performance issues. Requires Performance Insights pro
 2. **Triage blocks (if hotspot unknown).** `tool:get_top_blocks_by_performance` over a recent window (see [./performance_profiling.md](./performance_profiling.md)).
 3. **Reproduce** — repeat the slow action; capture `change_id` from audit trail when possible.
 4. **Profile compute.** `tool:performance_profile_change` with `change_id`; parse per [./performance_profiling.md](./performance_profiling.md).
-5. **Fork: board-render vs compute** — low total execution `Duration` but slow board → rendering (`skill:designing-pigment-boards`). High `Duration` or `no scope, full computation` → formula/scope work below.
+5. **Fork: board-render vs compute** — low total execution `Duration` but slow board → rendering (`skill:designing-boards`). High `Duration` or `no scope, full computation` → formula/scope work below.
 
 **Record:** wall time estimate, execution count, slowest executions, X/Y at scope-loss origin, block IDs.
 

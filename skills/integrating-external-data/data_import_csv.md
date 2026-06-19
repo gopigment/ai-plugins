@@ -1,5 +1,9 @@
 # CSV Data Import
 
+> **PREREQUISITE**: These instructions apply ONLY when a CSV file is present in `<file_attachments>` or the user has explicitly asked to import a CSV file. If no CSV file is attached and the user has not asked for a CSV import, stop — do not follow any instructions in this file.
+
+This skill will enable the use of `tool:import_csv_to_dimension`
+
 ## Overview
 
 CSV import populates dimensions or transaction lists with external data. Each CSV row represents an item, each CSV column maps to a property.
@@ -146,6 +150,13 @@ The backend handles reference resolution internally. Do not perform multiple imp
 
 ---
 
-## 6. Post-Import Verification
+## 6. Before Calling the Tool
+
+- Read the `csv_transfer_log_id` directly from the CSV file attachment metadata — do not invent or guess this value.
+- Resolve the `dimension_id` from the ID returned by `create_list` if you just created the target, or by calling `get_list` if it already exists.
+
+---
+
+## 7. Post-Import Verification
 
 **CRITICAL**: After every import, fetch the target dimension or transaction list and verify that the number of items is greater than 0. If the count is 0, the import has failed. Inform the user and suggest using the Pigment UI to perform the import manually.

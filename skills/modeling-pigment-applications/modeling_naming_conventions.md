@@ -337,6 +337,8 @@ EE_ASM_INPUT_Merit_Tenure      # Existing employees assumption
 - Typing a space in formulas indicates two separate objects
 - Never use periods `.` or colons `:` in metric names - they break referencing
 
+**Default formatting:** For inferring default format from a metric's name and type — including the percent / currency / count / basis-point / ratios / URLs / Rich Text / multipliers, rules, type-based defaults, and the rule that modeler context overrides inference — see `skill:formatting-and-highlighting`.
+
 ### Tables
 
 Use the `[TBL] ` prefix (square brackets + space) to sort tables to the top of folders. The brackets ensure correct sort order in Pigment.

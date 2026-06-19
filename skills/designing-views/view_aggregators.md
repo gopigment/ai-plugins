@@ -249,6 +249,23 @@ Recommended:
 
 ---
 
+## 7A. Detecting ratio / variance metrics when adding value fields
+
+**Table views only.** Run this when you add a metric via `tool:update_view_values` (confirm with `tool:get_metric` if unsure).
+
+**Ratio-like?** Name hints (`%`, `rate`, `ratio`, `margin`, `growth`, `variance`, `GM%`, …) or formula divides two metrics (`A / B`, `DIVIDE`) or compares two (`(A - B) / B`). Not supported on Views on Metrics or Lists.
+
+**Operands** — same **A** and **B** as in the formula:
+
+- **Ratio / %** → Advanced Aggregator **`Ratio`**: **A** = numerator, **B** = denominator (e.g. `GM% = Gross Margin / Revenue`).
+- **Growth / variance %** → Advanced Aggregator **`Growth`**: **A** = minuend in `(A - B) / B`, **B** = base metric.
+
+Add missing operands to the Table block first.
+
+**Same pass:** (1) `tool:update_view_values` — ratio + both operands as value fields (operands may be `displayed: false`); (2) `tool:update_view_aggregations` (with parameter `type: Advanced`, not Sum) — `pivotAggregations` on the ratio value field for visible Rows/Columns, plus `hiddenDimensionsAggregations` for hidden dimensions. Repeat for **each** Table View that shows the Metric.
+
+---
+
 ## 8. Advanced aggregation
 
 Advanced aggregation performs a mathematical operation using **two value fields**.

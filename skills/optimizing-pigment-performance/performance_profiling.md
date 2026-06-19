@@ -17,7 +17,7 @@ Measure compute performance with profiling tools, parse their output, and report
 4. **Analyze** using sections below; map `Blocks:` to formulas.
 5. **Fix one change at a time.** New `change_id` → re-profile → compare `Duration` and scope.
 
-**Board-render fork:** Low total execution time but slow board load → `skill:designing-pigment-boards`, not formula work.
+**Board-render fork:** Low total execution time but slow board load → `skill:designing-boards`, not formula work.
 
 ---
 

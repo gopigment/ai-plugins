@@ -192,7 +192,7 @@ Modeling and Views are different teams, but in practice modeling and reporting a
 - Views can pivot by dimension-type properties without changing metric structure
 - Multiple aggregation levels can be shown in different Views of the same metric
 - Metric structure remains minimal and performant
-- See `skill:creating-and-editing-pigment-views` for details
+- See `skill:designing-views` for details
 
 **2. Percentages, Variations, and Cumulates "For Display Only"**
 
@@ -204,7 +204,7 @@ Modeling and Views are different teams, but in practice modeling and reporting a
 - For percentage-like metrics built from two base metrics (a ratio A ÷ B, or relative variance / growth such as (A − B) ÷ B): create or reuse a dedicated Metric with a Pigment formula (for example GM% = Gross Margin / Revenue), add it to the Table together with both operand Metrics, then use Views on Tables with Advanced Aggregators on that ratio Metric everywhere it must roll up correctly. That order (Metric on the Table first, then View configuration) is the default for cross-metric ratios and relative variances.
 - Show value as has many modes. Only % of … metric and % growth from … metric overlap the rollup behavior that Advanced Aggregators (Ratio / Growth) address—use Advanced Aggregators on Table views for those cases instead of those two SVA modes. All other Show value as options (cumulative, % of grand total, % of parent, and the rest) stay on Show value as.
 - Calculated Items suit derived rows or columns on a dimension (for example a total row). They are not a substitute for a dedicated ratio Metric between two Metrics: do not replace the ratio Metric with a Calculated Item on the value axis, duplicate an operand Metric as an extra value field, or try to “fix” rollups by putting Advanced Aggregators on that Calculated Item.
-- See [MG09 - Ratios and percentage-like metrics: create the Metric, then Advanced Aggregators](#mg09---ratios-and-percentage-like-metrics-create-the-metric-then-advanced-aggregators) and [View design process](../creating-and-editing-pigment-views/view_design_process.md) for the workflow.
+- See [MG09 - Ratios and percentage-like metrics: create the Metric, then Advanced Aggregators](#mg09---ratios-and-percentage-like-metrics-create-the-metric-then-advanced-aggregators) and [View design process](../designing-views/view_design_process.md) for the workflow.
 
 **Examples of View-Based Calculations:**
 - Two-metric ratio, rate, percentage, growth, or variance on a Table: dedicated ratio Metric with formula on the Table, then View on a Table → Advanced Aggregators (Ratio, Growth, or Absolute growth) on that ratio Metric with operands on the two base Metrics (see MG09). Prefer this over Show value as → % of … metric or % growth from … metric for those rollups.
@@ -233,7 +233,7 @@ Modeling and Views are different teams, but in practice modeling and reporting a
 - Use View **filters** (by items or by value) to restrict visible data
 - Use View **sorting** to order data by metric value or properties
 - Use "top N" or "bottom N" filters for ranking analysis
-- See `skill:creating-and-editing-pigment-views`
+- See `skill:designing-views`
 
 **5. Variance Analysis Considerations**
 
@@ -261,19 +261,19 @@ Use a View when:
 **Key View Capabilities to Leverage**
 
 Before creating a metric, consider if Views can handle the requirement using:
-- **Dimension-type properties** for hierarchical reporting (see `skill:creating-and-editing-pigment-views`)
-- Advanced Aggregators on Views on Tables for two-metric ratios, percentages, and growth or relative variance—after the ratio Metric exists on the Table (see [MG09 - Ratios and percentage-like metrics: create the Metric, then Advanced Aggregators](#mg09---ratios-and-percentage-like-metrics-create-the-metric-then-advanced-aggregators) and `skill:creating-and-editing-pigment-views`)
+- **Dimension-type properties** for hierarchical reporting (see `skill:designing-views`)
+- Advanced Aggregators on Views on Tables for two-metric ratios, percentages, and growth or relative variance—after the ratio Metric exists on the Table (see [MG09 - Ratios and percentage-like metrics: create the Metric, then Advanced Aggregators](#mg09---ratios-and-percentage-like-metrics-create-the-metric-then-advanced-aggregators) and `skill:designing-views`)
 - **Calculated Items** for derived dimension logic where they fit
-- **Filters** for data restriction (by items, by value, top/bottom N) (see `skill:creating-and-editing-pigment-views`)
-- **Sorting** for data ordering (by metric value, by property) (see `skill:creating-and-editing-pigment-views`)
-- **Page selectors** for user-controlled filtering (see `skill:creating-and-editing-pigment-views`)
+- **Filters** for data restriction (by items, by value, top/bottom N) (see `skill:designing-views`)
+- **Sorting** for data ordering (by metric value, by property) (see `skill:designing-views`)
+- **Page selectors** for user-controlled filtering (see `skill:designing-views`)
 
 **Reference Documentation**
 
 For comprehensive guidance on View capabilities, see:
-- `skill:creating-and-editing-pigment-views` — Definitions, draft workflow, and where to read next
-- `skill:creating-and-editing-pigment-views` - Step-by-step configuration (reuse, draft, validate)
-- `skill:creating-and-editing-pigment-views` - Pivots, filters, and sorting; [Pivoting rules](../creating-and-editing-pigment-views/view_pivoting.md) and [Display modes](../creating-and-editing-pigment-views/view_display_modes.md) for layout and widget constraints
+- `skill:designing-views` — Definitions, draft workflow, and where to read next
+- `skill:designing-views` - Step-by-step configuration (reuse, draft, validate)
+- `skill:designing-views` - Pivots, filters, and sorting; [Pivoting rules](../designing-views/view_pivoting.md) and [Display modes](../designing-views/view_display_modes.md) for layout and widget constraints
 
 #### MG05 - Simple Flows: One-Way Data Flow
 
@@ -333,7 +333,7 @@ The problem: A ratio Metric (A ÷ B) or relative variance ((A − B) ÷ B) evalu
 
 Step 1 — Create or locate the ratio Metric. The ratio must be a real Pigment Metric with a formula (for example GM% = Gross Margin / Revenue). Add it to the Table with both operand Metrics. Avoid: duplicating an operand Metric as a second value field to simulate the ratio; using a Calculated Item on the value axis instead of that Metric for a cross-metric ratio; relying on Show value as → % of … metric or % growth from … metric as the default substitute for Advanced Aggregators on Table views (those two SVA modes overlap the rollup shape but Advanced Aggregators are the explicit fix).
 
-Step 2 — Configure Advanced Aggregators in each Table view where the ratio must roll up. Add value fields for the ratio Metric and both operand Metrics. Set Ratio, Growth, or Absolute growth on the ratio Metric’s value field with the two operand value fields as operands (same A and B as in the formula). Apply on Rows, Columns, and Hidden dimensions aggregation as needed. Details: [View aggregators](../creating-and-editing-pigment-views/view_aggregators.md).
+Step 2 — Configure Advanced Aggregators in each Table view where the ratio must roll up. Add value fields for the ratio Metric and both operand Metrics. Set Ratio, Growth, or Absolute growth on the ratio Metric’s value field with the two operand value fields as operands (same A and B as in the formula). Apply on Rows, Columns, and Hidden dimensions aggregation as needed. Details: [View aggregators](../designing-views/view_aggregators.md).
 
 Show value as remains appropriate for many single-metric or axis-relative displays (cumulative, % of grand total, % of parent, YoY-style references where that mode fits, and other SVA options not listed here).
 
