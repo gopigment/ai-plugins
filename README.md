@@ -55,6 +55,10 @@ Users connect with their own credentials via OAuth, so their Pigment access righ
 
 Skills are domain-knowledge files loaded automatically by Cursor and Claude Code. They provide the context AI assistants need to work effectively with Pigment.
 
+Skills can be set up in two ways:
+- **Plugin**: install the Claude Code and Cursor plugins available in this repository.
+- **Manual upload**: download the Skills files from the repository and upload them to your AI tool by following [your provider's documentation](https://kb.pigment.com/docs/supported-tools#skills).
+
 | Skill | Description |
 |-------|-------------|
 | **Analyzing Data** | Query formulation, data discovery, analysis patterns, result interpretation |
