@@ -42,5 +42,5 @@ Versions and Scenarios are complementary, not alternatives:
 - [planning_cycles_versions.md](./planning_cycles_versions.md): Version Dimension setup for planning cycles.
 - [planning_cycles_snapshots.md](./planning_cycles_snapshots.md): Snapshots for freezing application state.
 - [`../optimizing-pigment-performance/performance_auditing_application.md`](../optimizing-pigment-performance/performance_auditing_application.md): reviewing live Scenarios.
-- [`../designing-pigment-boards/board_design_rules.md`](../designing-pigment-boards/board_design_rules.md): Scenario Planning Board pattern.
+- [`../designing-boards/board_design_rules.md`](../designing-boards/board_design_rules.md): Scenario Planning Board pattern.
 - Pigment KB: [Get started with Scenarios](https://kb.pigment.com/docs/get-started-scenarios).

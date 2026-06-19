@@ -161,7 +161,7 @@ PREVIOUSOF returns the referenced metric value shifted by one period along the i
 
 ### Limitations
 
-- **Maximum number of allowed metrics**: 10 (KB). Some sources mention 20; verify the current product limit in your environment.
+- **Maximum number of allowed metrics**: 10. Verify the current product limit in your environment.
 - All metrics in the configuration must **include the iteration dimension** in their structures.
 - PREVIOUSOF is **not allowed** if the iteration dimension has more than **10,000 items** (computation error).
 - **Cycle topology**: You cannot combine two cycles into one or link them together.

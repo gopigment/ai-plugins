@@ -69,7 +69,7 @@ There are three broad use-cases.
 
 **If unfamiliar** → Use modeling-pigment-applications skill first
 
-**Read**: [./data_import_csv.md](./data_import_csv.md)
+**🚨 CRITICAL: Before importing CSV data, read [./data_import_csv.md](./data_import_csv.md) — it unlocks the import tool and contains mandatory rules for parameter inference, column mapping, locale detection, and post-import verification.**
 
 **Quick Decision**:
 

@@ -104,7 +104,7 @@ Version and scenario proliferation multiplies work per input (roughly linear in 
 | Formula shape (`IF` vs `FILTER`, `BY` vs `ADD`) | [./performance_formula_optimization.md](./performance_formula_optimization.md) |
 | `PREVIOUS`, `PREVIOUSOF`, `CUMULATE` horizons, calendar iteration | [./performance_iterative_calculations.md](./performance_iterative_calculations.md) |
 | AR-heavy formulas, `ISDEFINED(User)` wrapper | [./performance_access_rights.md](./performance_access_rights.md) |
-| Board slow to load, profiler shows fast compute | [./performance_troubleshooting_workflow.md](./performance_troubleshooting_workflow.md) (board-render fork); `skill:designing-pigment-boards` |
+| Board slow to load, profiler shows fast compute | [./performance_troubleshooting_workflow.md](./performance_troubleshooting_workflow.md) (board-render fork); `skill:designing-boards` |
 | Many scenarios/versions, inputs much slower | [./performance_scoping_patterns.md](./performance_scoping_patterns.md) (scenario cardinality); `skill:modeling-pigment-applications` |
 | Where to start a systematic audit | [./performance_troubleshooting_workflow.md](./performance_troubleshooting_workflow.md) |
 
@@ -131,7 +131,7 @@ For detailed patterns with examples, see [./performance_formula_optimization.md]
 - **modeling-pigment-applications**: dimensional design, principles, folders, version/scenario architecture
 - **writing-pigment-formulas**: syntax, modifiers, functions
 - **securing-pigment-applications**: AR patterns and AR metric construction
-- **designing-pigment-boards**: board design (audit section)
+- **designing-boards**: board design (audit section)
 
 ---
 

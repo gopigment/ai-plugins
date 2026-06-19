@@ -203,7 +203,11 @@ Remove dimension and aggregate to remaining dimensions.
 'Salary'[REMOVE AVERAGE: Employee]                 // Average
 ```
 
-**Note**: Loses scope (performance impact). Prefer BY when possible.
+**Note**: Loses scope (performance impact).
+
+**When to use REMOVE vs BY**: Use **REMOVE** when the intent is to **drop an existing axis** (aggregate to fewer dimensions or scalar). `[BY SUM: Dim]` when the metric is already dimensioned by `Dim` does **not** remove the dimension — it is redundant or wrong. Prefer **BY** only when aggregating via a **hierarchy** (e.g. `[BY SUM: Tier.Region]` to go Tier→Region); in that case BY preserves scope better than REMOVE.
+
+**Example — drop an axis**: Metric `'CALC BNPL Originations by Tier'` is dimensioned by `Borrower Risk Tier`. To get total origination (scalar): use `[REMOVE: 'Borrower Risk Tier']`. Do **not** use `[BY SUM: 'Borrower Risk Tier']` — that does not drop the dimension.
 
 For the **tiered/banded lookup** pattern (assign each item to a band or tier based on thresholds on a dimension, e.g. account segmentation, salary bands), see [formula_segmentation_tiered_lookup.md](./formula_segmentation_tiered_lookup.md) — it uses `IF(...)[REMOVE FIRSTNONBLANK: Dim]` or `LASTNONBLANK`.
 
@@ -259,14 +263,12 @@ Works with any ordered dimension (time dimensions, ranked lists, etc.). The offs
 **Examples**:
 
 ```pigment
-// Time dimension offsets (most common)
-'Revenue'[SELECT: Month-1]                    // Previous month's value
-'Revenue' - 'Revenue'[SELECT: Month-1]        // Month-over-Month change
-'Revenue'[SELECT: Month-12]                   // Same month last year
+// Time dimension offsets
+'Revenue'[SELECT: Month-12]                   // Same month last year (PY → CY seed, YoY)
 
 // Other ordered dimensions
-'Sales Rank'[SELECT: Product-1]               // Previous product in ranking
-'Score'[SELECT: Employee+1]                   // Next employee in order
+'Sales'[SELECT: Product-1]                    // Sales of the previous product in the Product dimension
+'Score'[SELECT: Employee+1]                   // Score of the next employee in the Employee dimension
 
 // Specific item selection — VAR_Reference_Month: input metric, type Dimension
 'Revenue'[SELECT: Month = VAR_Reference_Month]     // Value for specific month (keeps Month dimension)
@@ -399,7 +401,7 @@ Add dimension where source has none. Creates values for **all** items in the add
 
 **Methods**: CONSTANT (default), SPLIT
 
-**⚠️ Performance Warning**: ADD creates dense structures (all combinations). Prefer BY when a mapping exists. Make sure to check [formula_performance_patterns.md](./formula_performance_patterns.md) for guidance.
+**⚠️ Performance Warning**: ADD creates dense structures (all combinations). Prefer BY when a mapping exists (e.g. allocation via `Product.Category`). Make sure to check [formula_performance_patterns.md](./formula_performance_patterns.md) for guidance.
 
 ---
 
@@ -549,7 +551,7 @@ After `list[BY: dim1]`, the result is on `dim1` only - the list's other properti
 ### Modifier Behavior
 
 - **BY** - Most versatile (aggregation and allocation with hierarchies)
-- **REMOVE** - Always aggregates, loses scope (prefer BY)
+- **REMOVE** - Drop an existing axis; always aggregates, loses scope. Use REMOVE to drop a dimension; do not use BY on the same dimension (it does not remove it)
 - **KEEP** - Retain only specified dimensions
 - **SELECT** - Conditional aggregation, filters + removes dimension
 - **FILTER** - Keeps dimension, includes matching rows, excludes BLANKs
@@ -563,7 +565,7 @@ After `list[BY: dim1]`, the result is on `dim1` only - the list's other properti
 - **Prefer BY over ADD** - BY is sparse (uses mappings), ADD is dense (all combinations)
 - **BY CONSTANT over ADD CONSTANT** - Same value replication but sparse vs dense
 - **BY SPLIT over ADD SPLIT** - Same splitting but sparse vs dense
-- **Prefer BY over REMOVE or KEEP** - Preserves scope
+- **To drop an axis: use REMOVE** - `[BY SUM: Dim]` when already on `Dim` does not remove the dimension. Prefer BY over REMOVE only when aggregating via a hierarchy (e.g. Tier→Region) — then BY preserves scope.
 - **Explicit > Implicit** - Better control; but in BY list only dimensions whose grain is changing — avoid over-explicit BY (re-listing unchanged dimensions).
 
 **The BY vs ADD Rule**: If a mapping property exists, use BY. Only use ADD as last resort when no mapping exists.

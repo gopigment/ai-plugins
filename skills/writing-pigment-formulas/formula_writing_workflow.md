@@ -134,7 +134,11 @@ You MUST call `tool:validate_formula` before calling `tool:create_or_update_form
 - Returns error highlighting and hints if invalid — use these to fix the formula before retrying
 - Use before including formulas in user messages
 
-**Exception:** Do NOT use `tool:validate_formula` with formulas containing `Previous` or `PreviousOf` functions (the validator does not support them). For these, verify syntax manually and confirm iterative calculation is configured on the target metric.
+**Exception — PREVIOUS / PREVIOUSOF:** Do NOT use `tool:validate_formula` (it returns a ticket without real checks). Instead:
+
+1. Confirm `tool:list_cycles` / `tool:create_cycle` / `tool:update_cycle` — iterative calculation must exist **before** apply.
+2. For month roll-forward chains (beginning ↔ ending balances), do **not** try `[SELECT: Month - 1]` first; use PREVIOUSOF on cycle metrics (see [functions_iterative_calculation.md](./functions_iterative_calculation.md)).
+3. Apply with `tool:create_or_update_formula`. If apply fails with **circular dependency**, narrow the cycle metrics or switch the formula to PREVIOUSOF.
 
 **Note**: Formula builder tools are only for actual implementation when you have concrete metric/list IDs. For general formula discussions or learning, write formulas manually following the steps above.
 

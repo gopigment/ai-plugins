@@ -1,9 +1,9 @@
 ---
-name: designing-pigment-boards
+name: designing-boards
 description: Always use when creating or editing a Board. This skill includes supporting files in this directory - explore as needed.
 metadata:
-  skill_path: /designing-pigment-boards/SKILL.md
-  base_directory: /designing-pigment-boards
+  skill_path: /designing-boards/SKILL.md
+  base_directory: /designing-boards
   includes:
     - "*.md"
 ---
@@ -55,6 +55,8 @@ When doing the following tasks, you MUST read these documents:
   - Must read to the end: [board_design_rules.md](./board_design_rules.md)
   - Must read: [board_pages.md](./board_pages.md)
   - Apply the inline widget sizing rules in the **Widget Sizing** section below.
+  - Before finishing, self-check the Board and its Views using the `tool:board_view_reviewer` subagent.
+    against.
 
 - When you need a View:
   - Read [relevant_views.md](./relevant_views.md) and [view_widgets.md](./view_widgets.md) (**CRITICAL** for widgets).
@@ -92,7 +94,8 @@ When doing the following tasks, you MUST read these documents:
 - ✅ **Text widgets** - Titles, descriptions, explanatory content
 - ✅ **View widgets** - Data visualizations (Grids, Charts, KPIs)
 - ✅ **Spacer widgets** - Visual separation between sections
-- ❌ **Do not use other widget types** (ActionButton, Image) unless explicitly asked
+- ✅ **ActionButtons** - Navigation or import buttons
+- ❌ **Do not use Images unless explicitly asked**
 
 ### Text Widget Usage
 
@@ -101,7 +104,7 @@ Use **text widgets** for:
 - Section titles and subtitles
 - Explanatory text and commentary
 
-**Do NOT use text widgets** for describing intended data visualizations. Use actual View widgets instead.
+**Do NOT use text widgets** for describing navigation intentions. Use actual ActionButton widgets instead.
 
 ### View Widget Usage
 
@@ -223,16 +226,16 @@ Focus on:
 
 You MUST follow these height guidelines. When a data widget has a title, add 1 to the minimum height.
 
-| Widget type | Height |
-|---|---|
-| Text (title only) | 2 |
-| Text (title + subtitle) | 3 |
-| Spacer | 1 |
-| KPI without title | 4-6 |
-| KPI with title | 5-7 |
-| Chart without title | 11-18 |
-| Chart with title | 12-18 |
-| Grid without title | 11-24 |
-| Grid with title | 12-24 |
+| Widget type             | Height |
+| ----------------------- | ------ |
+| Text (title only)       | 2      |
+| Text (title + subtitle) | 3      |
+| Spacer                  | 1      |
+| KPI without title       | 4-6    |
+| KPI with title          | 5-7    |
+| Chart without title     | 11-18  |
+| Chart with title        | 12-18  |
+| Grid without title      | 11-24  |
+| Grid with title         | 12-24  |
 
 Chart/Grid height depends on data complexity (rows, columns, legends, axis labels).

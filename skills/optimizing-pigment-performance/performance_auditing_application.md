@@ -117,7 +117,7 @@ Produce:
 
 ## 5. Board & UX Audit
 
-**Use:** `skill:designing-pigment-boards` for layout, naming, and patterns.
+**Use:** `skill:designing-boards` for layout, naming, and patterns.
 
 ### 5.1 Board Folder Structure
 
@@ -202,7 +202,7 @@ When findings come from or require deeper use of another skill, state it explici
 - **Formula quality / optimization:** `skill:writing-pigment-formulas`, `skill:optimizing-pigment-performance` (including [performance_troubleshooting_workflow.md](./performance_troubleshooting_workflow.md))
 - **Time & dates / T&D risks:** [modeling_principles.md](../modeling-pigment-applications/modeling_principles.md) (sections 4 & 9 for T&D), [modeling_time_and_calendars.md](../modeling-pigment-applications/modeling_time_and_calendars.md), `skill:writing-pigment-formulas` (time/date functions)
 - **Folder structure / governance:** [modeling_principles.md](../modeling-pigment-applications/modeling_principles.md). **Naming:** [modeling_naming_conventions.md](../modeling-pigment-applications/modeling_naming_conventions.md)
-- **Boards / UX:** `skill:designing-pigment-boards` (or advanced boards skill)
+- **Boards / UX:** `skill:designing-boards` (or advanced boards skill)
 - **Access rights:** `skill:securing-pigment-applications` ([securing_access_rights.md](../securing-pigment-applications/securing_access_rights.md))
 - **Application cleaning (deletion workflow):** [performance_cleaning_application.md](./performance_cleaning_application.md) — for definition of "unused", order of deletion, observation period, board usage-based cleaning
 
@@ -215,4 +215,4 @@ When findings come from or require deeper use of another skill, state it explici
 - [performance_cleaning_application.md](./performance_cleaning_application.md) - Deletion-only application cleaning, unused definitions, mandatory order, boards by usage
 - [performance_troubleshooting_workflow.md](./performance_troubleshooting_workflow.md) - Performance audit methodology
 - `skill:writing-pigment-formulas` - Formula workflow and quality
-- `skill:designing-pigment-boards` - Board structure and naming
+- `skill:designing-boards` - Board structure and naming
