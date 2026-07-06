@@ -73,11 +73,12 @@ Every **pivot field** placed in `pages`, `rows`, or `columns` gets a **stable id
   - **Pivot edits** (rows / columns / pages / metricsLocation) → `tool:update_view_pivots`.
   - Aggregations (pivot-level `aggregationConfigurations` and view-level `hiddenDimensionsAggregations`) → `tool:update_view_aggregations`.
   - Filters → `tool:update_view_filters`. Sorts → `tool:update_view_sorts`. Chart config → `tool:update_view_chart_config`.
+  - Static cell formatting — background/text color, bold, italic, alignment, on the whole grid or specific coordinates (a metric, a dimension member, a calculated item) → `tool:update_view_formatting`. Read existing formatting with `tool:get_view` + `includeViewFormatting: true`. Borders are read-only; number/text value formatting is on the metric (see Critical Rules).
   - Metadata, template, sharing status → `tool:update_view`.
 
   If a Draft was auto-created, the agent should:
-  - wire the widget to display it via **`tool:update_view_widget_overrides`** so only this user sees it
-  - tell the user they can save the Draft in the Board UI.
+  - wire the widget to display it via **`tool:set_widget_preview`** so only this user sees it
+  - **propose to save it** via the **Bulk-save protocol** below — list the Draft name, ask for explicit confirmation, then call **`tool:save_draft_views`**. Only if `tool:save_draft_views` is unavailable, fall back to telling the user they can save the Draft in the Board UI.
 
 - **Bulk-save protocol** if `tool:save_draft_views` is available — after creating or editing one or more Draft Views:
   1. List the draft view names and ask the user for explicit confirmation before saving.

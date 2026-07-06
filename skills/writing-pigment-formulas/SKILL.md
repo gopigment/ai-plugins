@@ -140,7 +140,7 @@ For the full date-range presence pattern (PRORATA worked examples, ISDEFINED/IFD
 
 **How to apply**: After validation, use:
 
-- Metrics: `tool:create_or_update_formula` with the formula
+- Metrics: `tool:create_or_update_formula` with the formula, to set correct default formatting on metrics see `skill:formatting-and-highlighting`
 - List properties: `tool:update_list_property_formula` with the formula
 
 ---

@@ -433,6 +433,8 @@ IFDEFINED(User, 'Confidential Data', BLANK)
 - Essential for performance with sparse metrics
 - Common pattern for access rights: `IFDEFINED(User, Data, BLANK)`
 
+**Exception — actual/plan layering:** Never use `IFDEFINED(actual_metric, actual_value, forecast_formula)` to split actual vs forecast periods. This pattern bypasses the Version dimension and violates MG12. Use `IF(IsActual, '<Measure> Actual', '<Measure> Plan')` from `skill:planning-cycles-pigment-applications` instead.
+
 ---
 
 ### IFBLANK

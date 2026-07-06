@@ -15,7 +15,7 @@ That is what shows in the **cells**. It depends on the Block:
 **Configuration options:**
 
 - **`displayed`**: Controls whether the value is visible in the View (UI: eye icon). On **Table views**, prefer removing irrelevant metrics from `values` rather than hiding them — hidden metrics may still compute. Keep a metric hidden only when the view still depends on it, such as for value-field filtering, sort-by-metric-value, or as an advanced-aggregator operand (ratio, growth, etc.).
-- **Formatting**: Number formatting is set on the **metric** (default format), not on the view — see `skill:formatting-and-highlighting`. View-level formatting only covers display modes, aggregators, and conditional formatting (conditional formatting is UI-only).
+- **Formatting**: Number/text value formatting is set on the **metric** (default format), not on the view — see `skill:formatting-and-highlighting`. **Static cell formatting** (background/text color, bold, italic, alignment) is set on the view via `tool:update_view_formatting`. View-level config also covers display modes, aggregators, and conditional formatting (conditional formatting is UI-only).
 - **Order**: Multiple values can be displayed in a specific sequence
 
 **Example (Table views):** For a Table containing "Revenue", "Cost", and "Profit", to show only "Revenue" and "Profit" on a given view, include **only those metrics** in `values`. To drop "Cost", **remove** its value entry; do not leave it with `displayed: false`.

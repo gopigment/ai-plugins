@@ -87,11 +87,11 @@ Technical Name:      EE_CALC_Total_Headcount
 Friendly Name:       EE_CALC_Total_Headcount (appears in block lists)
 Display Name:
   en-US:             Total Headcount (FTE)
-  fr-FR:             Total d'Effectifs (ETP)
+  fr-FR:             Total des Effectifs (ETP)
 
 Agent behavior:
-- References block as: "Total Headcount (FTE)" in English and "Total d'Effectifs (ETP)" in French
-- User sees in Board: "Total Headcount (FTE)" (English) or "Total d'Effectifs (ETP)" (French)
+- References block as: "Total Headcount (FTE)" in English and "Total des Effectifs (ETP)" in French
+- User sees in Board: "Total Headcount (FTE)" (English) or "Total des Effectifs (ETP)" (French)
 ```
 
 ### Best Practices
@@ -112,16 +112,26 @@ When the modeler agent discusses blocks:
 
 ## Character Rules
 
-| Character            | Allowed | Usage                       |
-| -------------------- | ------- | --------------------------- |
-| Letters, Numbers     | Yes     | Standard naming             |
-| Underscores `_`      | Yes     | **Preferred separator**     |
-| Spaces               | Yes     | Use sparingly               |
-| Parentheses `()`     | Yes     | Units: `($)`, `(#)`, `(%)`  |
-| Square brackets `[]` | Yes     | Sort control: appears first |
-| Hyphens `-`          | Yes     | Status: `-TEST`, `-OLD`     |
-| **Periods `.`**      | **No**  | Breaks formula referencing  |
-| **Colons `:`**       | **No**  | Breaks formula referencing  |
+Pigment enforces character rules on **friendly names** (the name passed to create/rename tools). Display names are more permissive.
+
+### Friendly names — platform constraints
+
+These rules mirror backend validation (`FriendlyNameHelper`). Violations cause create/rename to fail.
+
+| Character / pattern              | Allowed | Notes                                              |
+| ---------------------------------- | ------- | -------------------------------------------------- |
+| Letters, Numbers                   | Yes     | Standard naming                                    |
+| Underscores `_`                    | Yes     | **Preferred separator**                            |
+| Spaces                             | Yes     | Single spaces only; no leading/trailing/double     |
+| Parentheses `()`                   | Yes     | Units: `($)`, `(#)`, `(%)`                         |
+| Square brackets `[]`               | Yes     | Sort control: appears first                        |
+| Hyphens `-`                        | Yes     | Status: `-TEST`, `-OLD`                            |
+| **Apostrophe `'`**                 | **No**  | **Rejected by platform**; conflicts with formulas  |
+| **Double quote `"`**              | **No**  | **Rejected by platform**                           |
+| **Periods `.`**                    | **No**  | Breaks formula referencing                         |
+| **Colons `:`**                     | **No**  | Breaks formula referencing                         |
+| Emojis                             | No      | Rejected by platform                               |
+| Max length                         | 100 bytes | Includes multi-byte UTF-8 characters             |
 
 ## Sort Order
 
@@ -414,6 +424,8 @@ Department_Head_Requests_To_Validate
 | ----------------- | ------------------ | ------------------- |
 | `Rev.Total`       | Period breaks refs | `Revenue_Total`     |
 | `Dept:Sales`      | Colon breaks refs  | `Dept_Sales`        |
+| `Total d'Effectifs` | Apostrophe rejected by platform | `Total_Effectifs` |
+| `Prêts_Clients`   | Circumflex in friendly name | `Prets_Clients` |
 | `HC`              | Unclear            | `Headcount`         |
 | `Copy of Revenue` | Default name       | Delete or rename    |
 | Inconsistent folder order | Hard to navigate | Use numeric prefixes (0., 1., 2. or 10., 11., 20.) consistently |
