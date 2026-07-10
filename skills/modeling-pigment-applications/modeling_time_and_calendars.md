@@ -70,9 +70,9 @@ For Gregorian calendars, you can configure when the fiscal year starts. This is 
 - Q2 FY 2026 = July, August, September 2025
 
 **Setting Fiscal Year Start:**
-Configure the fiscal year starting month when creating or editing the calendar. Use `tool:calendar_create` to set this when creating a new calendar.
+Configure the fiscal year starting month when creating a new calendar using `tool:calendar_create`.
 
-**Best Practice:** Set the fiscal year start early in application setup. Changing it later can affect existing formulas and data.
+> **API limitation — fiscal year cannot be changed after creation.** There is no `calendar_update` tool. Once a calendar exists, its fiscal year starting month cannot be modified via the API. If the fiscal year is wrong on an existing calendar, the user must change it manually via Application Settings → Calendar in the Pigment UI. Do not attempt to recreate the calendar to work around this — that would delete all existing data.
 
 ### Calendar Date Ranges
 
@@ -112,6 +112,18 @@ You can extend a calendar's date range without affecting existing data.
 
 **Important:** Extending forward is safe. Extending backward may create new periods, but existing data is preserved. You cannot shorten the calendar date range (remove periods) if data exists in those periods.
 
+### What Can and Cannot Be Changed After Creation
+
+| Property | Changeable via API? | Tool | Notes |
+|---|---|---|---|
+| Date range (extend only) | Yes | `tool:calendar_expand` | Can only extend, never shrink |
+| Time dimensions | Yes | `tool:calendar_add_time_dimension` / `tool:calendar_remove_time_dimension` | Check current state with `calendar_get` first |
+| Fiscal year starting month | **No** | — | UI only: Application Settings → Calendar |
+| Calendar type (Gregorian / Weekly) | **No** | — | Set at creation; cannot be changed |
+| First day of week (Gregorian) | **No** | — | Set when adding Week dimension; cannot be changed |
+
+If a user asks to change a property marked **No**, inform them that it requires UI intervention and cannot be done via the API.
+
 ### Distinguishing Actuals from Plan periods
 
 To distinguish historical Actuals from future Plan periods in a planning model, use the **Version Dimension Switchover** pattern documented in [`../planning-cycles-pigment-applications/SKILL.md`](../planning-cycles-pigment-applications/SKILL.md) (skill: `planning-cycles-pigment-applications`). The pattern uses a **Switchover Month (or Year) Property on the Version Dimension** plus the **IsVersion / IsActual / IsPlan** Boolean Metrics to layer Actuals and plan data per Version. Calendars do not handle this; do not use Calendar tools for versioning.
@@ -130,6 +142,27 @@ When setting up a calendar, you select which time dimensions to include:
 - **Day**: Daily periods (optional)
 
 **Best Practice:** Include only the time dimensions you need. More dimensions mean more complexity and potential performance impact. Use `tool:calendar_add_time_dimension` to add a dimension and `tool:calendar_remove_time_dimension` to remove one.
+
+### Adding Time Dimensions — Rules and Preconditions
+
+**Always read the calendar first:**
+Before calling `tool:calendar_add_time_dimension`, call `tool:calendar_get` to read the current calendar configuration. Check the `time_dimensions` list in the response. If the dimension you intend to add is already present, do not call `calendar_add_time_dimension` — the call will fail with "Time Dimension X is already defined in the config".
+
+**Adding the Week dimension on a Gregorian calendar:**
+
+When adding `Week` to a Gregorian calendar, two parameters are required:
+
+- `first_day_of_week`: the day weeks start on (e.g. `Monday`, `Sunday`). This is a day-of-week value such as `Monday`, `Tuesday`, etc.
+- `week_mapping`: controls how weeks are mapped to parent time dimensions. **For Gregorian calendars, the only supported value is `NoMapping`.** All other enum values (`FirstDayOfWeek`, `FirstMonth`, `SecondMonth`, `ThirdMonth`) are not supported for Gregorian calendars and will return an error. Always pass `NoMapping`.
+
+Example call for adding Week to a Gregorian calendar:
+```
+time_dimension: Week
+first_day_of_week: Monday
+week_mapping: NoMapping
+```
+
+**Do not pass `week_mapping` for non-Week dimensions.** The `week_mapping` parameter must be `None` (omitted) when adding any dimension other than `Week`.
 
 **Extra Time Dimensions:**
 
@@ -454,6 +487,10 @@ Document which time dimensions are used in your application to help team members
 - Extend calendar date range in Settings → Calendar
 - Update Start Date or End Date as needed
 - Existing data is preserved when extending
+
+**"Entity not found" when adding a time dimension:**
+
+- Maybe the application doesn't have a calendar yet; check with `tool:calendar_get`
 
 ---
 

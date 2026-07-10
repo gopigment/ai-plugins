@@ -69,6 +69,26 @@ Two naming patterns are valid. Pick based on intent:
 
 Do not mix patterns within the same Version Dimension.
 
+### Actuals-to-Forecast Recipe
+
+When the model combines actuals with a forward plan or forecast, follow this exact build order:
+
+1. Calendar setup (Month, Quarter, Year with properties)
+2. Version bootstrap (all 11 items from the checklist above, no exceptions)
+3. `<Measure> Actual` metric gated by IsActual
+4. `<Measure> Plan` metric from forward-looking assumptions
+5. `<Measure>` (unified output): `IF(IsActual, '<Measure> Actual', '<Measure> Plan')`
+
+**WRONG pattern (observed in traces):**
+
+```pigment
+IFDEFINED('DATA_Units_Actual', 'DATA_Units_Actual', PREVIOUS(Month) * (1 + 'ASM_Monthly_Growth_Rate'))
+```
+
+This violates MG12 because it skips the Version Dimension entirely. `IFDEFINED` checks whether actual data exists and falls back to a forecast formula, but without Version there is no Switchover Month, no IsActual/IsPlan gating, and no way to manage multiple planning cycles.
+
+**Forbidden reasoning:** any rationale like "kept simple with a single combined output metric" or "No Version Dimension needed" is wrong when actuals and forecast coexist. The Version Dimension is always required in that scenario.
+
 ## 3. Switchover Semantics
 
 `Switchover Month` is the **last month of actual data** for that Version. Months strictly after it are Plan.

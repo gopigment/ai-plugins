@@ -123,6 +123,7 @@ Do **not** use Calendar tools (`calendar_create`, `calendar_expand`, `calendar_a
 - **Never use `REMOVE` on Version.** Use `FILTER` or `SELECT`.
 - **Keep the Version Dimension lean.** Only keep active Versions in use and locked Versions needed for reference. Regularly review and clean up; archive older Versions via Snapshots.
 - **Deliver the full setup atomically.** Dimension + Version Type + properties populated + boolean metrics in one pass.
+- **BLOCKER:** Any task combining actuals with forward plan/forecast MUST complete section 2 bootstrap before the first `create_metric` on a combined or forecast measure. Never skip Version because the task "seems simple."
 
 ---
 

@@ -24,6 +24,7 @@ Read this skill when the user asks to:
 - Share AR across multiple applications
 - Debug "why can or cannot this user see this data?"
 - Reuse AR patterns from a Hub app
+- Working on any Role feature (Read, Create, Update, Delete)
 
 ---
 
@@ -68,6 +69,26 @@ Invariants:
 5. **AR is part of architecture.** Design AR alongside the dimensional model, not after.
 
 For details, examples, and debugging, read [./securing_access_rights.md](./securing_access_rights.md).
+
+---
+
+## Managing Roles (`list_roles`, `create_role`, `update_role`, `delete_role`)
+
+When these tools are available, the agent can read and manage an application's security **Roles** directly. A Role carries a `permissions` object (what the role can do), an `accessRights` object, and optional `permissionsByListId` / `readWriteAssignmentByScenarioId` assignments.
+
+**To duplicate a role** (e.g. "create `Reader_2` with the same permissions as `Reader`"):
+
+1. Call `list_roles` for the application. Each role returns `modalityId`, `friendlyName`, `permissions`, `accessRights`, `permissionsByListId`, `readWriteAssignmentByScenarioId`.
+2. Find the source role (e.g. `Reader`) in that output.
+3. Call `create_role` with the new `friendlyName` and the source role's `permissions`, `accessRights`, `permissionsByListId`, and `readWriteAssignmentByScenarioId` **copied verbatim** from step 1.
+
+**Critical — use the exact fields `list_roles` returns.** Copy the `permissions` object as-is from `list_roles`. Do NOT invent permission flags, and do NOT borrow fields from `list_permissions` or `list_access_rights` — those describe Access Rights configuration, which is a different concept from a role's `permissions`.
+
+**Other operations:**
+- `update_role` — send the role's full desired state, including its `modalityId`.
+- `delete_role` — send the role id. Destructive: users with that role lose its permissions.
+
+**Constraints:** role management works only on **non-admin** applications, and `friendlyName` must be unique within the application.
 
 ---
 

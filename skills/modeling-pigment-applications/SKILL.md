@@ -150,7 +150,8 @@ Table:
 
 - **Architecture before blocks.** Dimensional structure is the single most expensive decision. Design before building.
 - **Only dimension lists can be structural.** Transaction lists never. Aggregate with `BY`.
-- **Never use `.` or `:` in names.** They break formula references.
+- **Never use `.`, `:`, `'`, or `"` in friendly names.** They break formula references or are rejected by the platform. Sanitize user-provided names before create/rename tool calls.
+- **Prefer ASCII friendly names.** Avoid apostrophes and circumflex letters (â, ê, î, ô, û) — use `Prets`, `Creances`, `Total_Effectifs`, not `Prêts`, `Crêances`, `Total d'Effectifs`. Put localized phrasing in display names; see [./modeling_naming_conventions.md#character-rules](./modeling_naming_conventions.md#character-rules).
 - **Never place a block at the root level.**
 - **Never reference an item directly in a formula** when T&D is in use. Use an input metric of type Dimension.
 - **List Subsets are not a default.** Membership change deletes data irreversibly. Prefer filters.
