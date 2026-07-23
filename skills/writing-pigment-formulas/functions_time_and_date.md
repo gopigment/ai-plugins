@@ -269,8 +269,8 @@ YEARTODATE('Monthly Sales')
 
 ### PREVIOUS and PREVIOUSOF
 
-- **PREVIOUS(Dimension [, Offset])**: Iterative calculation within a **single** Block; returns the previous cell of the current metric in the iteration dimension. Use when the formula references itself along that dimension.
-- **PREVIOUSOF(Metric [, Offset])**: Iterative calculation **across Blocks**; requires an iterative calculation configuration. Use when multiple metrics reference each other in a cycle.
+- **PREVIOUS(Dimension [, Offset])**: Iterative calculation within a **single** Block; returns the previous cell of the current metric in the iteration dimension. Use when the formula references itself along that dimension. **Does not require** an iterative calculation cycle — apply directly. **Do not** add the metric to a cycle; `PREVIOUS` is rejected on metrics already in a cycle.
+- **PREVIOUSOF(Metric [, Offset])**: Iterative calculation **across Blocks**; **requires** an iterative calculation cycle configuration. Use when multiple metrics reference each other in a cycle.
 
 **Examples**:
 
@@ -345,36 +345,16 @@ FILLFORWARD('Exchange Rate', Date)
 
 **Which applies?**
 
-1. **Prior cell of this metric** in the same metric → `PREVIOUS(Month)`
+1. **Prior cell of this metric** in the same metric → `PREVIOUS(TimeDim)` (e.g. `PREVIOUS(Month)`, `PREVIOUS(Year)`)
 2. **Prior value of another metric** in a period-on-period chain (opening ↔ closing, inventory, etc.) → `PREVIOUSOF('…')` + cycle. Not `[SELECT: Month-1]` between coupled metrics (circular ref).
-3. **Neither** — time shift or comparison only → `[SELECT: Month-N]` (e.g. `[SELECT: Month-12]` for prior-year month)
+3. **Neither** — time shift or comparison only → `[SELECT: TimeDim-N]` on **another** metric (e.g. `[SELECT: Month-12]` for prior-year month)
 
 | Case                             | Use                        | Example                              |
 | -------------------------------- | -------------------------- | ------------------------------------ |
-| Time shift / comparison          | SELECT or Show Value As    | `'Actuals'[SELECT: Month-12]`        |
-| Same metric                      | PREVIOUS                   | `PREVIOUS(Month)`                    |
+| Time shift / comparison (other metric or display) | SELECT or Show Value As | `'Actuals'[SELECT: TimeDim - N]`     |
+| Same metric — prior calculated period | PREVIOUS                   | `PREVIOUS(TimeDim)`                  |
 | Coupled metrics across periods   | PREVIOUSOF + cycle         | `PREVIOUSOF('Ending Balance')`       |
-
-### Common Mistakes
-
-```pigment
-// ❌ WRONG: Using PREVIOUS for simple lookup — 'Last Month Revenue'
-PREVIOUS(Month)
-
-// ✅ CORRECT (reporting): Show Value As on the View — prior month / % growth (no formula metric)
-
-// ✅ CORRECT (calculation): prior month of another metric (not iterative)
-'Revenue'[SELECT: Month-1]
-
-// ❌ WRONG: Using PREVIOUSOF for MoM comparison
-'Revenue' - PREVIOUSOF('Revenue')
-
-// ✅ CORRECT: MoM formula only when other metrics need the delta
-'Revenue' - 'Revenue'[SELECT: Month-1]
-
-// ✅ CORRECT: PREVIOUSOF for true iterative (balance depends on prior balance) — 'Ending Balance'
-PREVIOUSOF('Ending Balance', 0) + 'Inflow' - 'Outflow'
-```
+| Sporadic input — fill blanks with last known value | FILLFORWARD | `FILLFORWARD('Rate Input', TimeDim)` |
 
 ### When PREVIOUS/PREVIOUSOF is Appropriate
 
@@ -488,7 +468,8 @@ IF(INPERIOD('Order'.'Date', Quarter), 'Order'.'Amount', BLANK)
 ## Critical Rules
 
 - **Use `[SELECT: Month-N]` for simple lookups** - Not `PREVIOUS`/`PREVIOUSOF`. Reserve iterative functions for true iterative calculations (balances, accumulators)
-- **PREVIOUS/PREVIOUSOF are iterative** - Slow, sequential computation. Only use when current value depends on prior calculated value. **Requires iterative calculation to be configured on the metric. Use available cycle tools when possible; otherwise ask the user to configure it in the Pigment UI. Always confirm before applying.**
+- **`PREVIOUS` is sequential but needs no cycle** - Slow when the current value depends on the prior value of the **same** metric. Apply directly; do **not** call `tool:create_cycle`.
+- **`PREVIOUSOF` requires a cycle** - Slow sequential computation across **multiple** metrics. Configure the cycle (`tool:create_cycle` / `tool:update_cycle`, or UI) **before** applying. Never use a cycle for `PREVIOUS`-only patterns.
 - **WEEKDAY starts at 0 (Sunday)** - Unlike Excel
 - **PREVIOUS moves on all time dimensions** - Use PREVIOUSOF for single dimension
 - **PREVIOUSOF offset is positive** - Always backward movement

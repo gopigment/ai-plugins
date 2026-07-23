@@ -1,8 +1,8 @@
 # CSV Data Import
 
-> **PREREQUISITE**: These instructions apply ONLY when a CSV file is present in `<file_attachments>` or the user has explicitly asked to import a CSV file. If no CSV file is attached and the user has not asked for a CSV import, stop — do not follow any instructions in this file.
+> **PREREQUISITE**: These instructions apply ONLY when a CSV file is present in `<file_attachments>` or the user has explicitly asked to import a CSV file. If no CSV file is attached and the user has not asked for a CSV import, stop - do not follow any instructions in this file.
 
-This skill will enable the use of `tool:import_csv_to_dimension`
+This skill will enable the use of `tool:import_csv_to_list`
 
 ## Overview
 
@@ -84,7 +84,7 @@ Creating separate dimensions enables:
 - Hierarchies (Country → Region)
 - Additional properties on the dimension itself (Country.Population, Country.Currency)
 
-**CRITICAL: When categorical columns are detected, ALWAYS present both options to the user.** Do not assume which approach to use. Choosing Text properties when dimensions are needed later requires recreating the list.
+When proposing property types for new columns, prefer **Dimension** type if values repeat or match an existing dimension name; reserve **Text** for high-cardinality free-form fields (see [Property Type Selection](../modeling-pigment-applications/modeling_fundamentals.md#21-dimensions-and-properties)).
 
 ### After the user chooses:
 

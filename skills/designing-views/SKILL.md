@@ -52,6 +52,10 @@ Every **pivot field** placed in `pages`, `rows`, or `columns` gets a **stable id
 
 `ListPropertyPath` is the **technical** name of **properties** (e.g. in the UI: `Month > Year`, `Country > Region`).
 
+### Discovering valid pivots
+
+Before adding pivots, call **`tool:get_available_pivots`** for the View and build new pivots from the returned candidates instead of guessing. See [view_pivoting.md](./view_pivoting.md) §2.
+
 ### Other
 
 - Do **not** create views on **sublists**.
@@ -65,15 +69,17 @@ Every **pivot field** placed in `pages`, `rows`, or `columns` gets a **stable id
 - **Value and pivot ids** — Assigned by the server. For a NEW pivot/value, omit `id`. To KEEP an existing one, echo back the id from a prior `tool:create_view` / `tool:update_view_*` / `tool:get_view` response. Never invent UUIDs.
 - **Same dimension on Pages and on Rows/Columns is SUPPORTED** — When the user asks to "put X on Pages", **add** to Pages without removing X from Rows/Columns. Page selectors then narrow which modalities appear on the row/column axis. Do not treat this as a conflict. See [view_components.md](./view_components.md) for OK patterns vs. anti-patterns.
 - **"Filter" from users → Page Selector first** — Restricting to a dimension item (Year, Country, Version, …) = **`pages`** + default item, not `filters[]`. View Filters only for top-N-by-metric, exclusion, or logic Page Selectors cannot express. See [view_filtering.md](./view_filtering.md).
+- **Board context → align Pages across Views** — Replicate every sibling board page selector on this View if the block supports it (grouping page when grains differ). See [board_pages.md](../designing-boards/board_pages.md).
 - **New View (greenfield)** — Two-step flow:
   1. Call **`tool:create_view`**. Leave `pivotLayout` **null** to let the server build a sensible default layout for the underlying block. To override, send a complete `pivotLayout` with all three axes (`rows`, `columns`, `pages`) populated — each entry is a **simplified pivot seed** (`dimensionId` + optional `listPropertyPath`); use an empty array for an axis with no pivot. Half-specified layouts are rejected. Values and hidden-dim aggregations are created with sensible defaults; refine them in step 2 if needed.
   2. Iterate with **`tool:update_view_pivots`**, **`tool:update_view_values`** (and the other `update_view_*` tools) to refine the configuration. None of those refinements are accepted by `tool:create_view`.
 - **Editing an existing View** — Use the field-specific variants directly on the View id:
   - Values (add/remove value fields, `showValueAsConfiguration`) → `tool:update_view_values`. Echo back existing value ids to keep them stable.
-  - **Pivot edits** (rows / columns / pages / metricsLocation) → `tool:update_view_pivots`.
+  - **Pivot edits** on Metric & Table Views (rows / columns / pages / metricsLocation) → `tool:update_view_pivots`.
+  - **Pivot edits** on List Views (row groupings / page selectors) → `tool:update_list_view_pivots`. On a List every pivot is built on the List itself: identify a grouping or page selector by its `listPropertyPath`, not a `dimensionId`; no columns, no metricsLocation. `tool:update_view_pivots` is not for Lists.
   - Aggregations (pivot-level `aggregationConfigurations` and view-level `hiddenDimensionsAggregations`) → `tool:update_view_aggregations`.
   - Filters → `tool:update_view_filters`. Sorts → `tool:update_view_sorts`. Chart config → `tool:update_view_chart_config`.
-  - Static cell formatting — background/text color, bold, italic, alignment, on the whole grid or specific coordinates (a metric, a dimension member, a calculated item) → `tool:update_view_formatting`. Read existing formatting with `tool:get_view` + `includeViewFormatting: true`. Borders are read-only; number/text value formatting is on the metric (see Critical Rules).
+  - Cell formatting — background/text color, bold, italic, alignment, on the whole grid or specific coordinates (a metric, a dimension member, a calculated item) → `tool:update_view_formatting`. Read existing formatting with `tool:get_view` + `include: ["Formatting"]`. Each override is static by default; set `scope.condition` to make it **conditional** (highlight cells below/above a threshold, a color scale, a text match, or a comparison against another metric — see the tool's `McpCondition` schema for which fields each condition type uses). `overrides` replaces both static and conditional overrides wholesale, so resend the ones you want to keep. Override order matters: the first override wins per property, so list specific coordinate overrides before broader ones and put any all-grid override last. Borders are read-only; number/text value formatting is on the metric (see Critical Rules).
   - Metadata, template, sharing status → `tool:update_view`.
 
   If a Draft was auto-created, the agent should:
@@ -100,7 +106,7 @@ A View is **how** a Block (Metric, List, Table) is shown: pivots, filters, sort,
 
 ## Draft Views
 
-A **private** working copy to **preview** edits before they hit an existing view. On **boards**, use a Draft + **widget overrides** when changing the **live** View behind a widget—see [view_widgets.md](../designing-boards/view_widgets.md). **Not** a substitute for **`create_view`** when you need a **new** View. **Save via bulk-save protocol** — list the draft names, wait for user confirmation, then call `tool:save_draft_views` once with all draft view IDs
+A **private** working copy to **preview** edits before they hit an existing view. On **boards**, use a Draft + **widget overrides** when changing the **live** View behind a widget—see [view_widgets.md](../designing-boards/view_widgets.md). **Not** a substitute for **`create_view`** when you need a **new** View. **Save via bulk-save protocol** — list the draft names, wait for user confirmation, then call `tool:save_draft_views` once with all draft view IDs. **Cannot be deleted** via `tool:delete_views` — the tool returns `deleted: false` for each draft; to discard a Draft, tell the user to do it in the UI.
 
 ---
 

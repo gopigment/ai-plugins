@@ -136,9 +136,17 @@ You MUST call `tool:validate_formula` before calling `tool:create_or_update_form
 
 **Exception — PREVIOUS / PREVIOUSOF:** Do NOT use `tool:validate_formula` (it returns a ticket without real checks). Instead:
 
-1. Confirm `tool:list_cycles` / `tool:create_cycle` / `tool:update_cycle` — iterative calculation must exist **before** apply.
-2. For month roll-forward chains (beginning ↔ ending balances), do **not** try `[SELECT: Month - 1]` first; use PREVIOUSOF on cycle metrics (see [functions_iterative_calculation.md](./functions_iterative_calculation.md)).
-3. Apply with `tool:create_or_update_formula`. If apply fails with **circular dependency**, narrow the cycle metrics or switch the formula to PREVIOUSOF.
+**`PREVIOUS(Dimension)` — no cycle configuration needed:**
+
+1. Prefer a **single-metric** roll-forward (`PREVIOUS(TimeDim) + …`) when the prior period is this metric, using the metric's own time dimension (`Month`, `Year`, …) — see [functions_iterative_calculation.md](./functions_iterative_calculation.md).
+2. Apply with `tool:create_or_update_formula`. Do **not** create a cycle.
+3. Tell the user: validation preview is skipped for `PREVIOUS` formulas; the formula is checked when applied. **No iterative calculation cycle** is required — that setting applies only to `PREVIOUSOF`.
+
+**`PREVIOUSOF('Metric')` — cycle configuration needed:**
+
+1. Confirm that the iterative calculation cycle exist **before** applying with relevant tools: `tool:list_cycles` / `tool:create_cycle` / `tool:update_cycle`.
+2. For beginning ↔ ending balances split across metrics, use `PREVIOUSOF` on cycle metrics (not `[SELECT: Month - 1]` between coupled metrics, which would create a circular ref). See [functions_iterative_calculation.md](./functions_iterative_calculation.md).
+3. Apply with `tool:create_or_update_formula`. If apply fails with **circular dependency**, narrow the cycle metrics or collapse to a single metric with `PREVIOUS(TimeDim)`.
 
 **Note**: Formula builder tools are only for actual implementation when you have concrete metric/list IDs. For general formula discussions or learning, write formulas manually following the steps above.
 

@@ -17,6 +17,16 @@ To make **one** board-level selector (e.g. Year) drive **multiple** widgets toge
 
 **Workflow implication:** Before relying on Board Pages, **verify or edit each widget View** so Pages align with the dimensions you want at board level. Creating the Board first and only then discovering mismatched Views is a common source of “the board filter does nothing.”
 
+### Cross-View Page Alignment (mandatory)
+
+Multi-widget Boards: **every** View must expose a **compatible** page for **each** board-level selector (simple page on D, or grouping page whose `listPropertyPath` resolves to D). Reconcile after **each** View — do not design Views in isolation.
+
+- Sibling has page on **D** and this block has **D** → add simple page on **D** (Pages + Rows/Columns is OK).
+- Sibling has page on **D** but this block only has finer **F** with property to **D** → add **F > … > D** grouping page (e.g. **Region** selector → **Country > Region**, not **Country** alone).
+- Skip only when the dimension is **not on the block at all**.
+
+Before `tool:update_board` page config, confirm every View matches every planned selector.
+
 **Key rule (configuration):** Board Page **selectors** come from the union of Pages on the Views you add to the Board. You cannot invent a new Page selector on the Board that no View has. In case of comparison, you **must**  configure **default selected items** for each Board Page at board level (default modalities = compared items). When the user names specific modalities in the prompt - either a single value ("for FY 26") or a subset to compare ("FY 26 and FY 27", "Actuals vs Budget") - those exact modalities are the defaults, single- or multi-select accordingly.
 
 After defaults are set, users can change Board Page selections; widgets whose Views are linked and compatible will update accordingly.

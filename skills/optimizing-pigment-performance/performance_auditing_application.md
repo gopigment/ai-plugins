@@ -88,7 +88,7 @@ Produce:
 
 ### 4.1 Metric Folder Structure
 
-**Use:** [modeling_principles.md](../modeling-pigment-applications/modeling_principles.md) (OX folders, themed folders).
+**Use:** [modeling_principles.md](../modeling-pigment-applications/modeling_principles.md) (setup folders, themed folders).
 
 **Identify:**
 

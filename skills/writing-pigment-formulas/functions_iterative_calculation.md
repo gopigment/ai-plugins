@@ -6,6 +6,19 @@ Full technical reference for Pigment's iterative calculation functions: when to 
 
 **Deprecation**: `PREVIOUSBASE()` is deprecated; use `PREVIOUSOF()` instead.
 
+**⚠️ Cycle configuration — do not conflate PREVIOUS and PREVIOUSOF:**
+
+| Function | Iterative calculation cycle required? |
+|----------|--------------------------------------|
+| `PREVIOUS(Dimension)` | **No.** Apply the formula directly. Do **not** call `tool:create_cycle`. |
+| `PREVIOUSOF('Metric')` | **Yes.** Create or update a cycle (`tool:create_cycle` / `tool:update_cycle`) **before** applying the formula. |
+
+Pigment uses "iterative calculation" for two different things: (1) sequential computation (both functions), and (2) the **cycle configuration** in Application Settings → Calculations (**PREVIOUSOF only**). Using `PREVIOUS()` on a metric that is already in a cycle **fails** at compile time.
+
+**Tool availability caveat:** `tool:create_cycle` / `tool:update_cycle` may not be in your toolset, or may fail even when present (e.g. Access Rights Inheritance enabled on the app). If so, do **not** guess — tell the user the cycle must be configured manually in Application Settings → Calculations before you can apply a PREVIOUSOF formula.
+
+**Default for roll-forward balances:** Prefer a **single metric** with `PREVIOUS(TimeDim)` (§3D, §9) before splitting Opening/Ending metrics and creating a `PREVIOUSOF` cycle (§8). `TimeDim` is whichever time dimension the metric uses (Month, Year, Quarter, …).
+
 **See also**:
 - [Performance - Iterative Calculations](../optimizing-pigment-performance/performance_iterative_calculations.md) - Optimization strategies, subsetting, FILLFORWARD vs PREVIOUS
 - [Time and Date Functions](./functions_time_and_date.md) - SELECT vs PREVIOUS/PREVIOUSOF, FILLFORWARD, CUMULATE
@@ -19,11 +32,9 @@ Pigment checks for circular dependencies each time a formula is created or edite
 **Example of a circular dependency within a single Block**:
 
 ```pigment
-// ❌ Circular: Metric A references itself via SELECT
-Metric A = Metric A[SELECT: Month - 1] + 1
+// ❌ Circular — 'Output Metric' references itself via SELECT
+'Output Metric'[SELECT: TimeDim - 1] + 1
 ```
-
-This attempts to increase Metric A month-on-month but errors because Metric A cannot reference itself via SELECT in the formula.
 
 **Modeling rules**:
 
@@ -50,10 +61,10 @@ This attempts to increase Metric A month-on-month but errors because Metric A ca
 
 **Definition**: PREVIOUS returns the value of the previous cell of the **current Metric** in the iteration Dimension.
 
-**Critical syntax rule**: PREVIOUS takes the **iterating dimension**, not the metric.
+**Critical syntax rule**: PREVIOUS takes the **iterating time dimension** of the metric's Block, not the metric name.
 
-- Correct: `PREVIOUS(Month)`
-- Incorrect: `PREVIOUS(Metric)`
+- Correct: `PREVIOUS(Month)`, `PREVIOUS(Year)`, … — use the dimension the metric is defined on
+- Incorrect: `PREVIOUS('Metric')`, `PREVIOUS('Metric'[SELECT: TimeDim - 1])`
 
 ### Syntax
 
@@ -61,7 +72,7 @@ This attempts to increase Metric A month-on-month but errors because Metric A ca
 
 **Offsets**:
 
-- `PREVIOUS(Month)` returns one item prior by default.
+- `PREVIOUS(TimeDim)` returns one item prior by default (e.g. `PREVIOUS(Month)`, `PREVIOUS(Year)`).
 - `PREVIOUS(Month, 2)` returns two items prior.
 - The offset parameter defaults to 1 but can be any positive integer.
 - Offset can also be provided by a Metric of type Integer defined on the same Dimensions as the Metric.
@@ -87,6 +98,30 @@ Cash = PREVIOUS(Month) + Income - Expense
 
 - `Beginning Inventory = End Inventory[SELECT: Month - 1]` → creates circular dependency when End Inventory uses Beginning Inventory.
 - `End Inventory = PREVIOUS(Month) + Incoming Re-order - Outgoing Sales` → resolves recursion within the same metric.
+
+  - `End Inventory = PREVIOUS(Month) + Incoming Re-order - Outgoing Sales` → resolves recursion within the same metric.
+
+**E) Forecast carry-forward — self-referencing metric**:
+
+```pigment
+// 'Consolidated Expenses' — Oracle actuals for Actual periods, prior year for Forecast periods
+IF(
+  'Year'.'Period type' = 'Period type'."Actual",
+  Oracle_Data.Amount[BY: ...][FILTER: ...],
+  PREVIOUS(Year)
+)
+```
+
+### When to Proactively Suggest PREVIOUS
+
+Recommend `PREVIOUS(TimeDim)` **before** writing the formula — don't wait for a circular-dependency
+error or the antipattern hint to catch it after the fact. Suggest it as soon as the request matches:
+
+- "carry forward last year's / last period's value" for forecast or budget periods
+- "use last year as the baseline" for a forecast
+- "running balance", "opening balance", "roll-forward", "cumulative balance"
+- Any request where the formula would need to reference **its own metric** at a prior point on the
+  same time dimension — this is always a circular dependency via SELECT; PREVIOUS is the only fix.
 
 ---
 
@@ -312,11 +347,22 @@ When using an iterative calculation configuration, Pigment builds a base formula
 
 ## 15. Practical Decision Framework
 
-- **Loop in a single metric** → use `PREVIOUS()`.
-- **Loop across multiple metrics** → use `PREVIOUSOF()` and create an iterative calculation configuration first using `tool:create_cycle`.
-- Use PREVIOUS/PREVIOUSOF **only** for true metric-level circular dependencies; Pigment does not support cell-level circulars.
-- **Prefer non-iterative logic** when possible (performance); use CUMULATE, offset-based patterns, or the Opening Balance rewrite (§9) where applicable.
-- Choose the iterating dimension **as short as possible**; consider subsets if you only need a portion.
+1. **Can the roll-forward live in one metric?** (e.g. `PREVIOUS(TimeDim) + 'Inflow' - 'Outflow'` on `'Balance Metric'`) → use `PREVIOUS()` — **no cycle**.
+2. **Must multiple metrics reference each other's prior period?** (e.g. separate Opening and Ending blocks) → use `PREVIOUSOF()` and create an iterative calculation configuration first using `tool:create_cycle`.
+3. Use PREVIOUS/PREVIOUSOF **only** for true metric-level circular dependencies; Pigment does not support cell-level circulars.
+4. **When there is no circular dependency risk**, prefer a prior-period lookup from **another** metric: `'Source Metric'[SELECT: TimeDim - N]` (parallel, fast).
+5. **When blanks must carry the last known input forward** (sporadic source data, no per-period calculation): use `FILLFORWARD('Source Input', TimeDim)` — not `IFBLANK('Source Input', PREVIOUS(TimeDim))`, which forces sequential iteration unnecessarily.
+
+   ```pigment
+   // ❌ 'Rate Metric' — iterative fill of gaps
+   IFBLANK('Rate Input', PREVIOUS(Month))
+
+   // ✅ 'Rate Metric' — forward-fill last known input
+   FILLFORWARD('Rate Input', Month)
+   ```
+
+6. See the Opening Balance rewrite (§9) where a multi-metric `PREVIOUSOF` cycle can be avoided.
+7. Choose the iterating dimension **as short as possible**; consider subsets if you only need a portion.
 
 ---
 

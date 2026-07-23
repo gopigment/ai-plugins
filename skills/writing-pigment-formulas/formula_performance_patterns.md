@@ -251,25 +251,34 @@ IF(
 
 ---
 
-### Pattern 7: SELECT for Prior Period Lookups (NOT PREVIOUS)
+### Pattern 7: SELECT for Prior Period Lookups — Other Metrics Only
 
-**Why**: SELECT is parallel (fast). PREVIOUS/PREVIOUSOF are sequential iterative functions (slow). Use SELECT for all simple lookups.
+**Why**: SELECT is parallel (fast). Use it when the formula reads a **different** metric's prior period.
 
-**Anti-pattern** — PREVIOUS/PREVIOUSOF for simple lookups (reserve them for true iterative calculations only):
+**Do not use SELECT on the same metric** — `'This Metric'[SELECT: TimeDim - 1]` is a circular reference. Use `PREVIOUS(TimeDim)` instead (any time dimension: Month, Year, Quarter, …).
 
-```pigment
-// 'Forecast Sales' metric
-PREVIOUSOF('Actual Sales')
-```
-
-**Optimized** (fast - parallel computation, not on the same metric):
+**Anti-pattern** — SELECT on the current metric (circular):
 
 ```pigment
-// 'Forecast Sales' metric
-'Actual Sales'[SELECT: Month-1] * (1 + 'Growth rate')
+// 'Output Metric' — forecast from its own prior period
+'Output Metric'[SELECT: Year - 1]
 ```
 
-**When PREVIOUS/PREVIOUSOF is OK**: Only when current period's calculated result depends on prior period's calculated result (e.g., running balances: `PREVIOUSOF('Balance') + 'Inflow' - 'Outflow'`). See [functions_iterative_calculation.md](./functions_iterative_calculation.md) for full guidance.
+**Correct** — PREVIOUS when the prior period is **this metric**:
+
+```pigment
+// 'Output Metric'
+PREVIOUS(Year)
+```
+
+**Optimized** — SELECT when the prior period is **another** metric (parallel, fast):
+
+```pigment
+// 'Forecast Sales' metric — driven by actuals, not by itself
+'Actual Sales'[SELECT: Month - 1] * (1 + 'Growth Rate')
+```
+
+**When PREVIOUS/PREVIOUSOF is required**: The current period's calculated result depends on the prior period's calculated result of the **same** metric (`PREVIOUS`) or of **coupled** metrics (`PREVIOUSOF` + cycle). See [functions_iterative_calculation.md](./functions_iterative_calculation.md).
 
 ---
 
@@ -404,9 +413,9 @@ Do not use ISBLANK/ISNOTBLANK for this pattern — they densify. Use ISDEFINED o
 
 | Situation                              | Use                                      | Avoid                          |
 | -------------------------------------- | ---------------------------------------- | ------------------------------ |
-| Iterative calculation (same metric)    | PREVIOUS(Month)                          | SELECT (circular ref)          |
-| Iterative calculation (multi-metric)   | PREVIOUSOF('Ending Inventory') + cycle   | SELECT (circular ref)          |
-| Simple lookup / time shift             | SELECT (`[SELECT: Month-12]`)            | PREVIOUS / PREVIOUSOF (overkill) |
+| Iterative calculation (same metric)    | PREVIOUS(TimeDim)                        | `'This Metric'[SELECT: TimeDim-N]` (circular ref) |
+| Iterative calculation (multi-metric)   | PREVIOUSOF('Ending Inventory') + cycle   | SELECT between coupled metrics (circular ref)     |
+| Simple lookup / time shift (other metric) | SELECT (`[SELECT: TimeDim-N]`)        | PREVIOUS / PREVIOUSOF (overkill)                  |
 | Check if value exists            | ISDEFINED (returns TRUE/BLANK) | ISBLANK (returns TRUE/FALSE - densifies!) |
 | Conditional with existence check | IFDEFINED                      | IF(ISBLANK())                             |
 | Provide default for blank        | IFBLANK                        | IF(ISBLANK(), default, value)             |
@@ -418,7 +427,7 @@ Do not use ISBLANK/ISNOTBLANK for this pattern — they densify. Use ISDEFINED o
 | Aggregate via mapping            | BY                             | ADD                                       |
 | Remove dimensions                | REMOVE                         | BY on existing dimension (does nothing)   |
 | List with multiple dimensions    | `[BY: dim1, dim2]`             | `[BY: dim1][BY: dim2]` (loses properties) |
-| Filter and remove dimension      | SELECT                         | FILTER (when you want to aggregate)       |
+| Filter and remove dimension (RHS has no dims of its own) | SELECT     | FILTER (when RHS is a metric with its own dimensions) |
 | Filter and keep dimension        | FILTER                         | SELECT (keeps dimension)                  |
 | Division                         | Just divide                    | IF(x<>0, a/b) - Pigment handles natively  |
 | Aggregate via mapping            | BY                             | ADD                                       |

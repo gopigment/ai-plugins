@@ -144,7 +144,7 @@ Pigment sorts: special chars → numbers → letters (A-Z).
 
 ### Applications
 
-Use a numeric prefix (single digit with space) as an optional example for ordering. Not mandatory.
+Use a numeric prefix (`N. Name`) as an optional example for ordering Applications in the Workspace. Not mandatory.
 
 **Example:**
 
@@ -157,11 +157,13 @@ ZZ_ POC Revenue Planning         # Archived
 
 ### Folders
 
-**Numeric prefix (single digit e.g. 0., 1., 2. for top level; two digits e.g. 10., 11., 20. for data/themed). Numbering restarts at each folder level.**
+**Hierarchical numeric prefix: top level `N. Name`, subfolders `N.M Name` (e.g. `1. Dimensions`, `1.1 Chart of Accounts`).**
 
 **Core Principles:**
 
-- Numbering always restarts at each folder level (subfolders never inherit parent numbering)
+- Top-level folders use `N.` (e.g. `1. Dimensions`, `2. Data Loads`)
+- Subfolders extend the parent prefix: `N.M` (e.g. `1.1 Chart of Accounts`, `2.1 ERP Loads`); deeper levels continue the chain (`2.1.1 ERP`)
+- **Block folders and Board folders are two separate trees** — they share no numbering sequence. When naming a board folder, look only at existing **Board** folders and start from the beginning of the board scheme; never continue from the latest Block folder prefix
 - Folder order follows the **logical order of operations** of the use case
 - `0.` folder is **optional** and reserved for technical, transversal, or summary content
 - **Never use `0.` for business logic**
@@ -180,55 +182,36 @@ ZZ_ POC Revenue Planning         # Archived
 4. Outputs/Consumption     # Reports, dashboards, exports
 ```
 
-**Generic Pattern (Within Any Folder - Level 2+):**
+**Generic Pattern (Subfolders — extend parent prefix):**
 
 ```
-0. Summary or Technical    # Optional: overview, config, utilities
 1. First Logical Step
+1.1 First sub-step
+1.2 Second sub-step
 2. Second Logical Step
-3. Third Logical Step
+2.1 First sub-step
 ```
 
 **Example: Hub Administration Structure**
 
 ```
 0. Administration
-    0. Maintenance         # Logs, patches, system tasks
-    1. Convention          # Color codes, naming rules
-    2. Automations         # Scripts, job definitions
-    3. Licences            # Keys, subscriptions
-    4. Documentation       # Design docs, architecture
+0.1 Maintenance
+0.2 Convention
+0.3 Automations
+0.4 Licences
+0.5 Documentation
 
 1. Dimensions
-    1. Chart of Accounts   # CoA structure, mappings
-    2. Organisation        # Business units, hierarchies
-    3. Currency & FX       # Rates, conversion logic
-    4. Version             # Scenarios: Actual, Budget, Forecast
+1.1 Chart of Accounts
+1.2 Organisation
+1.3 Currency & FX
+1.4 Version
 
 2. Data Integration
-    0. Configuration       # Source definitions, mappings
-    1. Import              # Raw data landing (ERP, HR, CRM)
-    2. Transformation      # Cleansing, harmonization
-    3. Quality & Controls  # Reconciliation, validation
-```
-
-**Example: Deeper Nesting**
-
-```
-2. Data Integration
-    0. Configuration
-        0. Summary
-        1. Source Systems
-        2. Mapping Rules
-    1. Import
-        1. ERP
-        2. HRIS
-    2. Transformation
-        1. Cleansing
-        2. Enrichment
-    3. Quality & Controls
-        1. Reconciliation
-        2. Exceptions
+2.1 Import
+2.2 Transformation
+2.3 Quality & Controls
 ```
 
 ### Dimension Lists
@@ -370,41 +353,45 @@ PnL_by_Department
 
 ### Boards
 
-**Use numeric numbering with logical grouping (single digit for top level, two digits for sub-groups):**
+**Use hierarchical numeric numbering:**
 
 ```
 0. Admin
-  0. Application overview
-  1. Parameters
-  2. Maintenance
+0.1 Application overview
+0.2 Parameters
+0.3 Maintenance
 
-10. Data
-  11. Current Transactions
-  12. Most Updated Employee Detail
+1. Data
+1.1 Current Transactions
+1.2 Most Updated Employee Detail
 
-20. Assumptions
-  21. Merit Increase
-  22. Taxes
+2. Assumptions
+2.1 Merit Increase
+2.2 Taxes
 
-30. Planning
-  31. Department Planning
-  32. Existing Employee Management
-  33. TBH Management
+3. Planning
+3.1 Department Planning
+3.2 Existing Employee Management
+3.3 TBH Management
 
-40. Results
-  41. Actual Headcount & FTE
-  42. Workforce Reporting
+4. Results
+4.1 Actual Headcount & FTE
+4.2 Workforce Reporting
 ```
 
 **Board folders:** Boards are not stored in the Blocks area. They have their own folder structure (under the application's Boards section). Do not create a **block** folder named "Board" or "Boards" to hold boards—boards live in their own hierarchy, separate from Blocks.
 
-**Alternative: Purpose prefix + function (no numbering):**
+**Board folder numbering:** Follow the same `N.` / `N.M` hierarchical pattern. Numbering is independent from Block folders — base prefixes only on existing Board folders, never on Block folder prefixes.
 
+**Alternative: descriptive names (no numbering):**
+**FYI: an alternative schema when there are less than 5 boards is descriptive names with no numbering. Do not use it for new application. Do not convert to the preferred numbered schema unless specifically asked by the user.
+
+Here is an example of such organizing folders:**
 ```
-CF_Input              # Cash flow input
-CF_Dashboard          # Cash flow dashboard
-Budget_Entry          # Budget data entry
-Executive_Summary     # Executive reporting
+Budget Entry
+Executive Summary
+Workforce Dashboard
+Department Planning
 ```
 
 ### Views
@@ -428,17 +415,17 @@ Department_Head_Requests_To_Validate
 | `Prêts_Clients`   | Circumflex in friendly name | `Prets_Clients` |
 | `HC`              | Unclear            | `Headcount`         |
 | `Copy of Revenue` | Default name       | Delete or rename    |
-| Inconsistent folder order | Hard to navigate | Use numeric prefixes (0., 1., 2. or 10., 11., 20.) consistently |
+| Inconsistent folder order | Hard to navigate | Use hierarchical numeric prefixes (`1.`, `1.1`, `2.`, …) consistently |
 
 ## Quick Reference
 
 | Element          | Style      | Prefix    | Example                    |
 | ---------------- | ---------- | --------- | -------------------------- |
 | Application      | Title Case | Optional `#.` | `1. Workforce Planning` |
-| Folder           | Title Case | `#.` or `##.` | `0. Settings`, `10. Data Loads` |
+| Folder           | Title Case | `#.` or `#.#` | `1. Dimensions`, `2. Data Loads`, `2.1 ERP Loads` |
 | Dimension        | PascalCase | None      | `CostCenter`               |
 | Transaction List | Snake_Case | `LOAD_`   | `LOAD_Sales_Orders`        |
 | Property         | Snake_Case | None      | `Account_Type`             |
 | Metric           | Snake_Case | See [Metrics](#metrics) | `CALC_Net_Revenue`, `PUSH_Revenue_Total` |
 | Table            | Snake_Case | Optional `[TBL] ` | `[TBL] Variance_Analysis` |
-| Board            | Snake_Case | Abbrev or numbering | `CF_Dashboard`, `0. Admin` |
+| Board            | Title Case | Optional `#.` or descriptive | `Budget Planning`, `1. Admin`, `1.1 Reports` |

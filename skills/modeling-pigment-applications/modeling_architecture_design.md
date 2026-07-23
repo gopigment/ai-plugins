@@ -55,6 +55,7 @@ For detailed guidance on dimensions, properties, and hierarchies, see [modeling_
 - **Minimize dimensions** — Rarely more than 5 per metric. If more than 5, challenge whether dimensions can be inferred from properties or use mapped-dimension features.
 - **Use properties for aggregations** — What you report on is not necessarily what goes in the structure. Example: plan at month level -> only month in structure; quarter and year are properties of month, aggregated in views. Example: country in structure, region as property of country.
 - **Use mapped dimensions when mappings change over time** — e.g. employee moving cost centers: create a metric by Employee x Month x Version with type Dimension (Cost Center); use this in views to display data in the correct cost center over time.
+- **Property types:** Do not default list properties to Text for categorical fields — see [Property Type Selection](./modeling_fundamentals.md#21-dimensions-and-properties).
 - **Access rights drive structure** — If access is driven at country level, country must be in the structure.
 - **Challenge any structure with more than 5 dimensions.**
 

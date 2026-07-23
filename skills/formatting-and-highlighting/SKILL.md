@@ -34,8 +34,7 @@ Skip this skill for `tool:update_metric` calls that **don't** touch default form
 Out of scope for this skill:
 
 - View display modes, aggregators, sort, filter.
-- Conditional formatting — UI-only today.
-- Static cell formatting (background/text color, bold, italic, alignment) — set on the view via `skill:designing-views` (`tool:update_view_formatting`), not here.
+- Cell formatting — static and conditional (background/text color, bold, italic, alignment; thresholds, color scales, text matches) — set on the view via `skill:designing-views` (`tool:update_view_formatting`), not here.
 
 ---
 
@@ -147,4 +146,4 @@ Out of scope for this skill:
 
 # Conditional formatting & highlighting
 
-Conditional formatting rules are **UI-only today** — the agent cannot apply them. Static cell highlighting (background/text color, bold, italic, alignment) is available via `tool:update_view_formatting` (`skill:designing-views`).
+Cell highlighting — both **static** (background/text color, bold, italic, alignment) and **conditional** (highlight cells matching a threshold, a color scale, a text match, or a comparison against another metric) — is applied on the **view** via `tool:update_view_formatting` (`skill:designing-views`), not here. This skill only covers a metric's default number/text formatting.

@@ -51,7 +51,7 @@ Read the **fiscal year starting month** from the application calendar. **Current
 
 | Version Item | Version Type | Start Month | End Month | Switchover Month |
 |---|---|---|---|---|
-| Actual | Actual | Calendar start | Calendar end | Calendar start (actuals from calendar beginning) |
+| Actual | Actual | Calendar start | Calendar end | Latest month with real actual data (update it as new actuals load; the whole window should read as actual, never as plan) |
 | Budget | Budget | First month of current FY | Last month of current FY | Last month of previous FY (full FY window is plan) |
 | Forecast | Forecast | First month of current FY | Last month of current FY | Current month (actuals up to now, plan after) |
 
@@ -91,8 +91,9 @@ This violates MG12 because it skips the Version Dimension entirely. `IFDEFINED` 
 
 ## 3. Switchover Semantics
 
-`Switchover Month` is the **last month of actual data** for that Version. Months strictly after it are Plan.
+`Switchover Month` is the **last month of actual data** for that Version. Months strictly after it are Plan. It can never sit before the Version's own `Start Month`, or the Version would compute as 100% Plan with zero actual months.
 
+- **`Actual`:** `Switchover Month` = latest month with real actual data → the whole window should read as actual; keep it in sync with the latest loaded actuals so it never falls before `Start Month`.
 - **`Budget`:** `Switchover Month` = last month of previous FY → the full current FY window (Start Month through End Month) is Plan.
 - **`Forecast`:** `Switchover Month` = current month → Actual from first month of current FY through switchover inclusive; Plan for remaining months in the FY window.
 

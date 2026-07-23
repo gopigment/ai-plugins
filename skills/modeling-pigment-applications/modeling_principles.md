@@ -134,7 +134,7 @@ The dimensional structure of every Metric is of capital importance. Give it a lo
 
 **Dimension Properties as Dimensions:**
 
-When creating a dimension with properties, never default all properties to Text. Prefer creating reusable property dimensions over Text properties for categorical or enumerable fields. Then assign those property dimensions to your target dimensions.
+When creating a dimension with properties, never default all properties to Text. Prefer creating reusable property dimensions over Text properties for categorical or enumerable fields. See [Property Type Selection](./modeling_fundamentals.md#21-dimensions-and-properties) for cardinality-based heuristics. Then assign those property dimensions to your target dimensions.
 
 **Workflow:**
 - Create the dimension-properties first (or reuse existing ones)
@@ -314,8 +314,10 @@ Apart from these exceptions, always use Lists for data loading. This approach is
 
 To support iterative calculations, Pigment provides two functions:
 
-- **PREVIOUS()**: Creates an iterative calculation while referencing the same Metric
-- **PREVIOUSOF()**: Creates an iterative calculation while referencing another Metric
+- **PREVIOUS()**: Sequential prior-period lookup **within the same metric** — no cycle configuration in Application Settings
+- **PREVIOUSOF()**: Sequential prior-period lookup **across coupled metrics** — requires an iterative calculation cycle in Application Settings → Calculations
+
+**Do not conflate the two:** both compute sequentially, but only `PREVIOUSOF` needs the cycle setup (`tool:create_cycle`). Enabling a cycle for a `PREVIOUS`-only formula is incorrect and will fail at compile time.
 
 **Note:** `PREVIOUSBASE()` is deprecated. Use `PREVIOUSOF()` instead.
 
