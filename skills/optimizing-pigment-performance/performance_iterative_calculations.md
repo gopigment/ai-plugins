@@ -6,10 +6,14 @@ Iterative calculations—where each period depends on the previous period—are 
 
 This guide covers **optimization strategies** for iterative calculations, subsetting techniques, and when to use alternative approaches. For the full technical spec (circular dependencies, PREVIOUS vs PREVIOUSOF, configuration, syntax, debugging), see [Iterative Calculation (PREVIOUS & PREVIOUSOF)](../writing-pigment-formulas/functions_iterative_calculation.md).
 
-**⚠️ IMPORTANT — PREVIOUSOF Prerequisite:**
-PREVIOUSOF can only be used on metrics that have iterative calculation enabled in the Pigment application settings. This configuration **cannot be done via AI tools** — the user must set it up in the Pigment UI. Before writing any formula with PREVIOUSOF, confirm with the user that iterative calculation is configured on the target metric. If not, instruct them to enable it first.
+**⚠️ PREVIOUS vs PREVIOUSOF — cycle configuration:**
 
-**Correct PREVIOUSOF pattern for period-end balances:**
+| Function | Cycle required? |
+|----------|-----------------|
+| `PREVIOUS(Month)` | **No** — apply directly; do not create a cycle |
+| `PREVIOUSOF('Metric')` | **Yes** — use `tool:create_cycle` / `tool:update_cycle` (or Application Settings → Calculations) **before** applying |
+
+**PREVIOUSOF pattern** (only when opening and ending must stay separate metrics):
 
 Split beginning and ending metrics across the iteration cycle:
 

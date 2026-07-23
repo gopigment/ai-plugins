@@ -7,6 +7,7 @@ Before any lookup, be clear on:
 1. Data (which Metric, List, or Table?)
 2. Breakdown (which Dimensions in Pages, Rows, Columns — and for Table, where metrics sit)
 3. View filtering and sorting
+4. **Board context:** match sibling page selectors if compatible ([board_pages.md](../designing-boards/board_pages.md)).
 
 Use [view_components.md](./view_components.md), [view_filtering.md](./view_filtering.md), [view_sorting.md](./view_sorting.md). [view_display_modes.md](./view_display_modes.md) for `display_type` / block rules.
 
@@ -31,6 +32,8 @@ Call **`tool:get_block_views`** on the block (use **`display_intent`** when the 
 
 After create/update, the response should match what you sent; dropped fields may mean sanitization. Before wiring a widget, confirm `display_type` and block rules ([view_display_modes.md](./view_display_modes.md), [view_widgets.md](../designing-boards/view_widgets.md)).
 
-**Table views — aggregations:** For every ratio, percentage-like, or relative-variance metric in `values`, confirm the ratio value field uses **Advanced Aggregator Ratio or Growth** (not default Sum) on visible pivots and on `hiddenDimensionsAggregations` where needed. Re-read `tool:get_view` if the response dropped aggregation fields (sanitization).
+**Board:** confirm Pages align with sibling widgets ([board_pages.md](../designing-boards/board_pages.md)).
+
+**Table views — aggregations:** For every ratio, percentage-like, or relative-variance metric in `values`, confirm the ratio value field uses **Advanced Aggregator Ratio or Growth** (not default Sum) on visible pivots and on `hiddenDimensionsAggregations` where needed. Re-read `tool:get_view` with `include: ["Rows", "Columns", "HiddenDimensionsAggregations"]` if the response dropped aggregation fields (sanitization).
 
 On errors, [view_troubleshooting.md](./view_troubleshooting.md).

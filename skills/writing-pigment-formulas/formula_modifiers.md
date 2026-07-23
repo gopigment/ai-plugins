@@ -248,6 +248,12 @@ Conditional aggregation - filters by condition AND removes the filtered dimensio
 
 **Key Behavior**: SELECT with condition = FILTER + REMOVE in one operation
 
+⚠️ **Only safe when the RHS carries no dimensions of its own** — a literal item \
+(`Type."Labor"`) or a scalar input metric like `VAR_Labor_Type` above. If the RHS is a \
+metric that itself has other dimensions (e.g. dimensioned by SKU, Region, Version...), \
+SELECT removes ALL dimensions referenced in the condition — not just `Dim` — silently \
+over-aggregating the result. Use `[FILTER: Dim = SomeMetric][REMOVE: Dim]` instead in that case.
+
 **Methods**: SUM (default), AVERAGE, MIN, MAX, COUNT
 
 **Note**: SELECT with condition removes the filtered dimension (use FILTER to keep dimension)

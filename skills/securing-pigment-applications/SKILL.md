@@ -74,21 +74,21 @@ For details, examples, and debugging, read [./securing_access_rights.md](./secur
 
 ## Managing Roles (`list_roles`, `create_role`, `update_role`, `delete_role`)
 
-When these tools are available, the agent can read and manage an application's security **Roles** directly. A Role carries a `permissions` object (what the role can do), an `accessRights` object, and optional `permissionsByListId` / `readWriteAssignmentByScenarioId` assignments.
+When these tools are available, the agent can read and manage an application's security **Roles** directly. Each role exposes a flat `grantedPermissions` list (the permission values the role is granted), an `admin` flag (true = full administrator, all permissions), optional default `readAccess` / `writeAccess`, and read-only `perListPermissionCount` / `perScenarioAssignmentCount` (granular per-list / per-scenario assignments, which are managed in the UI, not through these tools).
 
 **To duplicate a role** (e.g. "create `Reader_2` with the same permissions as `Reader`"):
 
-1. Call `list_roles` for the application. Each role returns `modalityId`, `friendlyName`, `permissions`, `accessRights`, `permissionsByListId`, `readWriteAssignmentByScenarioId`.
+1. Call `list_roles` for the application. Each role returns `modalityId`, `friendlyName`, `admin`, `grantedPermissions`, and the assignment counts.
 2. Find the source role (e.g. `Reader`) in that output.
-3. Call `create_role` with the new `friendlyName` and the source role's `permissions`, `accessRights`, `permissionsByListId`, and `readWriteAssignmentByScenarioId` **copied verbatim** from step 1.
+3. Call `create_role` with the new `friendlyName` and the source role's `admin` flag and `grantedPermissions` **copied verbatim** from step 1.
 
-**Critical — use the exact fields `list_roles` returns.** Copy the `permissions` object as-is from `list_roles`. Do NOT invent permission flags, and do NOT borrow fields from `list_permissions` or `list_access_rights` — those describe Access Rights configuration, which is a different concept from a role's `permissions`.
+**Critical — use the exact fields `list_roles` returns.** Copy `grantedPermissions` as-is. Only the permissions you list are granted; every other permission is denied. Do NOT invent permission values, and do NOT borrow fields from `list_permissions` or `list_access_rights` — those describe Access Rights configuration, which is a different concept from a role's granted permissions.
 
 **Other operations:**
-- `update_role` — send the role's full desired state, including its `modalityId`.
-- `delete_role` — send the role id. Destructive: users with that role lose its permissions.
+- `update_role` — send the role's full desired state, including its `modalityId`, `admin` flag and the complete `grantedPermissions` list (permissions not listed are denied).
+- `delete_role` — send the role's `modalityId`. Destructive: users with that role lose its permissions.
 
-**Constraints:** role management works only on **non-admin** applications, and `friendlyName` must be unique within the application.
+**Constraints:** granular per-list / per-scenario assignments are left untouched by these tools; role management works only on **non-admin** applications, and `friendlyName` must be unique within the application.
 
 ---
 

@@ -64,6 +64,8 @@ Dimension-type properties create hierarchies **without adding dimensions to metr
 
 **⚠️ Important:** Properties are NOT structural elements of metrics. Only dimension lists (regular dimensions) can be used in a metric's structure. Properties are attributes of dimensions used for grouping, aggregation, and navigation—but they don't define the dimensional grid where data is stored.
 
+For Dimension vs Text heuristics, see [Property Type Selection](./modeling_fundamentals.md#21-dimensions-and-properties).
+
 ### Hierarchy Examples
 
 **Product:** Product → Category → Line

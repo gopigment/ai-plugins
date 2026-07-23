@@ -46,7 +46,24 @@ Reordering pivots on an axis changes the grouping hierarchy of the rendered data
 
 ---
 
-# **2. Special Behavioral Rules**
+# **2. Discovering Valid Pivots**
+
+Before editing a View's pivots, discover which ones are valid instead of guessing.
+
+- **Discover before editing**: call `tool:get_available_pivots` for the View before `tool:update_view_pivots` or `update_list_view_pivots` . It returns the pivots that are actually compatible with the View, so you do not have to guess which dimensions, groupings, mapping metrics or slice configurations are valid.
+- **Using the payload**: each candidate carries `kind` + `dimensionId`, plus `listPropertyPath` for a `Grouping` candidate, `mappingMetricId` for a `Joined` candidate and `sliceConfigurationId` for a `Slice` candidate. To add a candidate as a new pivot, copy those fields straight into the `tool:update_view_pivots` axis pivot and omit `id` (the server generates one).
+- **Choosing with `pivotSummary`**: each candidate also carries `pivotSummary`, a short human-readable name (e.g. `Product > Category > Department`, or `Region (via slice "EMEA actuals")`) to help you pick the right pivot. It is a hint only — read it to choose, but never copy it into `tool:update_view_pivots`; always copy the id fields above.
+
+## Pivot kinds
+
+- **Dimension**: a plain block dimension. Copy `dimensionId`.
+- **Grouping**: a traversal of a Dimension-typed list property (a parent-child level). Copy `dimensionId` and `listPropertyPath`.
+- **Joined**: a dimension reached through a mapping metric. Copy `dimensionId` and `mappingMetricId`. Use the `mappingMetricId` from the payload — do not reconstruct it or invent a new mapping metric.
+- **Slice**: a dimension reached through a slice configuration. Copy `dimensionId` and `sliceConfigurationId`. Use the `sliceConfigurationId` from the payload — do not reconstruct it or invent a new slice configuration.
+
+---
+
+# **3. Special Behavioral Rules**
 
 ## **Filtering (“by metric value”)**
 
@@ -73,20 +90,20 @@ For a **Grid** widget, the product can render the **same** row pivots either as 
 
 ---
 
-# **3. Display-Type Driven Allocation**
+# **4. Display-Type Driven Allocation**
 
 Pivot allocation depends primarily on the **display type**.
 
 ---
 
-## **3.1 KPI**
+## **4.1 KPI**
 
 - All pivot Dimensions → **columns**
 - `metricsLocation` MUST be `Columns` (or `Pages`) — **never `Rows`**. KPI views have no row pivots, so Rows produces a broken layout. Default to `Columns`.
 
 ---
 
-## **3.2 Pie Chart**
+## **4.2 Pie Chart**
 
 - Rows define slices (series)
 - Dimensions in columns are aggregated
@@ -97,7 +114,7 @@ Pivot allocation depends primarily on the **display type**.
 
 ---
 
-## **3.3 Line Chart & Bar Chart & Combined Chart**
+## **4.3 Line Chart & Bar Chart & Combined Chart**
 
 - Columns: horizontal axis
 - Rows: series
@@ -115,7 +132,7 @@ Pivot allocation depends primarily on the **display type**.
 
 ---
 
-## **3.4 Grid**
+## **4.4 Grid**
 
 If you need to create a comparison, Dimension should be placed in Columns
 
@@ -158,18 +175,18 @@ Allocation:
 - Columns: Country > Region, Country
 - Rows: Segment
 
-## **3.5 Waterfall Variation**
+## **4.5 Waterfall Variation**
 
 - Similar to grid behavior
 
-## **3.6 Waterfall Contribution**
+## **4.6 Waterfall Contribution**
 
 - All pivot Dimensions → **rows**
 - Dimensions in columns are aggregated
 
 ---
 
-# **4. Summary Heuristics**
+# **5. Summary Heuristics**
 
 1. Always group pivots first
 2. Order: Time → Business → Comparison

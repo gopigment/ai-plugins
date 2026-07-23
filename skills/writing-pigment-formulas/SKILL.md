@@ -126,10 +126,17 @@ For the full date-range presence pattern (PRORATA worked examples, ISDEFINED/IFD
 - `tool:validate_formula` - Validate formula syntax WITHOUT applying it to any block
   - Use for: Checking syntax before calling `tool:update_list_property_formula`
   - Use for: Ensuring formula syntax is correct before including in user messages
-  - Input: `formula` (the Pigment formula text)
+  - Use for: Re-checking a downstream metric's formula against its own dimensions after a structural
+    dimension change elsewhere in the formula chain (pass `metric_id` — see below)
+  - Input: `formula` (the Pigment formula text), optional `metric_id`
   - Returns: Validation result with error highlighting and hints if invalid
   - **Limitations**:
     - Do NOT use with formulas containing `Previous` or `PreviousOf` functions
+
+**`metric_id` (optional)**: without it, the formula is compiled with no target, so the compiler cannot
+compare the formula's dimensions against a metric's own dimensions — it will never report an "automatic
+formula dimensions adjustment" hint. Pass `metric_id` when the formula is meant for an existing metric (or
+when re-validating that metric's current formula) so the compiler can surface that hint.
 
 **Recommended Workflow**:
 
@@ -142,6 +149,22 @@ For the full date-range presence pattern (PRORATA worked examples, ISDEFINED/IFD
 
 - Metrics: `tool:create_or_update_formula` with the formula, to set correct default formatting on metrics see `skill:formatting-and-highlighting`
 - List properties: `tool:update_list_property_formula` with the formula
+
+### Structural Dimension Changes: Check Downstream Formulas
+
+Adding or removing a structural dimension on a metric does not automatically propagate to metrics that
+reference it. If a downstream metric's formula doesn't already carry the new dimension, the compiler will
+silently broadcast (or collapse) values to align with the target instead of failing — this can produce
+wrong numbers with no visible error.
+
+Before declaring a structural dimension change done:
+
+1. Identify metrics whose formulas reference the changed metric (search for references to its name).
+2. For each one, call `tool:validate_formula` with that metric's `formula` and its `metric_id`.
+3. If the "automatic formula dimensions adjustment" hint appears, the formula's dimensions don't match the
+   metric's own dimensions — don't accept the implicit broadcast/collapse as correct. Confirm with the user
+   whether the dimension should genuinely propagate to that metric (and how — the change may need to be
+   threaded further upstream instead), or if the mismatch is intentional.
 
 ---
 
@@ -312,7 +335,7 @@ Comments must be included in the formula string passed to `tool:create_or_update
 - **In BY, list only dimensions whose grain is changing** - do not re-list dimensions that are already on the metric (avoid over-explicit BY). For normalization ratios, use double BY in the denominator with only the changing dimension — see [formula_modifiers.md](./formula_modifiers.md).
 - **Never chain BY on transaction lists** - use single BY with comma-separated expressions
 - **BY > ADD** - BY is sparse (uses mappings), ADD is dense (all combinations)
-- **SELECT = FILTER + REMOVE** - removes dimension after filtering
+- **SELECT = FILTER + REMOVE** - removes dimension after filtering, but only safe when the RHS carries no dimensions of its own (literal item or scalar VAR_ metric); if RHS is a metric with its own dimensions, those get removed too — use FILTER+REMOVE explicitly (see [formula_modifiers.md](./formula_modifiers.md))
 
 **Transaction Lists in Metrics:**
 

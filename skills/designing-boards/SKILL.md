@@ -173,6 +173,10 @@ Follow this 4-step workflow when creating a Board:
    - Board name and description
    - Icon and color
 
+   If not specified otherwise by the user, apply the following default settings:
+   - Full width
+   - Header formatting: show Board icon and show color
+
 2. Add sections and widgets:
    - Section titles and subtitles (text widgets)
    - View widgets for data visualizations
@@ -184,7 +188,9 @@ Follow this 4-step workflow when creating a Board:
 
 2. **For each Block**, `tool:get_block_views` — pick a **reusable** View only if name + pivots fit this board; otherwise **`tool:create_view`** (see [relevant_views.md](./relevant_views.md)). Ensure Pages align with [board_pages.md](./board_pages.md).
 
-3. **Add View widgets** that reference those View IDs.
+3. **After each View**, align Pages with sibling widgets ([board_pages.md](./board_pages.md) — Cross-View Page Alignment).
+
+4. **Add View widgets** that reference those View IDs.
 
 ### Step 4: Update Board Pages
 
@@ -196,8 +202,7 @@ Follow this 4-step workflow when creating a Board:
 **Key Points:**
 
 - Plan Board Pages in Step 1, but apply defaults and selections in Step 4 (after Views are added)
-- Only define Board Page Selectors for dimensions that at least one View exposes; for **every** widget that should follow a board-level Page Selector, that widget’s View must include a compatible page on that dimension
-- View widgets **link** to Board Page Selectors when their View has a matching page; they do not automatically narrow for dimensions absent from the View’s Pages
+- Align compatible Pages across **all** Views before setting board defaults ([board_pages.md](./board_pages.md))
 
 ---
 
@@ -224,18 +229,35 @@ Focus on:
 
 ### 3. FINALLY: Widget Sizing
 
-You MUST follow these height guidelines. When a data widget has a title, add 1 to the minimum height.
+You MUST follow these height guidelines.
 
-| Widget type             | Height |
-| ----------------------- | ------ |
-| Text (title only)       | 2      |
-| Text (title + subtitle) | 3      |
-| Spacer                  | 1      |
-| KPI without title       | 4-6    |
-| KPI with title          | 5-7    |
-| Chart without title     | 11-18  |
-| Chart with title        | 12-18  |
-| Grid without title      | 11-24  |
-| Grid with title         | 12-24  |
+**Text & ActionButton widgets** — height depends on the variant and its content. Variant maps to the widget's `layout` value — Text: **Open** = `Regular`, **Filled (Box)** = `Box`; ActionButton: **Button**, **Card**. **Filled = Open + 1**: every Filled (Box) Text variant is exactly 1 taller than its Open equivalent.
+
+| Widget type  | Variant      | Content                 | Height |
+| ------------ | ------------ | ----------------------- | ------ |
+| Text         | Open         | Title only (H2)         | 2      |
+| Text         | Open         | Title only (H1)         | 3      |
+| Text         | Open         | Link / Normal only      | 2      |
+| Text         | Open         | Title + body            | 3-4    |
+| Text         | Open         | Title + body + takeaway | 4      |
+| Text         | Filled (Box) | Title only (H2)         | 3      |
+| Text         | Filled (Box) | Title only (H1)         | 4      |
+| Text         | Filled (Box) | Link / Normal only      | 3      |
+| Text         | Filled (Box) | Title + body            | 4      |
+| Text         | Filled (Box) | Title + body + takeaway | 5      |
+| ActionButton | Button       | Any label               | 2      |
+| ActionButton | Card         | Any label               | 10     |
+
+**View & Spacer widgets** — when a View widget (KPI/Chart/Grid) has a title, add 1 to the minimum height.
+
+| Widget type         | Height |
+| ------------------- | ------ |
+| Spacer              | 1      |
+| KPI without title   | 4-6    |
+| KPI with title      | 5-7    |
+| Chart without title | 11-18  |
+| Chart with title    | 12-18  |
+| Grid without title  | 11-24  |
+| Grid with title     | 12-24  |
 
 Chart/Grid height depends on data complexity (rows, columns, legends, axis labels).
