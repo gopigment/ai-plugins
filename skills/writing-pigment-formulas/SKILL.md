@@ -57,6 +57,7 @@ ONLY Pigment syntax exists when writing formulas.
 - ❌ `Revenue` → ✅ `'Revenue'` (missing quotes)
 - ❌ `Product.Category` → ✅ `'Product'.'Category'` (missing quotes)
 - ❌ `Month.'Jan 25'` → ✅ `Month."Jan 25"` (items use double quotes; in formulas use a `VAR_` metric per MP02)
+- ❌ `Country.Name = "France"` → ✅ `Country = VAR_Selected_Country` (same hard-coding as `Country."France"`)
 
 ---
 

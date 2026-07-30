@@ -50,7 +50,7 @@ Reordering pivots on an axis changes the grouping hierarchy of the rendered data
 
 Before editing a View's pivots, discover which ones are valid instead of guessing.
 
-- **Discover before editing**: call `tool:get_available_pivots` for the View before `tool:update_view_pivots` or `update_list_view_pivots` . It returns the pivots that are actually compatible with the View, so you do not have to guess which dimensions, groupings, mapping metrics or slice configurations are valid.
+- **Discover before editing**: call `tool:get_available_pivots` for the View before `tool:update_view_pivots` or `update_list_view_pivots` . It returns the pivots that are actually compatible with the View, so you do not have to guess which dimensions, groupings, mapping metrics or slice configurations are valid. 
 - **Using the payload**: each candidate carries `kind` + `dimensionId`, plus `listPropertyPath` for a `Grouping` candidate, `mappingMetricId` for a `Joined` candidate and `sliceConfigurationId` for a `Slice` candidate. To add a candidate as a new pivot, copy those fields straight into the `tool:update_view_pivots` axis pivot and omit `id` (the server generates one).
 - **Choosing with `pivotSummary`**: each candidate also carries `pivotSummary`, a short human-readable name (e.g. `Product > Category > Department`, or `Region (via slice "EMEA actuals")`) to help you pick the right pivot. It is a hint only — read it to choose, but never copy it into `tool:update_view_pivots`; always copy the id fields above.
 
@@ -58,7 +58,7 @@ Before editing a View's pivots, discover which ones are valid instead of guessin
 
 - **Dimension**: a plain block dimension. Copy `dimensionId`.
 - **Grouping**: a traversal of a Dimension-typed list property (a parent-child level). Copy `dimensionId` and `listPropertyPath`.
-- **Joined**: a dimension reached through a mapping metric. Copy `dimensionId` and `mappingMetricId`. Use the `mappingMetricId` from the payload — do not reconstruct it or invent a new mapping metric.
+- **Joined**: a dimension reached through a mapping metric. Copy `dimensionId` and `mappingMetricId`. Use the `mappingMetricId` from the payload — do not reconstruct it or invent a new mapping metric. To display data the metric is **not** structured on, prefer a mapped-dimension (Joined) pivot over changing the metric's dimensions, and call `tool:get_available_pivots` first to confirm a valid mapping exists.
 - **Slice**: a dimension reached through a slice configuration. Copy `dimensionId` and `sliceConfigurationId`. Use the `sliceConfigurationId` from the payload — do not reconstruct it or invent a new slice configuration.
 
 ---
@@ -86,7 +86,7 @@ Example on an `Entity` list: **`Entity > Grouping L1`**, then **`Entity > Groupi
 
 ### Tree layout vs tabular layout (Grid)
 
-For a **Grid** widget, the product can render the **same** row pivots either as **tabular** row headers (one column per pivot level) or as a **treeview** (single hierarchy column with indentation / expand–collapse). If `create_view` does not accept this display mode, recommend to the user to do it manually in the UI.
+For a **Grid** widget, the product can render the **same** row pivots either as **tabular** row headers (one column per pivot level) or as a **treeview** (single hierarchy column with indentation / expand–collapse). `tool:create_view` does not take this display mode; set it after creation with `tool:update_view_grid_layout`.
 
 ---
 

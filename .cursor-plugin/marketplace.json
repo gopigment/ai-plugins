@@ -7,7 +7,7 @@
     {
       "name": "pigment",
       "source": ".",
-      "version": "1.0.10",
+      "version": "1.0.11",
       "description": "Analyze business data and build planning models in your Pigment workspace",
       "author": {
         "name": "Pigment"
@@ -26,5 +26,5 @@
       "mcpServers": "./.mcp.json"
     }
   ],
-  "version": "1.0.10"
+  "version": "1.0.11"
 }
