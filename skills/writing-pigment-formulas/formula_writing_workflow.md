@@ -170,6 +170,7 @@ You MUST call `tool:validate_formula` before calling `tool:create_or_update_form
 - [ ] Using BLANK instead of 0 for empty values
 - [ ] Using BLANK instead of FALSE for boolean flags (FALSE is stored, BLANK is not)
 - [ ] **MP02:** No `Dimension."Item"` or `Dimension.Property."Item"` in the formula
+- [ ] **MP02:** No `Country.Name = "France"` (same hard-coding as `Country."France"` — use `Country = VAR_Selected_Country`)
 - [ ] **MP02:** No `DATE(YYYY, M, D)` for planning bounds — use `VAR_` metrics (Date or Month)
 - [ ] **MP02:** Required `VAR_` metrics exist (create first if missing)
 - [ ] **MP02:** Metric names use relative temporal labels only (e.g. `'Next Period Forecast'`, not `Forecast 2026`)

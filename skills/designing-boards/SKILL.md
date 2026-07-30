@@ -188,6 +188,9 @@ Follow this 4-step workflow when creating a Board:
 
 2. **For each Block**, `tool:get_block_views` — pick a **reusable** View only if name + pivots fit this board; otherwise **`tool:create_view`** (see [relevant_views.md](./relevant_views.md)). Ensure Pages align with [board_pages.md](./board_pages.md).
 
+   - Before adding pivots to a View, call `tool:get_available_pivots` and build pivots from the returned candidates
+   - to show data the metric isn't structured on, prefer a mapped-dimension pivot over editing the metric unless user explicitly asked you to change the metric — follow [view_pivoting.md](../designing-views/view_pivoting.md).
+
 3. **After each View**, align Pages with sibling widgets ([board_pages.md](./board_pages.md) — Cross-View Page Alignment).
 
 4. **Add View widgets** that reference those View IDs.
