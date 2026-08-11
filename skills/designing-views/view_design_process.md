@@ -9,7 +9,7 @@ Before any lookup, be clear on:
 3. View filtering and sorting
 4. **Board context:** match sibling page selectors if compatible ([board_pages.md](../designing-boards/board_pages.md)).
 
-Use [view_components.md](./view_components.md), [view_filtering.md](./view_filtering.md), [view_sorting.md](./view_sorting.md). [view_display_modes.md](./view_display_modes.md) for `display_type` / block rules.
+Use [view_components.md](./view_components.md), [view_filtering.md](./view_filtering.md), [view_sorting.md](./view_sorting.md). See [view_widgets.md](../designing-boards/view_widgets.md) for `display_type` / block rules.
 
 ## Step 2: Optional scan of existing Views
 
@@ -30,7 +30,7 @@ Call **`tool:get_block_views`** on the block (use **`display_intent`** when the 
 
 ## Step 4: Validate
 
-After create/update, the response should match what you sent; dropped fields may mean sanitization. Before wiring a widget, confirm `display_type` and block rules ([view_display_modes.md](./view_display_modes.md), [view_widgets.md](../designing-boards/view_widgets.md)).
+After create/update, the response should match what you sent; dropped fields may mean sanitization. Before wiring a widget, confirm `display_type` and block rules ([view_widgets.md](../designing-boards/view_widgets.md)).
 
 **Board:** confirm Pages align with sibling widgets ([board_pages.md](../designing-boards/board_pages.md)).
 

@@ -273,7 +273,7 @@ Before creating a metric, consider if Views can handle the requirement using:
 For comprehensive guidance on View capabilities, see:
 - `skill:designing-views` — Definitions, draft workflow, and where to read next
 - `skill:designing-views` - Step-by-step configuration (reuse, draft, validate)
-- `skill:designing-views` - Pivots, filters, and sorting; [Pivoting rules](../designing-views/view_pivoting.md) and [Display modes](../designing-views/view_display_modes.md) for layout and widget constraints
+- `skill:designing-views` - Pivots, filters, and sorting; [Pivoting rules](../designing-views/view_pivoting.md) for layout, and [view_widgets.md](../designing-boards/view_widgets.md) for widget display-type constraints
 
 #### MG05 - Simple Flows: One-Way Data Flow
 

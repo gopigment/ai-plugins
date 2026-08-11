@@ -33,9 +33,7 @@ Triple exponential smoothing (Holt-Winters). Handles trend and seasonality.
 - **Input Block**: Metric containing historical values (Number or Integer type)
 - **Seasonality_length**: Integer. Length of the seasonal cycle (e.g., 12 for monthly data with yearly seasonality)
 - **Ranking Dimension** (optional): Time dimension (e.g., Month). Optional if using native calendar dimension; required otherwise or if multiple time dimensions exist
-- **Alpha** (optional): Level smoothing factor (0-1). Default: 0.25
-- **Beta** (optional): Trend smoothing factor (0-1). Default: 0.1
-- **Gamma** (optional): Seasonal smoothing factor (0-1). Default: 0.25
+- **Alpha / Beta / Gamma** (optional as a set): Level, trend, and seasonal smoothing factors (0-1). Defaults: 0.25 / 0.1 / 0.25. **Either pass all three or none** — passing a partial set fails compilation (`FunctionForecastEtsAllGreeksInclude`).
 
 **Examples**:
 

@@ -45,6 +45,8 @@ Executions:
    - Ready at: Xms, Executed at: Yms, Duration: Zms
    - Effective scope: {text}
    - Output scope: {text}
+   - Impacted data Members were viewing: yes|no   ← optional
+   - Contention while impacting data Members were viewing: {n}ms   ← optional
    - Depends on: uuid, ...   ← optional
 ```
 
@@ -55,6 +57,8 @@ Executions:
 | Duration | Compute time | Duration |
 | Effective scope | Scope used | Effective scope |
 | Output scope | Scope passed downstream | Output scope |
+| Impacted data Members were viewing | Recomputed (directly or indirectly) data a Member was viewing at change time | Impacted viewed data |
+| Contention while impacting data Members were viewing | Tail of the wait that delayed what Members saw; the rest of the wait was deferrable | Contention while impacting viewed data |
 | Depends on | Upstream execution IDs | Dependencies |
 
 **Block labels:** `Metric(...)`, `List(...)`, `Table(...)`, `Cycle(...)`, `Block(app:...)`.
@@ -84,8 +88,13 @@ First `no scope, full computation` → inspect that block's formula (`REMOVE`, `
 
 ### Time and dependencies
 
+- **Optimization order:** focus first on executions with `Impacted data Members were viewing: yes` — they gate what Members see refreshing — then the others. `no` executions are deliberately deferred, so their extra contention alone is not a defect.
 - Sort by **Duration**; flag > 1000 ms or dominant wall-time share.
 - **Contention** = Executed at − Ready at (large vs Duration → workload/queueing, not formula).
+- **Contention split.** `Contention while impacting data Members were viewing` is the tail of that same wait, ending when the execution ran; the earlier part elapsed while the execution could still be deferred. The line appears only for executions that ended up impacting viewed data. Compare it against the whole contention:
+  - **Much smaller than the contention** → the execution sat in the queue while no Member was waiting on it, then one opened something depending on it and it ran shortly after. This is the explanation to give whenever an execution appears far down the timeline yet is marked as impacting viewed data: for almost all of its wait, it was delaying nobody. Neither the wait nor that block's formula is the problem.
+  - **Close to the contention** → it waited while already delaying Members. That is a queueing problem, still not a formula problem.
+  - **Line absent** → the execution never impacted viewed data; its whole wait was deferrable and is not a defect on its own.
 - **Wall time** ≈ max(Executed at + Duration) across executions.
 - Match `Depends on` UUIDs to upstream `Id:` lines; ancestors appear earlier in the list.
 
@@ -96,14 +105,15 @@ First `no scope, full computation` → inspect that block's formula (`REMOVE`, `
 | Cascading scope loss | Scoped runs, then first `no scope, full computation`, rest full/no change | Defer `REMOVE`/aggregations; see scoping patterns doc |
 | No change, high Duration | `Output scope: no change` and Duration > 500 ms | Add earlier `FILTER`/`EXCLUDE` |
 | High contention | Executed at ≫ Ready at on many rows | Broad scope or too many parallel branches |
+| Late execution impacting viewed data | `Impacted data Members were viewing: yes`, Executed at ≫ Ready at, and `Contention while impacting data Members were viewing` far below the contention | Explain the late pickup (Member opened something depending on it mid-change); do not chase that block's formula |
 
 ---
 
 ## Report to the user
 
-Include: execution count, approximate wall time, permission filter note, chain with natural block names, X/Y per step, slowest step, scope-loss origin, one recommendation.
+Include: execution count, approximate wall time, permission filter note, chain with natural block names, X/Y per step, slowest step, scope-loss origin, one recommendation (prioritize steps that impacted data Members were viewing). When a step impacted viewed data only for the tail of its wait, say why it appears late in the timeline rather than presenting it as a slow step.
 
-**Vocabulary:** Say ready at, executed at, duration, scope, dependency. Do not say execution_id, time_schedule_ms, effective_scope, clauses.
+**Vocabulary:** Say ready at, executed at, duration, scope, dependency, impacted viewed data, contention while impacting viewed data. Do not say execution_id, time_schedule_ms, effective_scope, clauses, impacted_viewed_data, time_contention_while_impacting_viewed_data_ms.
 
 ---
 

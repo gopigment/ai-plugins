@@ -4,7 +4,7 @@ When creating or editing View Widgets on a Board, each widget must point to a Vi
 
 ## Display Modes
 
-See [view_display_modes.md](../designing-views/view_display_modes.md) for display mode definitions.
+The **widget** carries `display_type`; the View itself does not. Valid values are exactly **`List`**, **`Table`**, **`Chart`**, **`KPI`**, **`Spreadsheet`** — there is no `Grid` value, so do not send one. A View holds **chart** config only for chart types (applied after creation via `tool:update_view_chart_config`, and once set it can be changed but not removed); no chart config means typical grid behavior in a `Table` widget.
 
 **Board-level page filters:** If the Board should drive several widgets with the same page selector (e.g. Year = FY25), **each** underlying View must include a **compatible** page on that dimension. Otherwise the board selector will not filter that widget. See **[board_pages.md](./board_pages.md)** (Board-to-Widget Page Compatibility Rule).
 
@@ -18,9 +18,9 @@ The widget `display_type` MUST match the underlying block type:
 
 ## Creating a View Widget
 
-**⚠️ CRITICAL (order of operations — every View widget):** Do **not** create or point a **View** widget, or call **`tool:set_widget_preview`**, until the underlying View (or Draft) is **valid for the `display_type` you set on the widget** and for the **Block** (the **Display Type / Block Type Rules** above, plus [view_display_modes.md](../designing-views/view_display_modes.md)).
+**⚠️ CRITICAL (order of operations — every View widget):** Do **not** create or point a **View** widget, or call **`tool:set_widget_preview`**, until the underlying View (or Draft) is **valid for the `display_type` you set on the widget** and for the **Block** (the **Display Modes** and **Display Type / Block Type Rules** above).
 
-Read the View (or Draft) and confirm **block ↔ `display_type`** and **view_display_modes** rules (e.g. **Kpi** → no row pivots and `metricsLocation` MUST NOT be `Rows` (use `Columns` or `Pages`); **List** blocks only **List** display). If invalid, fix or **create** a suitable View (`create_view` or Draft) **before** the widget. **Do not** trust `get_block_views` candidates without this check.
+Read the View (or Draft) and confirm the **block ↔ `display_type`** rules (e.g. **Kpi** → no row pivots and `metricsLocation` MUST NOT be `Rows` (use `Columns` or `Pages`); **List** blocks only **List** display). If invalid, fix or **create** a suitable View (`create_view` or Draft) **before** the widget. **Do not** trust `get_block_views` candidates without this check.
 
 ## Changing a View that is already on this Board
 
