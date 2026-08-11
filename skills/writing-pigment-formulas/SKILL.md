@@ -158,14 +158,22 @@ reference it. If a downstream metric's formula doesn't already carry the new dim
 silently broadcast (or collapse) values to align with the target instead of failing — this can produce
 wrong numbers with no visible error.
 
+**Trigger — do not skip this**: `tool:update_metric` (when changing `dimension_ids`/`target_type`) and
+`tool:create_or_update_formula` both return a `hints` list in their response. If it contains an "automatic
+formula dimensions adjustment" hint, stop before declaring the change done and work through the steps below.
+This can fire on the metric you just changed (its own formula no longer matches its new dimensions) even
+before you look at any downstream metric.
+
 Before declaring a structural dimension change done:
 
-1. Identify metrics whose formulas reference the changed metric (search for references to its name).
+1. Identify metrics whose formulas reference the changed metric: use `tool:get_data_dependency_tree`
+   with direction `Usages` on the changed metric to find its downstream formula consumers.
 2. For each one, call `tool:validate_formula` with that metric's `formula` and its `metric_id`.
 3. If the "automatic formula dimensions adjustment" hint appears, the formula's dimensions don't match the
    metric's own dimensions — don't accept the implicit broadcast/collapse as correct. Confirm with the user
    whether the dimension should genuinely propagate to that metric (and how — the change may need to be
-   threaded further upstream instead), or if the mismatch is intentional.
+   threaded further upstream instead, e.g. onto the intermediary metric that actually carries the source
+   data), or if the mismatch is intentional.
 
 ---
 

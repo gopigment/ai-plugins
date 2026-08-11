@@ -59,7 +59,9 @@ When doing the following tasks, you MUST read these documents:
     against.
 
 - When you need a View:
+  - **You MUST also load `skill:designing-views`** — as soon as the Board involves creating, editing, or picking a View, including choosing a chart type or chart config, pivots (rows / columns / pages), filters, sorts, totals or aggregators.
   - Read [relevant_views.md](./relevant_views.md) and [view_widgets.md](./view_widgets.md) (**CRITICAL** for widgets).
+  - **All three are required and cover different layers** — [view_widgets.md](./view_widgets.md) for how the **widget** points at a View and which `display_type` is valid for it, [relevant_views.md](./relevant_views.md) for reuse-vs-create, and `skill:designing-views` for configuring the **View** itself. Neither substitutes for the other: do not skip [view_widgets.md](./view_widgets.md) because you loaded `skill:designing-views`, and do not skip `skill:designing-views` because you read the files here.
   - Use `tool:get_block_views` to **see** what exists. **Reusing** is optional: generic names (e.g. _View 1_) often mean you should **create** with `tool:create_view`. Do not block on a long “search for similar” pass.
 
 ---
@@ -165,7 +167,7 @@ Follow this 4-step workflow when creating a Board:
    - Other dimensional Page Selectors as needed
    - See **[board_pages.md](./board_pages.md)** for detailed guidance
 
-4. **Before treating Board Page Selectors as shared context for every widget**, verify that **each View you intend to place on the Board** includes a **compatible** page for every dimension you will set at board level (e.g. if the board should narrow by Year, each View must have Year in Pages—or a grouping page that resolves to Year—see **board_pages.md**). If a View is missing that dimension in Pages, **edit or create the View first**; the board cannot force a dimension onto a View that does not expose it in Pages.
+4. **Before treating Board Page Selectors as shared context for every widget**, verify that **each View you intend to place on the Board** includes a **compatible** page for every dimension you will set at board level (e.g. if the board should narrow by Year, each View must have Year in Pages—or a grouping page that resolves to Year—see **[board_pages.md](./board_pages.md)**). If a View is missing that dimension in Pages, **edit or create the View first**; the board cannot force a dimension onto a View that does not expose it in Pages.
 
 ### Step 2: Create Board Structure
 
@@ -200,7 +202,7 @@ Follow this 4-step workflow when creating a Board:
 1. Use `tool:update_board` to set Board Page Selectors
 2. Apply the Time, Version, Scenario, and other Page Selector defaults you defined in Step 1
 3. Set **default selected items** for each Board Page at board level (e.g. default Year to FY25 / 2025 when that is the intended analytical context)
-4. Confirm each View widget is **linked** to the Board Pages you care about (widgets do not “inherit” a dimension the View never had in Pages—see **board_pages.md**, Board-to-Widget Page Compatibility Rule)
+4. Confirm each View widget is **linked** to the Board Pages you care about (widgets do not “inherit” a dimension the View never had in Pages—see **[board_pages.md](./board_pages.md)**, Board-to-Widget Page Compatibility Rule)
 
 **Key Points:**
 

@@ -1,6 +1,6 @@
 ---
 name: formatting-and-highlighting
-description: "Best practices for metric default formatting. Covers: decimals, prefix, suffix, currency ($/€), percent (%), K/M/bp/thousand/million scaling, thousand separator, sign / zero / negative handling, text mode (Text / Rich Text / URL / Image / LocaleDateTime), boolean display (checkbox / button). Load when creating or updating a metric's default format. Use cases: format as, display as, show as percent, in millions, two decimals, no decimals, prefix with $, add currency, as K / M / bp, rich text, checkbox, ratio, url, multiplier."
+description: "Best practices for metric default formatting. Covers: decimals, prefix, suffix, currency ($/€), percent (%), K/M/bp/thousand/million scaling, thousand separator, sign / zero / negative handling, text mode (Text / Rich Text / URL / Image / LocaleDateTime), boolean display (checkbox / button). Load when creating or updating a metric's default format - and ALSO whenever you create a metric whose values are not plain counts, in particular a ratio, percentage, variance / growth, currency, boolean or text metric, EVEN IF the user said nothing about formatting: picking the default format is part of creating such a metric correctly. Use cases: format as, display as, show as percent, in millions, two decimals, no decimals, prefix with $, add currency, as K / M / bp, rich text, checkbox, ratio, url, multiplier."
 metadata:
   skill_path: /formatting-and-highlighting/SKILL.md
   base_directory: /formatting-and-highlighting

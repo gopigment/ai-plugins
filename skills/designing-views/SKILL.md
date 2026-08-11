@@ -1,6 +1,6 @@
 ---
 name: designing-views
-description: Always use this skill when creating or editing Views, or needing to pick a View.
+description: Always use this skill when creating, editing, or needing to pick a View - including chart type and chart configuration, pivots (rows / columns / pages), breaking down "by" / "per" a dimension, filters, sorts, totals and aggregators, and display modes.
 metadata:
   skill_path: /designing-views/SKILL.md
   base_directory: /designing-views
@@ -59,12 +59,13 @@ Every **pivot field** placed in `pages`, `rows`, or `columns` gets a **stable id
 ### Other
 
 - Do **not** create views on **sublists**.
-- The **widget’s** `display_type` (KPI / Grid / Chart) is **not** stored on the View; configure it on the Board widget.
+- The **widget’s** `display_type` is **not** stored on the View; configure it on the Board widget. See [view_widgets.md](../designing-boards/view_widgets.md) for the valid values.
 
 ---
 
 # CRITICAL RULES
 
+- **Board or widget in scope → you MUST also load `skill:designing-boards`.** As soon as the request mentions a **Board**, a **widget**, or a **dashboard** — including "create a Board with a View", changing the View shown on a widget, or aligning page selectors across widgets — load `skill:designing-boards` alongside this skill, in the same batch. This skill covers the **View**; `skill:designing-boards` covers the **Board and its widgets**, and neither substitutes for the other. The widget-side files are **not in this directory**: [view_widgets.md](../designing-boards/view_widgets.md), [relevant_views.md](../designing-boards/relevant_views.md) and [board_pages.md](../designing-boards/board_pages.md) all live under `/designing-boards/` — read them at those paths, as none of those filenames exist under `/designing-views/`.
 - **Number formatting → load `skill:formatting-and-highlighting` and set on the metric, not the view.** Views have no number-formatting tools. Any request involving decimals, prefix, suffix, currency, percent, K/M scaling, basis points, sign / zero handling, text mode, or boolean display is a metric default format change — load the formatting skill before calling `tool:update_metric` / `tool:create_metric`.
 - **Value and pivot ids** — Assigned by the server. For a NEW pivot/value, omit `id`. To KEEP an existing one, echo back the id from a prior `tool:create_view` / `tool:update_view_*` / `tool:get_view` response. Never invent UUIDs.
 - **Same dimension on Pages and on Rows/Columns is SUPPORTED** — When the user asks to "put X on Pages", **add** to Pages without removing X from Rows/Columns. Page selectors then narrow which modalities appear on the row/column axis. Do not treat this as a conflict. See [view_components.md](./view_components.md) for OK patterns vs. anti-patterns.
@@ -122,15 +123,17 @@ A **private** working copy to **preview** edits before they hit an existing view
 
 ---
 
-# View Design Process
+# Which supporting file to read
 
-Must read: [view_design_process.md](./view_design_process.md).
+**MUST read on every View task:** [view_design_process.md](./view_design_process.md) — the four-step design process, plus **View templates** (`tool:get_all_view_templates`), reuse-vs-create, and **shared / cross-app** Views (`sharingStatus`).
 
-# View components, filters, sort, aggregators
+Then read **every** file whose triggers the request touches. These are **cumulative, not a menu**: a request that both breaks down by a dimension and shows a top 10 needs three of them. Reading one is not a reason to skip another.
 
-- [view_components.md](./view_components.md)
-- [view_filtering.md](./view_filtering.md)
-- [view_sorting.md](./view_sorting.md)
-- [view_display_modes.md](./view_display_modes.md)
-- [view_pivoting.md](./view_pivoting.md)
-- [view_aggregators.md](./view_aggregators.md)
+| Read this file                                      | When the request involves                                                                                                                                                                     |
+| --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [view_pivoting.md](./view_pivoting.md)              | "by" / "per" / broken down by / grouped by / split by a dimension; putting a dimension in **Rows**, **Columns** or **Pages**; **moving** a pivot between axes; calculated items; tree vs tabular layout |
+| [view_filtering.md](./view_filtering.md)            | "filter by", restricting to given items (a Year, a Region, a Version), **top N / bottom N**, excluding members, page selector vs view filter                                                   |
+| [view_sorting.md](./view_sorting.md)                | sort, order, rank, "top 10" / "largest" / "best" / "worst" — a **top N is both a sort and a filter**, so read this file *and* [view_filtering.md](./view_filtering.md)                                               |
+| [view_aggregators.md](./view_aggregators.md)        | ratio, percentage, variance or growth metrics; totals and subtotals; average / min / max instead of Sum; advanced aggregators                                                                  |
+| [view_components.md](./view_components.md)          | which value fields to show or hide (`displayed: false`); the **same dimension on two axes**                                                                                                    |
+| [view_troubleshooting.md](./view_troubleshooting.md) | a tool call was rejected, or the response does not match what you sent                                                                                                                         |
