@@ -20,7 +20,7 @@ Agent workflow for compute performance issues. Requires Performance Insights pro
 
 1. Sort executions by `Duration`; flag > 1000 ms (or dominant share of wall time).
 2. Trace scope: first `no scope, full computation`; unnecessary scope loss?
-3. Map `Blocks:` lines to metrics; read formulas (`tool:search`, formula tools).
+3. Map `Blocks:` lines to metrics; read formulas (`tool:search_metrics_and_lists` with `show_details: true`, formula tools).
 4. Check dimensionality and sparsity on suspect blocks.
 
 **Common patterns:** early `REMOVE`, `ISBLANK`/`ISNOTBLANK`, long iterative horizons, AR without `IFDEFINED(User)`, high `CombinedCardinality`.

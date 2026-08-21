@@ -20,7 +20,7 @@ _Feedback loops: Step 3→Step 1, Step 5→Step 3, Step 6→Step 5, Step 7→app
 
 - Clarify business calculation in plain language
 - Identify existing blocks (Metrics, Dimensions, Lists, properties)
-- **Application workspace (not documentation):** use **`tool:search`** to find relevant blocks, confirm exact friendly names, and spot close duplicates (e.g. lists whose names differ by a prefix). Use **`kind`** / **`regexp`** on search when you need a precise name match. This step is separate from Step 2, which searches **markdown skills** only.
+- **Application workspace (not documentation):** use **`tool:search_metrics_and_lists`** to find relevant blocks, confirm exact friendly names, and spot close duplicates (e.g. lists whose names differ by a prefix). Use **`kind`** / **`regexp`** filters when you need a precise name match; use **`tool:semantic_search`** when names are unknown. This step is separate from Step 2, which searches **markdown skills** only.
 - Understand source and target metric: name, dimensions, type (Number/Date/Text/Dimension/Boolean). Note: Formula result must match target type - see type conversion functions if needed
 - Check for obvious circular reference risks
 
@@ -259,7 +259,7 @@ Do NOT call `tool:create_or_update_formula` or `tool:update_list_property_formul
 - **Modifiers use square brackets** - `[BY: ...]`, `[REMOVE: ...]`, `[FILTER: ...]`, etc.
 - **If unsure about syntax** - Search documentation, never assume
 - **Verify dimensional alignment** - Ensure source and target dimensions match
-- **Verify referenced entities exist** - Use `tool:search` to confirm metric names, list names, and property names before writing formulas
+- **Verify referenced entities exist** - Use `tool:search_metrics_and_lists` to confirm metric names, list names, and property names before writing formulas
 - **Apply sparsity best practices** - Use BLANK, IFDEFINED, early filtering when relevant
 - **Iterate when needed** - Go back and refine if validation fails
 

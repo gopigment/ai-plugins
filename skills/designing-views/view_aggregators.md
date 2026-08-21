@@ -251,7 +251,7 @@ Recommended:
 
 ## 7A. Detecting ratio / variance metrics when adding value fields
 
-**Table views only.** Run this when you add a metric via `tool:update_view_values` (confirm with `tool:filtered_search` if unsure).
+**Table views only.** Run this when you add a metric via `tool:update_view_values` (confirm name and formula with `tool:search_metrics_and_lists` if unsure).
 
 **Ratio-like?** Name hints (`%`, `rate`, `ratio`, `margin`, `growth`, `variance`, `GM%`, …) or formula divides two metrics (`A / B`, `DIVIDE`) or compares two (`(A - B) / B`). Not supported on Views on Metrics or Lists.
 

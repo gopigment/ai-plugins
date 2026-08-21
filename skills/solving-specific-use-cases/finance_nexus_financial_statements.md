@@ -38,7 +38,7 @@ Before building:
 - A working **calendar** with Month (linked to Quarter and Year).
 - Access to **ERP P&L actuals** (e.g. transaction list or Data Hub view such as `PnL_GL_Load_ERP`), **Budget P&L** (e.g. `PnL_Load_Budget`), and optionally plan data from other apps (Revenue, OPEX, Workforce).
 
-**Discovering blocks in the live application:** Names like `PnL_GL_Load_ERP` are **illustrative** meaning they are examples. In the user’s workspace, confirm **Company** / **Entity**, **Month**, **StatementAccount** or **PnL_Account**, **CostCenter**, **Version**, **DataFlavor** (or equivalent), and reporting **Currency** using **`tool:search`** (optionally with **`kind`** / **`regexp`**); results include block summaries and identifiers—use those to align Nexus, staging, and reporting metrics to **actual** names in that app—do not assume the template’s naming.
+**Discovering blocks in the live application:** Names like `PnL_GL_Load_ERP` are **illustrative** meaning they are examples. In the user’s workspace, confirm **Company** / **Entity**, **Month**, **StatementAccount** or **PnL_Account**, **CostCenter**, **Version**, **DataFlavor** (or equivalent), and reporting **Currency** using **`tool:search_metrics_and_lists`** (optionally with **`kind`** / **`regexp`**) or **`tool:semantic_search`** when names are unknown; results include block summaries and identifiers—use those to align Nexus, staging, and reporting metrics to **actual** names in that app—do not assume the template’s naming.
 
 If any of these are not available, create **placeholder metrics** at the same grain and replace them later with `Pull_*` from the Data Hub or planning apps. Use **Option B** in §5.1 for placeholder signs.
 

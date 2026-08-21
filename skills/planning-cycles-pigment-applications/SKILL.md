@@ -2,8 +2,8 @@
 name: planning-cycles-pigment-applications
 description: Always use this skill when the user mentions or implies versions, Actual, Actuals, Budget, Budgeting, Forecast, Reforecast, Rolling Forecast, Version, Versioning, Plan, switchover, scenarios, snapshots, planning cycles, Actual/Plan layering, plan vs actual, "create version dimension", "set up versioning", or asks for Actual Budget Forecast best practices — or when they extend realized data into a plan or budget (Actual/Budget/Plan layering, forward forecast from actuals) or need to combine or compare actual and plan versions and periods. Covers Version Dimensions (foundational to all planning applications), Native Scenarios (what-if), and Snapshots (freeze data).
 metadata:
-  skill_path: /planning-cycles-pigment-applications/SKILL.md
-  base_directory: /planning-cycles-pigment-applications
+  skill_path: /skills/planning-cycles-pigment-applications/SKILL.md
+  base_directory: /skills/planning-cycles-pigment-applications
   includes:
     - "*.md"
 ---
