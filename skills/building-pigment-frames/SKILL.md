@@ -2,8 +2,8 @@
 name: building-pigment-frames
 description: How to build Pigment Frames, custom full-page JavaScript visualisations that read Pigment data through the PigmentSDK inside a sandboxed iframe. Use when creating or editing a Frame.
 metadata:
-  skill_path: /building-pigment-frames/SKILL.md
-  base_directory: /building-pigment-frames
+  skill_path: /skills/building-pigment-frames/SKILL.md
+  base_directory: /skills/building-pigment-frames
 ---
 
 # Building Pigment Frames
@@ -21,15 +21,11 @@ A **Frame** is a standalone, full-page custom visualisation rendered from author
 |---|---|
 | `tool:create_frame` | Create once (name, body, bindings). Errors on name collision. |
 | `tool:update_frame` | All later edits; full replacement of `name`, `body`, `bindings`. |
-| `tool:publish_frame`  | Publish a frame when ready so it can be viewed by other users. |
-| `tool:find_frame_by_name` | Resolve `id` from name. |
-| `tool:find_frame_by_id` | Fetch full definition. |
-| `tool:list_frames` | List ids + names. |
-| `tool:delete_frame` | Remove. Destructive; needs approval. |
+| `tool:search_frames` | Look frames up. Pass `id` or `name` for one frame, which returns its full definition (`bindings` included, ready for update). Pass neither to list ids + names; add `show_details: true` to get every body too. Empty result means no match. |
 
 1. Backing **View(s)** on **Metric or Table** with correct pivot layout.
-2. `tool:create_frame` once; then `tool:update_frame` for every change. Never re-create (name collision). Use `tool:find_frame_by_name` if unsure.
-3. Always resend the complete `bindings` array on update.
+2. `tool:create_frame` once; then `tool:update_frame` for every change. Never re-create (name collision). Use `tool:search_frames` with a `name` if unsure it exists.
+3. Always resend the complete `bindings` array on update. `tool:search_frames` by `id` or `name` gives you that array; a bare listing does not.
 
 ## Sandboxed Runtime
 

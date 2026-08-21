@@ -153,7 +153,7 @@ The backend handles reference resolution internally. Do not perform multiple imp
 ## 6. Before Calling the Tool
 
 - Read the `csv_transfer_log_id` directly from the CSV file attachment metadata — do not invent or guess this value.
-- Resolve the `dimension_id` from the ID returned by `create_list` if you just created the target, or by calling `tool:filtered_search` if it already exists.
+- Resolve the `dimension_id` from the ID returned by `create_list` if you just created the target, or with `tool:search_metrics_and_lists` (`kind: ["Dimension"]`) if it already exists.
 
 ---
 

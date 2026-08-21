@@ -2,8 +2,8 @@
 name: optimizing-pigment-performance
 description: Always use this skill when troubleshooting slow calculations or timeouts, analyzing profiler output to identify bottlenecks, understanding scope propagation, managing sparsity, optimizing formula performance, improving iterative calculations, optimizing access rights performance, conducting systematic performance audits, auditing a Pigment application (modeling, formula hygiene, folders, boards, governance), cleaning unused dimensions, metrics, tables, properties, or boards, identifying dead or stale boards, or removing unused metrics. Modeler-agent skill for Performance Insights tools (performance_profile_change, get_top_blocks_by_performance), then classify and fix. Provides the optimization loop, audit vs cleaning modes, and routing to deep dives. Always profile before formula changes; never optimize from assumptions.
 metadata:
-  skill_path: /optimizing-pigment-performance/SKILL.md
-  base_directory: /optimizing-pigment-performance
+  skill_path: /skills/optimizing-pigment-performance/SKILL.md
+  base_directory: /skills/optimizing-pigment-performance
   includes:
     - "*.md"
 ---

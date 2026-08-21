@@ -196,7 +196,7 @@ PREVIOUSOF returns the referenced metric value shifted by one period along the i
 
 ### Limitations
 
-- **Maximum number of allowed metrics**: 10. Verify the current product limit in your environment.
+- **Maximum number of allowed metrics**: 10 by default.
 - All metrics in the configuration must **include the iteration dimension** in their structures.
 - PREVIOUSOF is **not allowed** if the iteration dimension has more than **10,000 items** (computation error).
 - **Cycle topology**: You cannot combine two cycles into one or link them together.
@@ -261,7 +261,7 @@ In some scenarios you can avoid PREVIOUSOF and improve performance by rewriting 
 
 ```pigment
 Opening Balance = Opening first month + PREVIOUS(Month) + Movements[SELECT: Month - 1]
-Movements
+
 Ending Balance = Opening + Movements
 ```
 
@@ -376,6 +376,6 @@ When using an iterative calculation configuration, Pigment builds a base formula
 - "You always choose an iterating dimension... that dimension is as short as possible... Consider using subsets."
 - "You only use previous or previousof if there is a true circular (on metric level, not cell level)... Pigment doesn't handle cell level circulars (like excel)."
 - "Always try to avoid it though... It can impact performance because Pigment needs to compute each metric * the length of the iterating dimension."
-- "Your cycle of metrics can't be bigger than 20 metrics, take that into account." (Verify current platform limit; KB states 10.)
+- "Your cycle of metrics can't be bigger than 10 metrics"
 - "Typical use case: Opening Balance = Previousof(ending balance); Movements; Ending Balance = Opening + Movements."
 - "More performant alternative: Opening Balance = Opening first month + previous(month) + movements [select: month-1] ... This will probably be more performant as we're not using previousof."

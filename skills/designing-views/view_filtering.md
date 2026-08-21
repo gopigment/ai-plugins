@@ -69,7 +69,7 @@ Filter rows/columns based on Metric values (e.g., "show only products where Reve
   "valueFieldFilteringOption": {
     "pivotFieldId": "<pivot-field-id-being-filtered>", // Must be innermost pivot on its axis
     "valueFieldId": "<value-field-id>",
-    "compareOperator": "Gt",
+    "compareOperator": "GreaterThan",
     "values": ["1000"],
     "variableIds": [],
     "projections": [
@@ -94,6 +94,8 @@ Filter rows/columns based on Metric values (e.g., "show only products where Reve
 
 Filter based on List Property values.
 
+**NOT supported on List Views**: PivotListProperty filters are rejected when the View's underlying block is a List. To filter by a property there, use a ValueField filter targeting the value field for that property (on List Views, the properties are the value fields).
+
 **Configuration:**
 
 ```json
@@ -101,8 +103,8 @@ Filter based on List Property values.
   "type": "PivotListProperty",
   "pivotListPropertyFilteringOption": {
     "pivotFieldId": "<pivot-field-id>", // MUST be from rows or columns, NOT pages!
-    "listPropertyPath": ["propertyName"],
-    "compareOperator": "Eq",
+    "listPropertyPath": ["<property friendly name>"],
+    "compareOperator": "Equal",
     "values": ["value"],
     "variableIds": []
   }
@@ -115,15 +117,15 @@ If you want to filter to show only "Choco Bites" product:
 
 1. Ensure the Product Dimension appears in **rows or columns** (not just pages)
 2. Use the pivotFieldId from that row/column pivot (e.g., from the columns array)
-3. Use the Property name (typically `"_name_XXXXXX"` where XXXXXX is a suffix)
+3. Use the property's **friendly name** (e.g. `"Name"`) — the tool resolves friendly names to technical names automatically. Do NOT use technical names (`_name_XXXXXX`); they are not resolved and fail with "property not found".
 
 ```json
 {
   "type": "PivotListProperty",
   "pivotListPropertyFilteringOption": {
     "pivotFieldId": "da327057-0d83-4ef4-9ec6-ba3934f6ce5f", // From columns array
-    "listPropertyPath": ["_name_D81JNJ"],
-    "compareOperator": "Eq",
+    "listPropertyPath": ["Name"],
+    "compareOperator": "Equal",
     "values": ["Choco Bites"],
     "variableIds": []
   }

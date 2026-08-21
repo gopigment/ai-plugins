@@ -27,8 +27,8 @@ This use case describes how to model **change requests** for master data (e.g. e
 
 Template names in this skill are **illustrative**. Before creating a Changelog dimension, override metrics, or governance formulas, resolve **real** objects in the customer app:
 
-- Use **`tool:search`** to find existing **Worker**, **Employee**, **Scenario** / **Version**, **Department**, and any primary-source blocks (e.g. HRIS or staging metrics) you must reference; use **`kind`** or **`regexp`** when names are similar.
-- Confirm **freeze / validation** and **effective date** properties on Scenario and Changelog—property API names differ by app; use **`tool:search`** (and filters) until returned summaries show the property names you need.
+- Use **`tool:search_metrics_and_lists`** to find existing **Worker**, **Employee**, **Scenario** / **Version**, **Department**, and any primary-source blocks (e.g. HRIS or staging metrics) you must reference; use **`kind`** or **`regexp`** when names are similar; use **`tool:semantic_search`** when names are unknown.
+- Confirm **freeze / validation** and **effective date** properties on Scenario and Changelog—property API names differ by app; use **`tool:search_metrics_and_lists`** with **`show_details: true`** (and filters) until returned summaries show the property names you need.
 - Prefer **extending** existing lists and metrics that match the pattern over introducing duplicate blocks with new names.
 
 ---

@@ -107,9 +107,9 @@ All staging metrics use the same pattern; only the attribute and source change. 
 
 Template names below (e.g. `EE_Load_HRIS`, `Populate_History?`) are **illustrative**. In a real customer app, lists, toggles, and **Scenario** / **Version** properties (such as start and end month for the planning window) have **local names and API paths**. Before implementing the spread layer:
 
-- Use **`tool:search`** to locate the snapshot source list, planning dimensions, and any history/plan toggles; read returned summaries and IDs.
-- Search again (with **`kind`** or **`regexp`** if names collide) for **Scenario** (or **Version**) and confirm **which properties** encode the version window—formulas must reference the actual property names in that workspace.
-- After building staging metrics, use **`tool:search`** to verify that **reporting or headcount metrics** reference spread-layer metrics only, not the raw snapshot list, if your architecture requires that separation.
+- Use **`tool:search_metrics_and_lists`** (and **`tool:semantic_search`** when names are unclear) to locate the snapshot source list, planning dimensions, and any history/plan toggles; read returned summaries and IDs.
+- Search again with **`tool:search_metrics_and_lists`** (with **`kind`** or **`regexp`** if names collide) for **Scenario** (or **Version**) and confirm **which properties** encode the version window—formulas must reference the actual property names in that workspace.
+- After building staging metrics, use **`tool:search_metrics_and_lists`** with **`formula_regex_search`** (or **`tool:get_data_dependency_tree`**) to verify that **reporting or headcount metrics** reference spread-layer metrics only, not the raw snapshot list, if your architecture requires that separation.
 
 Skipping this discovery step often yields a minimal spread layer without version filters, active flags, or downstream metrics that demonstrate the full pattern.
 
@@ -117,7 +117,7 @@ Skipping this discovery step often yields a minimal spread layer without version
 
 ## 5. How to apply this elsewhere
 
-1. **Identify** the snapshot source (list or metric), its **snapshot date dimension**, and the **entity mapping** (how to align to your planning entity, e.g. Employee)—using **`tool:search`** as needed so names match the live app.
+1. **Identify** the snapshot source (list or metric), its **snapshot date dimension**, and the **entity mapping** (how to align to your planning entity, e.g. Employee)—using **`tool:search_metrics_and_lists`** or **`tool:semantic_search`** as needed so names match the live app.
 2. **Define the planning grain** (e.g. Version × Employee × Month) and **version windows** (start/end period per version).
 3. **Build spread-layer helpers** in a dedicated folder:
    - Effective snapshot date for **history** (backward) and for **plan** (forward).

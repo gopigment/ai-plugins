@@ -98,7 +98,7 @@ So the core engine has only **Employee**, **TBH Requests**, and **Workforce** as
 
 - **Unified UX:** Boards can show one grid at Version × Month × Workforce or by mapped dimensions, without separate Employee vs TBH sections.
 
-- **Security & governance:** Security mapping metrics (e.g. `SEC_WF_Card_Entity` = WF*Card_Entity, SEC_WF_Card_Department = WF_Card_Department) let you express access rights once at Workforce level; they apply consistently to EE- and TBH-backed rows and to all `WF_Stats*_`, `WF*Comp*_`, and push metrics that use the cards.
+- **Security & governance:** Security mapping metrics (e.g. `SEC_WF_Card_Entity` = WF_Card_Entity, SEC_WF_Card_Department = WF_Card_Department) let you express access rights once at Workforce level; they apply consistently to EE- and TBH-backed rows and to all `WF_Stats_`, `WF_Comp_`, and push metrics that use the cards.
 
 ---
 
