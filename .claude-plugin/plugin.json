@@ -1,7 +1,7 @@
 {
   "name": "pigment",
   "description": "Analyze business data and build planning models in your Pigment workspace",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "author": {
     "name": "Pigment"
   }

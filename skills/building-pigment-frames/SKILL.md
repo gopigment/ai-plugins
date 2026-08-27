@@ -20,12 +20,14 @@ A **Frame** is a standalone, full-page custom visualisation rendered from author
 | Tool | Use |
 |---|---|
 | `tool:create_frame` | Create once (name, body, bindings). Errors on name collision. |
-| `tool:update_frame` | All later edits; full replacement of `name`, `body`, `bindings`. |
+| `tool:update_frame` | Whole-body overwrite; full replacement of `name`, `body`, `bindings`. Use when the change isn't a precise, localised match — restructuring, unclear boundaries, many scattered edits — or when `tool:update_frame_body` is unavailable. |
+| `tool:update_frame_body` | Find-and-replace edits against an existing Frame's body. Use it when you can name a precise, unique phrase to match; it cannot insert into a Frame that doesn't exist yet. Gated per organization — often missing from your tool list, check before relying on it. |
 | `tool:search_frames` | Look frames up. Pass `id` or `name` for one frame, which returns its full definition (`bindings` included, ready for update). Pass neither to list ids + names; add `show_details: true` to get every body too. Empty result means no match. |
 
 1. Backing **View(s)** on **Metric or Table** with correct pivot layout.
-2. `tool:create_frame` once; then `tool:update_frame` for every change. Never re-create (name collision). Use `tool:search_frames` with a `name` if unsure it exists.
-3. Always resend the complete `bindings` array on update. `tool:search_frames` by `id` or `name` gives you that array; a bare listing does not.
+2. `tool:create_frame` once; then `tool:update_frame` / `tool:update_frame_body` for every change. Never re-create (name collision). Use `tool:search_frames` with a `name` if unsure it exists.
+3. Always resend the complete `bindings` array when calling `tool:create_frame` / `tool:update_frame`. `tool:search_frames` by `id` or `name` gives you that array; a bare listing does not.
+4. **When dealing with large frame bodies generate and update in partitions.** A Frame's JS body can be long enough that writing or resending it whole in a single response risks hitting the model's max output size. For a substantial new Frame, create it first as a working skeleton (IIFE, `#app` setup, `__cleanup`, and clearly unique placeholder markers for the sections still to come — e.g. `// SECTION: subscribe`, `// SECTION: render`), then grow it by targeting each placeholder with `tool:update_frame_body`, one section at a time. When editing an existing Frame, reach for `tool:update_frame_body` whenever the change is a precise, unique phrase; fall back to `tool:update_frame`'s whole-body overwrite only when it isn't (or the tool is unavailable).
 
 ## Sandboxed Runtime
 

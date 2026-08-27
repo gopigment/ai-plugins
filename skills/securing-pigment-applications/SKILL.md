@@ -24,7 +24,6 @@ Read this skill when the user asks to:
 - Share AR across multiple applications
 - Debug "why can or cannot this user see this data?"
 - Reuse AR patterns from a Hub app
-- Working on any Role feature (Read, Create, Update, Delete)
 
 ---
 

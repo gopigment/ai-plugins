@@ -156,7 +156,7 @@ Table:
   trace back to the originating metric(s) and transaction list, so you know what grain of
   detail already exists upstream. Before declaring such a change done, use
   `tool:get_data_dependency_tree` (direction `Usages`) to find dependent formulas, then
-  `tool:validate_formula` (with `metric_id`) on each to catch a silent mismatch — see
+  `tool:validate_formula` (with `target.metric_id`) on each to catch a silent mismatch — see
   `skill:writing-pigment-formulas` ("Structural Dimension Changes") for the full workflow.
 - **Removing a dimension from a metric's structure is lossy and irreversible.** Unlike adding a
   dimension, once the metric no longer stores that grain the historical detail cannot be
