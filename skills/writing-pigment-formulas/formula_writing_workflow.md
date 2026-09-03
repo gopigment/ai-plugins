@@ -128,7 +128,7 @@ Compare source vs target dimensions, apply modifiers:
 - **MP02:** No `Dimension."Item"`; use `VAR_` metrics — see [modeling_principles §4](../modeling-pigment-applications/modeling_principles.md)
 **⚠️ REQUIRED — Validate before applying:**
 
-You MUST call `tool:validate_formula` before calling `tool:create_or_update_formula` or `tool:update_list_property_formula`. Applying an invalid formula puts the metric/property into an error state.
+You MUST call `tool:validate_formula` before passing a formula to `tool:create_metric`, `tool:update_metric`, `tool:create_list_property`, or `tool:update_list_property`. Applying an invalid formula puts the metric/property into an error state.
 
 - `tool:validate_formula` checks syntax, entity references, types, and dimensional alignment WITHOUT applying
 - Returns error highlighting and hints if invalid — use these to fix the formula before retrying
@@ -139,14 +139,14 @@ You MUST call `tool:validate_formula` before calling `tool:create_or_update_form
 **`PREVIOUS(Dimension)` — no cycle configuration needed:**
 
 1. Prefer a **single-metric** roll-forward (`PREVIOUS(TimeDim) + …`) when the prior period is this metric, using the metric's own time dimension (`Month`, `Year`, …) — see [functions_iterative_calculation.md](./functions_iterative_calculation.md).
-2. Apply with `tool:create_or_update_formula`. Do **not** create a cycle.
+2. Apply with `tool:update_metric` (passing the `formula` field). Do **not** create a cycle.
 3. Tell the user: validation preview is skipped for `PREVIOUS` formulas; the formula is checked when applied. **No iterative calculation cycle** is required — that setting applies only to `PREVIOUSOF`.
 
 **`PREVIOUSOF('Metric')` — cycle configuration needed:**
 
 1. Confirm that the iterative calculation cycle exist **before** applying with relevant tools: `tool:list_cycles` / `tool:create_cycle` / `tool:update_cycle`.
 2. For beginning ↔ ending balances split across metrics, use `PREVIOUSOF` on cycle metrics (not `[SELECT: Month - 1]` between coupled metrics, which would create a circular ref). See [functions_iterative_calculation.md](./functions_iterative_calculation.md).
-3. Apply with `tool:create_or_update_formula`. If apply fails with **circular dependency**, narrow the cycle metrics or collapse to a single metric with `PREVIOUS(TimeDim)`.
+3. Apply with `tool:update_metric` (passing the `formula` field). If apply fails with **circular dependency**, narrow the cycle metrics or collapse to a single metric with `PREVIOUS(TimeDim)`.
 
 **Note**: Formula builder tools are only for actual implementation when you have concrete metric/list IDs. For general formula discussions or learning, write formulas manually following the steps above.
 
@@ -222,10 +222,10 @@ IFDEFINED(User, 'Revenue'[AR: 'Rules'])
 
 **⚠️ REQUIRED — Call `tool:validate_formula` before applying:**
 
-Do NOT call `tool:create_or_update_formula` or `tool:update_list_property_formula` without validating first. Applying an invalid formula puts the block into an error state.
+Do NOT pass a formula to `tool:create_metric`, `tool:update_metric`, `tool:create_list_property`, or `tool:update_list_property` without validating first. Applying an invalid formula puts the block into an error state.
 
 - Call `tool:validate_formula` — it returns detailed error messages with position highlighting
-- If valid, proceed to apply using `tool:create_or_update_formula` or `tool:update_list_property_formula`
+- If valid, proceed to apply using `tool:create_metric`/`tool:update_metric` or `tool:create_list_property`/`tool:update_list_property`
 - If invalid, fix the formula and re-validate before applying
 
 **Exception**: Skip `tool:validate_formula` for formulas containing `Previous`/`PreviousOf` (not supported by the validator).
@@ -243,7 +243,7 @@ Do NOT call `tool:create_or_update_formula` or `tool:update_list_property_formul
    - **Part-level comments** (for multi-step formulas): `//` on their own line below the segment they describe, with a blank line before the next segment. Skip for one-liners or obvious formulas.
    - Use the same language as the block name
    - Maintain or enhance existing comments; replace them completely only if a formula update made them wrong or misleading
-   - Comments must be included in the formula string passed to tools (`tool:create_or_update_formula`, `tool:update_list_property_formula`, etc.)
+   - Comments must be included in the formula string passed to tools (`tool:create_metric`, `tool:update_metric`, `tool:create_list_property`, `tool:update_list_property`, etc.)
 2. **Explanation** - What the formula does, key operations and dimensional transformations
 3. **Documentation referenced** - Key files/functions consulted
 4. **Validation suggestions** (if relevant) - How user can verify results
@@ -252,7 +252,7 @@ Do NOT call `tool:create_or_update_formula` or `tool:update_list_property_formul
 
 ## Critical Rules
 
-- **Always validate before applying** - Call `tool:validate_formula` before `tool:create_or_update_formula` / `tool:update_list_property_formula`. Invalid formulas put blocks into error states. Exception: skip for `Previous`/`PreviousOf` formulas.
+- **Always validate before applying** - Call `tool:validate_formula` before passing a formula to `tool:create_metric`/`tool:update_metric` or `tool:create_list_property`/`tool:update_list_property`. Invalid formulas put blocks into error states. Exception: skip for `Previous`/`PreviousOf` formulas.
 - **Always search documentation** - Discovers functions you don't know about
 - **Pigment syntax ONLY** - You MUST NEVER write code or functions using another language being Excel, SQL, Python, JavaScript, MDX, DAX, or ANY other programming or query language. Think ONLY in Pigment terms.
 - **Never invent functions** - Only use documented Pigment functions
