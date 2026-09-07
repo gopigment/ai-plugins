@@ -125,7 +125,7 @@ For the full date-range presence pattern (PRORATA worked examples, ISDEFINED/IFD
 ### Quick Validation
 
 - `tool:validate_formula` - Validate formula syntax WITHOUT applying it to any block
-  - Use for: Checking syntax before calling `tool:update_list_property_formula`
+  - Use for: Checking syntax before passing a formula to `tool:create_list_property` or `tool:update_list_property`
   - Use for: Ensuring formula syntax is correct before including in user messages
   - Use for: Re-checking a downstream metric's formula against its own dimensions after a structural
     dimension change elsewhere in the formula chain (pass `target`)
@@ -140,12 +140,12 @@ For the full date-range presence pattern (PRORATA worked examples, ISDEFINED/IFD
 1. **Draft formula** - Write your formula based on requirements
 2. **Validate** - Use `tool:validate_formula` to check syntax
 3. **Fix errors** - Iterate until formula is valid
-4. **Apply** - Use `tool:create_or_update_formula` or `tool:update_list_property_formula`
+4. **Apply** - Use `tool:create_metric`/`tool:update_metric` or `tool:create_list_property`/`tool:update_list_property`
 
 **How to apply**: After validation, use:
 
-- Metrics: `tool:create_or_update_formula` with the formula, to set correct default formatting on metrics see `skill:formatting-and-highlighting`
-- List properties: `tool:update_list_property_formula` with the formula
+- Metrics: `tool:create_metric` (with `formula` field) or `tool:update_metric` (with `formula` field), to set correct default formatting on metrics see `skill:formatting-and-highlighting`
+- List properties: `tool:create_list_property` or `tool:update_list_property` with the formula
 
 ### Structural Dimension Changes: Check Downstream Formulas
 
@@ -155,7 +155,7 @@ silently broadcast (or collapse) values to align with the target instead of fail
 wrong numbers with no visible error.
 
 **Trigger — do not skip this**: `tool:update_metric` (when changing `dimension_ids`/`target_type`) and
-`tool:create_or_update_formula` both return a `hints` list in their response. If it contains an "automatic
+`tool:update_metric` (with `formula`) both return a `hints` list in their response. If it contains an "automatic
 formula dimensions adjustment" hint, stop before declaring the change done and work through the steps below.
 This can fire on the metric you just changed (its own formula no longer matches its new dimensions) even
 before you look at any downstream metric.
@@ -322,7 +322,7 @@ If comments are already present, try to maintain or enhance them. Replace them c
 'Fixed Cost' + 'Variable Cost'
 ```
 
-Comments must be included in the formula string passed to `tool:create_or_update_formula` or `tool:update_list_property_formula`.
+Comments must be included in the formula string passed to `tool:create_metric`, `tool:update_metric`, `tool:create_list_property`, or `tool:update_list_property`.
 
 ---
 

@@ -20,7 +20,7 @@ The widget `display_type` MUST match the underlying block type:
 
 **⚠️ CRITICAL (order of operations — every View widget):** Do **not** create or point a **View** widget, or call **`tool:set_widget_preview`**, until the underlying View (or Draft) is **valid for the `display_type` you set on the widget** and for the **Block** (the **Display Modes** and **Display Type / Block Type Rules** above).
 
-Read the View (or Draft) and confirm the **block ↔ `display_type`** rules (e.g. **Kpi** → no row pivots and `metricsLocation` MUST NOT be `Rows` (use `Columns` or `Pages`); **List** blocks only **List** display). If invalid, fix or **create** a suitable View (`create_view` or Draft) **before** the widget. **Do not** trust `get_block_views` candidates without this check.
+Read the View (or Draft) and confirm the **block ↔ `display_type`** rules (e.g. **Kpi** → no row pivots and `metricsLocation` MUST NOT be `Rows` (use `Columns` or `Pages`); **List** blocks only **List** display). If invalid, fix or **create** a suitable View (`create_view` or Draft) **before** the widget. **Do not** trust `tool:get_block_views` candidates without this check.
 
 ## Changing a View that is already on this Board
 
