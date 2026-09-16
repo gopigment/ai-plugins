@@ -1,359 +1,197 @@
 ---
 name: writing-pigment-formulas
-description: Always use this skill when writing, editing, or debugging Pigment formulas — including conditional logic, blank handling, date-range logic, aggregation, prior-period lookups, and dimensional transformations. Pigment uses a proprietary formula language — NEVER assume you know the syntax, and ALWAYS read the documentation before writing any formula. Covers data types, modifiers, functions, calculation patterns, and performance trade-offs (calibrated by formula complexity). This skill includes supporting files in this directory; explore as needed.
+description: "Execution skill. Use when writing, editing, or debugging Pigment metric formulas — quoting, references, data types, BLANK, and comments."
 metadata:
   skill_path: /skills/writing-pigment-formulas/SKILL.md
   base_directory: /skills/writing-pigment-formulas
-  includes:
-    - "*.md"
 ---
 
-# Writing Pigment Formulas
+# Write Pigment Formulas
 
-This skill provides comprehensive guidance for writing formulas in Pigment's multidimensional formula language, including formula builder tools for validation and generation.
-Pigment uses proprietary formula language which should never be confused with other language.
-Never mix Pigment formula language with other language, and never assume you know the language before reading this documentation.
+**Pigment syntax only.** Never write Excel, SQL, Python, DAX, or any other language.
 
-**CRITICAL - ABSOLUTE PROHIBITION**: Pigment has its own unique formula language.
-You MUST NEVER write code or functions using another language being Excel, SQL, Python, JavaScript, MDX, DAX, or ANY other programming or query language.
-ONLY Pigment syntax exists when writing formulas.
-
-## When to Use This Skill
-
-- **Write formulas** - Creating calculations for metrics and list properties
-- **Aggregate data** - Rolling up from transaction lists or detailed dimensions
-- **Perform time-series calculations** - YTD, rolling averages, sequential logic
-- **Use functions** - CUMULATE, SHIFT, ITEM, MATCH, TIMEDIM, etc.
-- **Use modifiers** - BY, ADD, REMOVE, SELECT, FILTER, EXCLUDE, TOPARENTLIST, TOSUBSET
-- **Debug syntax** - Troubleshooting formula errors
-- **Test and validate formulas** - Verifying formula correctness and expected behavior
-- **Transform dimensions** - Changing dimensional structure of calculations
-- **Allocate data** - Distributing values across dimensions
-- **Match and lookup** - Finding data across dimensions
+Formulas operate on metrics (multidimensional grids). Each cell = intersection of one item per dimension. Modifiers control dimension alignment.
 
 ---
 
-## Syntax Fundamental
+## Stage 1 — Identify Inputs
 
-**Quoting Rules - MUST FOLLOW:**
+Before writing any formula:
 
-| Element         | Syntax                        | Example                                           |
-| --------------- | ----------------------------- | ------------------------------------------------- |
-| Metric names    | Single quotes                 | `'Revenue'`, `'Total Sales'`                      |
-| Dimension names | Single quotes                 | `'Product'`, `'Country'`                          |
-| Property access | Dot notation with quotes, chainable | `'Product'.'Category'`, `City.Country.Currency` |
-| Dimension items | Double quotes after dimension — **MP02:** literal only in `VAR_` default | `Month."Jan 25"` only when setting a `VAR_` metric default |
-| String values   | Double quotes                 | `"Active"`, `"Completed"`                         |
-
-**Cross-app references:** 
-- A block from another application can only be referenced if it has been shared through a Library and that Library is activated in the current application. 
-- The syntax is `'APPLICATION_NAME'::'BLOCK_NAME'`. 
-- If the block name is unique across all activated libraries the application prefix may be omitted, but always use the full form for clarity.
-
-**No hard-coding (MP02 — hard constraint):** See [modeling_principles §4](../modeling-pigment-applications/modeling_principles.md). Before member-specific or time-bounded formulas, read [formula_writing_workflow.md](./formula_writing_workflow.md) Step 2 and [formula_modifiers.md](./formula_modifiers.md) (FILTER, SELECT, BY CONSTANT).
-
-**Common Mistakes:**
-
-- ❌ `Revenue` → ✅ `'Revenue'` (missing quotes)
-- ❌ `Product.Category` → ✅ `'Product'.'Category'` (missing quotes)
-- ❌ `Month.'Jan 25'` → ✅ `Month."Jan 25"` (items use double quotes; in formulas use a `VAR_` metric per MP02)
-- ❌ `Country.Name = "France"` → ✅ `Country = VAR_Selected_Country` (same hard-coding as `Country."France"`)
+1. **Confirm the target metric** — name, dimensions, type (Number / Date / Text / Dimension / Boolean). The formula result type must match.
+2. **Confirm source blocks** — metrics, lists, properties referenced in the formula. Use `tool:search_metrics_and_lists` (or `tool:semantic_search` when names are unclear) to find exact names and spot duplicates.
+3. **Map dimensions** — compare source dimensions vs target dimensions. If they differ, you will need modifiers (Stage 2.4).
+4. **Check for circular dependencies** — if the formula references its own metric or forms a cycle, you need PREVIOUS / PREVIOUSOF with a declared cycle.
 
 ---
 
-## Performance Patterns
+## Stage 2 — Write the Formula
 
-**Apply this checklist proportionally to formula complexity.** Simple arithmetic between existing same-dimensioned metrics (e.g. `'A' + 'B'`, `'A' * 'B'`, `'A' / 'B'`) needs no performance wrapping — deliver as-is. Use the checklist as a review gate for formulas that introduce conditionals, dimensional changes, date-range logic, or that target large/sparse metrics.
+### 2.1 Start with a comment
 
-Read [formula_performance_patterns.md](./formula_performance_patterns.md) and verify:
+Every medium-to-complex formula should be explained with a comment: above the formula, restate its logic in Structured English, in evaluation order, using business terms and friendly names. A reader who doesn't know Pigment must be able to understand it.
 
-**Always check (universal):**
+Guidance on commenting:
+- the comment should not be much longer than the formula
+- if the formula is simple, short and self-explanatory (one FUNCTION(), simple IF with friendly metric names), don't comment
+- do not use Metric names within, because they can change and your comments will be obsolete
+- do not comment within the formula, only before it
+- `//` only; no block comments.
 
-- [ ] Identifiers are correctly quoted (single quotes for names, double quotes for items)
-- [ ] Dimensions are aligned — no unintended ADD or dimension mismatch
-- [ ] Scoping clauses appear FIRST (FILTER, EXCLUDE, IFDEFINED)
-- [ ] Aggregations (REMOVE, BY) appear AFTER calculations
+```pigment
+// IF the period is an actual period
+// then aggregate the actuals from the data
+// else bring the planning numbers from the other applications
+```
 
-**Check when conditionals are present:**
+### 2.2 Apply quoting rules
 
-- [ ] Using IFDEFINED instead of IF(ISBLANK()) for existence checks
-- [ ] Using IFBLANK instead of IF(ISBLANK(...), default, ...) for defaults
-- [ ] Conditional creation: use IF (not ADD + FILTER); subsetting a computed expression: use FILTER: CurrentValue (not IF(expr, expr, BLANK))
+| Reference type | Quotes | Example |
+| --- | --- | --- |
+| Metric / dimension / property / list name | Single `'...'` | `'Revenue'`, `'Product'.'Category'` |
+| Dimension item | Double `"..."` after dim | `Type."Revenue"`, `Status."Active"` |
+| Text literal | Double `"..."` | `"Active"`, `"Completed"` |
+| Cross-app block (via Library) | `'App'::'Block'` | `'Finance'::'Revenue'` |
+| List property | `'List'.'Property'` | `'Employee'.'Start Date'` |
 
-**Check when date ranges are defined by Start/End:**
+Full item path: `'List'.'Property'."Item"` — default property can be omitted: `Status."Active"`.
 
-- [ ] Avoid multi-conditional IFs (`Date >= Start AND Date < End`) when PRORATA semantics apply
-- [ ] Prefer `PRORATA()` to express "active within a date range" and derive booleans or numeric flags from `PRORATA()` using ISDEFINED/IFDEFINED
+**⛔ Never hard-code dimension items or dates in formulas.**
+`Month."Jun 24"`, `Version."Actual"`, `Country."France"` are all forbidden.
 
-**Check when prior period lookups are needed:**
+- For a specific member → create a Dimension-typed input metric and reference that.
+- For "last actual month" → use `[SELECT LASTNONBLANK: 'Is Actual']` or equivalent flag metric.
+- For a fixed date → create a Date-typed input metric.
+  The only exceptions are stable structural items (e.g. `Version."Actual"` in a Version-aware
+  application where that item is guaranteed to always exist and never be renamed).
 
-- [ ] Using SELECT for prior period lookups (NOT PREVIOUS)
+**Always quote identifiers** even when Pigment allows omitting quotes on simple names.
 
-**Check when dimensional changes or mappings are involved:**
+### 2.3 Write the core calculation
 
-- [ ] Using BY instead of ADD where mapping exists
-- [ ] If you BY on a dimension-typed metric, do not add IF/ISBLANK guards; BY respects that metric's sparsity
+Build the expression without modifiers first. Pass only the function arguments the requirement calls for — do not add extra optional parameters speculatively. Use the correct operators for the data type:
 
-**Check when the metric is large/sparse or involves access rights:**
+| Type | Operators | Notes |
+| --- | --- | --- |
+| Number | `+ - * / = <> < > <= >=` | BLANK propagates on `*`, `/`, `AND`; division by zero → BLANK |
+| Date | `= <> < > <= >= + -` | `+`/`-` for day offsets; use date functions for month/year logic |
+| Text | `= <> &` | `&` concatenation; wrap numbers with `TEXT()` |
+| Dimension | `=` | From dim-typed properties or mapping metrics |
+| Boolean | `AND OR NOT = <>` | 3-state: TRUE / FALSE / BLANK |
 
-- [ ] Avoid ISBLANK/ISNOTBLANK on large sparse metrics — use ISDEFINED/IFDEFINED
-- [ ] Use BLANK instead of 0 for empty values (see exception below for meaningful zeros)
-- [ ] Use BLANK instead of FALSE for boolean flags (FALSE is stored, BLANK is not)
-- [ ] Access rights wrapped in IFDEFINED(User, ...)
-- [ ] **MP02:** No `Dimension."Item"` in formulas; no `DATE(...)` for planning bounds; relative metric names only — see [formula_writing_workflow.md](./formula_writing_workflow.md) Step 6 checklist
+A bare comparison (e.g. `Day = Department.'Start Date'`) is **dense**: FALSE everywhere it doesn't hold, not BLANK. When comparing against a sparse property, wrap it — `IF(Day = Department.'Start Date', TRUE, BLANK)` — to keep the result sparse.
 
-For the full date-range presence pattern (PRORATA worked examples, ISDEFINED/IFDEFINED derivation, when simple IF is acceptable), see **Pattern 11** in [formula_performance_patterns.md](./formula_performance_patterns.md).
+### 2.4 Add modifiers for dimension alignment
+
+Syntax: `Block[MODIFIER Method: arguments]`
+
+| Need | Modifier | Effect |
+| --- | --- | --- |
+| Aggregate child → parent | `[BY SUM: Dim.Parent]` | Replaces dim |
+| Allocate parent → child, same value | `[BY CONSTANT: Dim.Parent]` | Replicates value to each child |
+| Allocate parent → child, divided | `[BY SPLIT: Dim.Parent]` | Divides value equally across children |
+| Drop a dimension | `[REMOVE SUM: Dim]` | Removes dim |
+| Filter, keep dimension | `[FILTER: condition]` | Sparse subset |
+| Exclude rows | `[EXCLUDE: condition]` | Opposite of FILTER; preserves sparsity |
+
+**Allocation method defaults to CONSTANT** — if the request says "split," "distribute," "divide equally," or "spread," use `SPLIT` explicitly instead.
+**Prefer BY over ADD when a mapping exists** — `BY` is sparse (only allocates where the mapping is defined); `ADD` is dense (full cross-product) and should be reserved for cases with no mapping.
+
+`CurrentValue` = value of the expression the modifier applies to: `'Revenue'[FILTER: CurrentValue > 1000]`
+
+**Transaction lists:** always use a single BY with all dimension mappings. Never chain BY (properties are lost after first aggregation).
+
+```pigment
+// ✅ Single BY with all mappings — use stored Month property (not inline TIMEDIM)
+'Orders'.'Amount'[BY SUM: 'Orders'.'Month', 'Orders'.'Product']
+// Month property on the TL has formula: TIMEDIM('Orders'.'Date', Month)
+```
+
+Full modifier reference: `skill:using-formula-modifiers`
+
+### 2.5 Use the right functions
+
+Full reference with syntax → `skill:using-formula-functions`. Key categories:
+
+| Category | Functions | Use when |
+| --- | --- | --- |
+| Conditional | `IF`, `SWITCH`, `IFBLANK`, `IFDEFINED` | Branching; override chains; sparsity guards |
+| Aggregation | `SUMOF`, `AVGOF`, `COUNTOF`, `MINOF`, `MAXOF` | Aggregate a list property without BY |
+| Text | `LEFT`, `RIGHT`, `MID`, `FIND`, `SUBSTITUTE`, `TEXT`, `VALUE`, `&`, `CONTAINS` | String manipulation; type conversion; `CONTAINS(substring, haystack)` — substring first |
+| Date / Time | `DATE`, `YEAR`, `MONTH`, `DAY`, `NETWORKDAYS`, `DAYSINPERIOD`, `PRORATA` | Date arithmetic; period coverage |
+| Numeric | `ROUND`, `ABS`, `MIN`, `MAX`, `RANK`, `MOVINGSUM`, `CUMULATE` | Rounding; ranking; rolling windows |
+| Lookup | `MATCH`, `ITEM` | Find items in lists; convert text to dimension |
+| Iterative | `PREVIOUS`, `PREVIOUSOF`, `FILLFORWARD` | Time-series accumulation; gap filling (require cycles); see below |
+| Utility | `TIMEDIM`, `ISDEFINED`, `IN`, `SHIFT` | Date→dim conversion; existence check; set membership; dimension offset |
+| Finance | `NPV`, `IRR`, `XNPV`, `XIRR` | Discounted cash flow; internal rate of return |
+| Forecasting | `FORECAST_ETS`, `FORECAST_LINEAR` | Statistical forecasting |
+
+**Never invent functions.** Only use documented Pigment functions from the reference above.
+
+**Iterative patterns:**
+
+- **PREVIOUS** — each period builds on prior (requires a declared cycle): `IFDEFINED(PREVIOUS(Month), PREVIOUS(Month) * (1 + 'Growth Rate'), 'Seed Value')`
+- **FILLFORWARD** — fill gaps in time series (use a separate cleaning metric): `FILLFORWARD('FX Rate Input', Month)`
+- **PREVIOUSOF** — cross-metric cycles (beginning/ending balance, inventory roll-forwards); create the cycle before writing the formulas
+
+### 2.6 Handle BLANK correctly
+
+`BLANK` = not stored (sparse). `0` / `FALSE` = stored (dense).
+
+| Expression | Result | Why |
+| --- | --- | --- |
+| `BLANK + 5` | `5` | Additive identity |
+| `BLANK * 5` | `BLANK` | Multiplicative propagation |
+| `X / 0` or `X / BLANK` | `BLANK` | Auto-handled; no guard needed |
+| `NOT(BLANK)` | `BLANK` | NOT does not flip BLANK to TRUE |
+
+**Rules:**
+
+- Return `BLANK` where no value should exist; never substitute `0` or `FALSE`
+- Division by zero/BLANK is auto-handled; no guard needed
+
+Sparsity preference rules (IFDEFINED vs ISBLANK), performance anti-patterns: `skill:writing-performant-formulas`
 
 ---
 
-## Formula Writing Process
+## Stage 3 — Validate Before Applying
 
-**Key phases**: Understand Context → Search Documentation → Design → Build → Optimize → Validate → Deliver
+**You MUST call `tool:validate_formula` before passing a formula to `tool:create_metric`, `tool:update_metric`, `tool:create_list_property`, or `tool:update_list_property`.** The only exception is PREVIOUS/PREVIOUSOF formulas without a target metric — those cannot be validated standalone; pass `target.metric_id` for an existing metric to validate them normally. Applying an unvalidated formula puts the metric or property into an error state.
 
-**Follow the complete 8-step workflow**: [./formula_writing_workflow.md](./formula_writing_workflow.md)
+Run through this checklist first:
 
-- **Critical**: Always search documentation first before writing
-- **Governance check (MP02 — required):** [modeling_principles §4](../modeling-pigment-applications/modeling_principles.md); Version patterns: `skill:planning-cycles-pigment-applications`.
-- **Validation & Delivery**: Use Formula Builder Tools to validate and deliver formulas
+1. [ ] Single quotes on all identifiers; double quotes on items and strings
+2. [ ] BLANK (not 0/FALSE) where no value should exist
+3. [ ] No ISBLANK / ISNOTBLANK; use IFDEFINED / IFBLANK / ISDEFINED
+4. [ ] No hard-coded dimension items or dates
+5. [ ] Transaction list: single BY with all dim mappings; never chain BY
+6. [ ] Allocation: BY (not ADD) when a mapping exists; SPLIT explicitly requested where the ask is "split"/"distribute"/"divide equally"/"spread" — not left on the CONSTANT default
+7. [ ] Formula result type matches target metric type
 
----
+### Structural Changes: Apply Before Validating
 
-## Formula Validation and Building Tools
-
-**Important**: These tools are for **validation and implementation** when working with real formulas.
-
-### Quick Validation
-
-- `tool:validate_formula` - Validate formula syntax WITHOUT applying it to any block
-  - Use for: Checking syntax before passing a formula to `tool:create_list_property` or `tool:update_list_property`
-  - Use for: Ensuring formula syntax is correct before including in user messages
-  - Use for: Re-checking a downstream metric's formula against its own dimensions after a structural
-    dimension change elsewhere in the formula chain (pass `target`)
-  - Input: `formula` (the Pigment formula text), `target` (the block the formula is for — see the tool's
-    own description for when to pass it)
-  - Returns: Validation result with error highlighting and hints if invalid
-  - **Limitations**:
-    - Do NOT use with formulas containing `Previous` or `PreviousOf` functions
-
-**Recommended Workflow**:
-
-1. **Draft formula** - Write your formula based on requirements
-2. **Validate** - Use `tool:validate_formula` to check syntax
-3. **Fix errors** - Iterate until formula is valid
-4. **Apply** - Use `tool:create_metric`/`tool:update_metric` or `tool:create_list_property`/`tool:update_list_property`
-
-**How to apply**: After validation, use:
-
-- Metrics: `tool:create_metric` (with `formula` field) or `tool:update_metric` (with `formula` field), to set correct default formatting on metrics see `skill:formatting-and-highlighting`
-- List properties: `tool:create_list_property` or `tool:update_list_property` with the formula
+If the task requires both a structural change (adding/removing dimensions, changing type) **and** a formula
+update on the same metric or list property, **apply the structural change first**, then call
+`tool:validate_formula`. The validator checks against the block's current live structure — validating before
+applying the structural change tests the formula against the old structure and produces misleading results.
 
 ### Structural Dimension Changes: Check Downstream Formulas
 
-Adding or removing a structural dimension on a metric does not automatically propagate to metrics that
-reference it. If a downstream metric's formula doesn't already carry the new dimension, the compiler will
-silently broadcast (or collapse) values to align with the target instead of failing — this can produce
-wrong numbers with no visible error.
+Adding or removing a structural dimension on a metric does not automatically propagate to the metrics that reference it. If a downstream formula does not already carry the new dimension, the compiler silently broadcasts or collapses values to align with the target instead of failing — wrong numbers, no visible error.
 
-**Trigger — do not skip this**: `tool:update_metric` (when changing `dimension_ids`/`target_type`) and
-`tool:update_metric` (with `formula`) both return a `hints` list in their response. If it contains an "automatic
-formula dimensions adjustment" hint, stop before declaring the change done and work through the steps below.
-This can fire on the metric you just changed (its own formula no longer matches its new dimensions) even
-before you look at any downstream metric.
+Do NOT assume a referencing formula "just passes the dimension through". Before declaring a structural dimension change done:
 
-Before declaring a structural dimension change done:
+1. Identify metrics whose formulas reference the changed metric (search for references to its name).
+2. For each one, call `tool:validate_formula` with that metric's `formula` **and** `target.metric_id` set to it — the target is what surfaces the mismatch.
+3. If the "automatic formula dimensions adjustment" hint appears, the formula's dimensions do not match the metric's own dimensions. Do not accept the implicit broadcast/collapse as correct. Confirm with the user whether the dimension should genuinely propagate to that metric (and how — the change may need to be threaded further upstream instead), or whether the mismatch is intentional.
 
-1. Identify metrics whose formulas reference the changed metric: use `tool:get_data_dependency_tree`
-   with direction `Usages` on the changed metric to find its downstream formula consumers.
-2. For each one, call `tool:validate_formula` with that metric's `formula` and `target.metric_id` set to it.
-3. If the "automatic formula dimensions adjustment" hint appears, the formula's dimensions don't match the
-   metric's own dimensions — don't accept the implicit broadcast/collapse as correct. Confirm with the user
-   whether the dimension should genuinely propagate to that metric (and how — the change may need to be
-   threaded further upstream instead, e.g. onto the intermediary metric that actually carries the source
-   data), or if the mismatch is intentional.
+This applies once per changed metric in the chain, not once for the whole change: validate each metric after its own dimension and formula update, before moving on to the next one.
 
 ---
 
-## Prerequisites
+## Related Skills
 
-This skill focuses on formula **implementation**. Before writing formulas, understand foundational concepts from the **modeling-pigment-applications** skill:
-
-- Core platform knowledge (multidimensional engine, dimensions vs properties, sparsity principles)
-- Pigment Modeling Best Practices standards (sparsity preservation, dimension alignment, formatting)
-- Dimensional design concepts (source-to-target relationships, transformation cases)
-- Modifier concepts
-
-### Type Considerations
-
-Formulas produce results that must match the target metric or property type:
-
-- **Number**: Arithmetic operations, aggregations, most calculations
-- **Date**: Date functions (DATE, DATEVALUE, EDATE), TIMEDIM conversions
-- **Text**: String operations, concatenation, TEXT() conversion
-- **Dimension**: ITEM, MATCH lookups returning dimension references
-- **Boolean**: Logical operations (AND, OR, comparisons)
-
-**Type conversions**: Use TEXT() to convert to text, VALUE() to convert to number, TIMEDIM() to convert dates to calendar dimensions. See [functions_text.md](./functions_text.md) and [functions_lookup.md](./functions_lookup.md).
-
-**Reference**: For detailed type selection guidance, see modeling-pigment-applications skill.
-
----
-
-## Quick Reference
-
-| Topic                             | File                                                                 |
-| --------------------------------- | -------------------------------------------------------------------- |
-| Formula Writing Process           | [formula_writing_workflow.md](./formula_writing_workflow.md)         |
-| **Conditionals style (IFBLANK, FILTER/EXCLUDE vs IF)** | [formula_conditionals_style.md](./formula_conditionals_style.md) |
-| Modifiers (BY, ADD, FILTER, TOPARENTLIST, TOSUBSET, etc.) | [formula_modifiers.md](./formula_modifiers.md)                       |
-| BY with mapping metrics (->)      | [formula_by_mapping_arrow.md](./formula_by_mapping_arrow.md)         |
-| Lookup Functions                  | [functions_lookup.md](./functions_lookup.md)                         |
-| Numeric Functions                 | [functions_numeric.md](./functions_numeric.md)                       |
-| Time and Date Functions           | [functions_time_and_date.md](./functions_time_and_date.md)           |
-| Iterative Calculation (PREVIOUS & PREVIOUSOF) | [functions_iterative_calculation.md](./functions_iterative_calculation.md) |
-| Logical Functions                 | [functions_logical.md](./functions_logical.md)                       |
-| Text Functions                    | [functions_text.md](./functions_text.md)                             |
-| Performance Patterns              | [formula_performance_patterns.md](./formula_performance_patterns.md) |
-
----
-
-## Function Reference
-
-### Most Common Functions & Modifiers
-
-- **BY** → [./formula_modifiers.md](./formula_modifiers.md) - Aggregate or allocate; **BY with mapping metrics (`->`)** → [./formula_by_mapping_arrow.md](./formula_by_mapping_arrow.md)
-- **TOPARENTLIST** → [./formula_modifiers.md](./formula_modifiers.md#toparentlist-and-tosubset-list-subsets) — subset dimension → parent (1:1 remap; parent items outside the subset are blank)
-- **TOSUBSET** → [./formula_modifiers.md](./formula_modifiers.md#toparentlist-and-tosubset-list-subsets) — parent dimension → subset (1:1 remap; parent rows outside the subset are dropped)
-- **CUMULATE** → [./functions_numeric.md](./functions_numeric.md) - Running totals (use instead of PREVIOUSOF + value)
-- **FILTER** → [./formula_modifiers.md](./formula_modifiers.md) - Include data by condition
-- **EXCLUDE** → [./formula_modifiers.md](./formula_modifiers.md) - Remove data by condition
-- **FILLFORWARD** → [./functions_time_and_date.md](./functions_time_and_date.md) - Fill blanks (use instead of IFBLANK + PREVIOUS)
-- **IF** → [./functions_logical.md](./functions_logical.md) - Conditional logic
-- **IFDEFINED** → [./functions_logical.md](./functions_logical.md) - Sparsity-preserving conditionals
-- **ITEM** → [./functions_lookup.md](./functions_lookup.md) - Lookup by unique property
-- **MATCH** → [./functions_lookup.md](./functions_lookup.md) - Lookup by non-unique property
-- **MOVINGSUM** → [./functions_numeric.md](./functions_numeric.md) - Rolling sums
-- **MOVINGAVERAGE** → [./functions_numeric.md](./functions_numeric.md) - Rolling averages
-- **SELECT with time offset** → [./formula_modifiers.md](./formula_modifiers.md) - Month-12 (prior year same month), Month-1 (prior month, formulas only); MoM reporting → Show Value As
-- **PREVIOUS/PREVIOUSOF** → [./functions_iterative_calculation.md](./functions_iterative_calculation.md) - Iterative calculations (circular dependencies, configuration, syntax); see also [functions_time_and_date.md](./functions_time_and_date.md) for SELECT vs PREVIOUS
-- **SHIFT** → [./functions_lookup.md](./functions_lookup.md) - Shift dimension-typed properties
-- **SWITCH** → [./functions_logical.md](./functions_logical.md) - Multi-way branching
-- **TIMEDIM** → [./functions_lookup.md](./functions_lookup.md) - Date to time dimension
-
-### By Category
-
-**Lookup Functions**: [./functions_lookup.md](./functions_lookup.md) - ITEM, MATCH, SHIFT, TIMEDIM
-
-**Numeric Functions**: [./functions_numeric.md](./functions_numeric.md) - CUMULATE, DECUMULATE, MOVINGSUM, MOVINGAVERAGE, ABS, SIGN, EXP, LN, LOG, SIN, COS, SQRT, MIN, MAX, MOD, QUOTIENT, POWER, ROUND, ROUNDUP, ROUNDDOWN, TRUNC, CEILING, FLOOR, RANK, SPREAD
-
-**Time and Date Functions**: [./functions_time_and_date.md](./functions_time_and_date.md) - DATE, DATEVALUE, DAY, MONTH, YEAR, DAYS, NETWORKDAYS, WEEKDAY, STARTOFMONTH, EOMONTH, EDATE, INPERIOD, DAYSINPERIOD, PRORATA, MONTHDIF, FILLFORWARD, YEARTODATE, QUARTERTODATE, MONTHTODATE
-
-**Iterative Calculation**: [./functions_iterative_calculation.md](./functions_iterative_calculation.md) - PREVIOUS, PREVIOUSOF (full spec: circular dependencies, configuration, performance, debugging)
-
-**Text Functions**: [./functions_text.md](./functions_text.md) - TEXT, VALUE, LEN, LEFT, MID, RIGHT, LOWER, UPPER, PROPER, TRIM, CONTAINS, STARTSWITH, ENDSWITH, FIND, SUBSTITUTE, & (concatenation)
-
-**Logical Functions**: [./functions_logical.md](./functions_logical.md) - AND, OR, NOT, TRUE, FALSE, ANYOF, ALLOF, ISBLANK, ISNOTBLANK, ISDEFINED, IFDEFINED, IF, SWITCH, IN, IFBLANK
-
-**Basic Aggregation Functions**: [./functions_basic_aggregations.md](./functions_basic_aggregations.md) - AVGOF, COUNTALLOF, COUNTBLANKOF, COUNTUNIQUEOF, SUMOF, MINOF, MAXOF, COUNTOF
-
-**Finance Functions**: [./functions_finance.md](./functions_finance.md) - NPV, XNPV, IRR, XIRR
-
-**Forecasting Functions**: [./functions_forecasting.md](./functions_forecasting.md) - FORECAST_ETS, FORECAST_LINEAR, SIMPLE_EXPONENTIAL_SMOOTHING, DOUBLE_EXPONENTIAL_SMOOTHING, SEASONAL_LINEAR_REGRESSION, STANDARD_NORMAL_DISTRIBUTION
-
-**Security Functions**: [./functions_security.md](./functions_security.md) - ACCESSRIGHTS, RESETACCESSRIGHTS
-
-**List subset ↔ parent remap (1:1, no aggregator)**: [./formula_modifiers.md](./formula_modifiers.md#toparentlist-and-tosubset-list-subsets) — TOPARENTLIST, TOSUBSET
-
----
-
-## Cross-References
-
-**Before formula writing**: modeling-pigment-applications (core concepts, Pigment Modeling Best Practices standards, dimensional design)
-
-**Related skills**: optimizing-pigment-performance (formula optimization, sparsity management)
-
----
-
-## Critical Notes
-
-- **ABSOLUTE: Pigment syntax ONLY**: You MUST NEVER write functions in other languages like Excel, SQL, Python, JavaScript, MDX, DAX, or ANY other language. Think ONLY in Pigment terms.
-- **Search first**: Always search documentation to discover functions and patterns before writing
-- **Follow workflow**: Complete the 8-step process in [./formula_writing_workflow.md](./formula_writing_workflow.md)
-- **Review performance patterns**: Formulas with conditionals, dimensional changes, date ranges, or large/sparse targets must pass the checklist in [formula_performance_patterns.md](./formula_performance_patterns.md) before delivery. Simple arithmetic between same-dimensioned metrics does not require this review.
-- **Prerequisites matter**: Understand modeling concepts from modeling-pigment-applications skill first
-- **Document your work**: List which files you consulted for transparency
-
----
-
-## Formula Commenting Standard
-
-All generated formulas must include `//` comments for readability and maintainability.
-
-**Top-level comment (required):**
-
-- One `//` comment on its own line(s) immediately above the first line of the formula
-- Explains the formula's **purpose** (what it computes and why)
-- Use the same language as the block name
-
-**Part-level comments (for non-trivial formulas only):**
-
-- Add when the formula has multiple logical steps (several operations, functions, modifiers)
-- Each comment on its **own line**, below the formula segment it describes
-- One blank line between a part-level comment and the next formula segment
-- Skip for one-liners or very obvious formulas
-
-If comments are already present, try to maintain or enhance them. Replace them completely only if a formula update made them wrong or misleading.
-
-**Example (multi-step):**
-
-```pigment
-// Final revenue: actual revenue for active scenarios plus budget adjustments by category
-
-'Revenue'[FILTER: 'Scenario'.'Active' = TRUE]
-// Filter revenue to active scenarios only
-
-+ 'Budget Adjustment'[BY: 'Product'.'Category']
-// Add budget adjustments mapped by product category
-```
-
-**Example (simple):**
-
-```pigment
-// Total cost: sum of fixed and variable costs
-'Fixed Cost' + 'Variable Cost'
-```
-
-Comments must be included in the formula string passed to `tool:create_metric`, `tool:update_metric`, `tool:create_list_property`, or `tool:update_list_property`.
-
----
-
-## Key Rules Summary
-
-**Syntax:**
-
-- Single quotes for identifiers: `'Revenue'`, `'Product'.'Category'`
-- Double quotes for dimension items: literal form only when setting a `VAR_` metric default (MP02 — see [modeling_principles §4](../modeling-pigment-applications/modeling_principles.md)).
-- Double quotes for string values: `"Active"`, `"Completed"`
-
-**Modifiers:**
-
-- **BY only changes the dimension you specify** - use REMOVE to eliminate dimensions
-- **In BY, list only dimensions whose grain is changing** - do not re-list dimensions that are already on the metric (avoid over-explicit BY). For normalization ratios, use double BY in the denominator with only the changing dimension — see [formula_modifiers.md](./formula_modifiers.md).
-- **Never chain BY on transaction lists** - use single BY with comma-separated expressions
-- **BY > ADD** - BY is sparse (uses mappings), ADD is dense (all combinations)
-- **SELECT = FILTER + REMOVE** - removes dimension after filtering, but only safe when the RHS carries no dimensions of its own (literal item or scalar VAR_ metric); if RHS is a metric with its own dimensions, those get removed too — use FILTER+REMOVE explicitly (see [formula_modifiers.md](./formula_modifiers.md))
-
-**Transaction Lists in Metrics:**
-
-- Must aggregate: `'List'.'Property'[BY: ...]`
-- Use list column names: `'Orders'.'Customer'` not just `Customer`
-- Text to dimension: `ITEM('List'.'TextCol', 'Dimension'.'Property')`
-- Date to time: `TIMEDIM('List'.'DateCol', Month)`
-
-**Sparsity:**
-
-- Avoid ISBLANK/ISNOTBLANK on large sparse metrics — use ISDEFINED instead (returns TRUE/BLANK, not TRUE/FALSE). For small already-dense metrics or where explicit TRUE/FALSE output is required (e.g. data-completeness exports), ISBLANK is acceptable; see [functions_logical.md](./functions_logical.md) allow-list.
-- If you BY on a dimension-typed metric, its sparsity is respected automatically; do not add IF/ISBLANK guards.
-- Use IFBLANK(A, B) instead of IF(ISBLANK(A), B, A) - cleaner and doesn't densify
-- Use BLANK for empty values when the cell genuinely has no data. Use 0 (not BLANK) when zero is a meaningful business value (zero variance, zero balance, zero growth) that must be displayed or that participates in downstream multiplication.
-- EXCLUDE, not FILTER: NOT — see [formula_conditionals_style.md](./formula_conditionals_style.md)
-- See [functions_logical.md](./functions_logical.md) for detailed blank handling guidance
+- `skill:using-formula-modifiers` — modifier mechanics, arrow-mapping syntax, aggregation methods
+- `skill:using-formula-functions` — all function signatures and examples
+- `skill:writing-performant-formulas` — sparsity rules, anti-patterns, pre-delivery checklist
+- `skill:choosing-formula-patterns` — business requirement → pattern mapping

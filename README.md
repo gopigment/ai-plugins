@@ -59,19 +59,44 @@ Skills can be set up in two ways:
 - **Plugin**: install the Claude Code and Cursor plugins available in this repository.
 - **Manual upload**: download the Skills files from the repository and upload them to your AI tool by following [your provider's documentation](https://kb.pigment.com/docs/supported-tools#skills).
 
+Skills come in four kinds: **foundational** (read first), **planning** (decide what to build), **execution** (do the work), and **analysis** (query existing data).
+
 | Skill | Description |
 |-------|-------------|
-| **Analyzing Data** | Query formulation, data discovery, analysis patterns, result interpretation |
-| **Designing Boards** | Board structure, widget sizing, layout rules, page organization |
-| **Designing Views** | View creation, draft/override workflow, pivots, filters, sorting, aggregators |
-| **Formatting & Highlighting** | Metric default formatting — decimals, currency, percent, K/M scaling, text and boolean display |
-| **Integrating External Data** | CSV and Excel import, column mapping, cross-app imports, troubleshooting |
-| **Modeling Applications** | Architecture, dimensions, metrics, tables, calendars, subsets, folders, sparsity |
-| **Optimizing Performance** | Profiling, scoping, sparsity, iterative calculations, troubleshooting, application audit |
-| **Planning Cycles** | Version dimensions, Actual/Budget/Forecast, scenarios, snapshots, switchover |
-| **Securing Applications** | Access rights design, AR metrics, apply rules, debugging visibility |
-| **Solving Specific Use Cases** | FP&A (Nexus, OPEX, FX hub), Workforce Planning patterns, and other domain-specific modeling guidance |
-| **Writing Formulas** | Pigment's proprietary formula language — syntax, modifiers, functions, performance |
+| **Understanding Pigment Modeling** | Foundational mental model — in-memory engine, blocks, dimensionality, sparsity |
+| **Analyzing Pigment Data** | Query formulation, data discovery, analysis patterns, result interpretation |
+| **Gathering Architecture Requirements** | Structured discovery before building anything |
+| **Architecting Multi-Application Solutions** | Splitting work across applications, Hub-and-spoke designs |
+| **Building a Full Application** | End-to-end build of a new application |
+| **Editing an Existing Application** | Modifying, extending, refactoring or restructuring a live application |
+| **Auditing a Pigment Application** | Health checks — formula errors, structural gaps, governance |
+| **Naming & Organizing Applications** | Naming conventions, folders, block organization |
+| **Creating Dimensions & Hierarchies** | Dimension lists, hierarchies, dimension properties |
+| **Creating Metrics & Tables** | Metric and table creation, data types, structure |
+| **Creating Transaction Lists** | Transaction lists and row-level aggregation |
+| **Using List Subsets** | Mirror dimensions and subset patterns |
+| **Using Mapped Dimensions** | Dynamic and time-dependent hierarchies, card metrics |
+| **Setting Up Calendar** | Calendar type, fiscal year, time dimensions |
+| **Building Versions & Planning Cycles** | Versions, planning cycles, actuals vs forecast |
+| **Securing with Access Rights** | Access rights design, AR metrics, apply rules, debugging visibility |
+| **Sharing Data Between Applications** | Libraries and cross-application block sharing |
+| **Copying Metric Data** | Metric-to-metric copy configurations |
+| **Choosing Formula Patterns** | Picking the right pattern and modifiers before writing a formula |
+| **Writing Pigment Formulas** | Pigment's proprietary formula language — quoting, references, syntax |
+| **Using Formula Functions** | Built-in function signatures and examples |
+| **Using Formula Modifiers** | Dimension mapping when source and target differ |
+| **Writing Performant Formulas** | Pre-delivery checklist, sparsity rules, anti-patterns |
+| **Diagnosing Performance Issues** | Profiling slow calculations and timeouts |
+| **Designing Boards & Views** | Board sections, widgets, layout, pivots, filters, sorting, aggregators |
+| **Aggregating View Data** | Totals, subtotals and roll-up behaviour in Views |
+| **Formatting & Highlighting** | Decimals, currency, percent, K/M scaling, text and boolean display |
+| **Building Pigment Frames** | Building, updating and troubleshooting Pigment Frames |
+| **Designing Pigment Frames** | Applying Pigment's visual design language to a Frame |
+| **Using Search Tools** | Finding blocks, folders and dependencies across an application |
+| **Solving Financial Planning** | Budget and expense planning, revenue forecasting, P&L, FX |
+| **Solving Workforce Planning** | Headcount, hiring pipeline, compensation |
+| **Solving Sales Performance** | Quota planning, commissions, territories |
+| **Solving Supply Chain** | Demand planning, inventory, procurement |
 
 ## Example Prompts
 
