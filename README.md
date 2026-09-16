@@ -59,8 +59,6 @@ Skills can be set up in two ways:
 - **Plugin**: install the Claude Code and Cursor plugins available in this repository.
 - **Manual upload**: download the Skills files from the repository and upload them to your AI tool by following [your provider's documentation](https://kb.pigment.com/docs/supported-tools#skills).
 
-> **New in v2.0.0** — the Skills are now the same set the Pigment Modeler agent runs in production, rebuilt as finer-grained, task-oriented Skills. Instead of a handful of broad guides, your assistant loads only the Skills a task needs. A few large v1 Skills were split and renamed as a result: *Modeling Applications*, *Planning Cycles*, *Securing Applications*, *Optimizing Performance* and *Solving Specific Use Cases* are superseded by the Skills listed below.
-
 Skills come in four kinds: **foundational** (read first), **planning** (decide what to build), **execution** (do the work), and **analysis** (query existing data).
 
 | Skill | Description |
