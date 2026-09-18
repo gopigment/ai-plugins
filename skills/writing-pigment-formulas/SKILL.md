@@ -132,7 +132,7 @@ Full reference with syntax → `skill:using-formula-functions`. Key categories:
 
 - **PREVIOUS** — each period builds on prior (requires a declared cycle): `IFDEFINED(PREVIOUS(Month), PREVIOUS(Month) * (1 + 'Growth Rate'), 'Seed Value')`
 - **FILLFORWARD** — fill gaps in time series (use a separate cleaning metric): `FILLFORWARD('FX Rate Input', Month)`
-- **PREVIOUSOF** — cross-metric cycles (beginning/ending balance, inventory roll-forwards); create the cycle before writing the formulas
+- **PREVIOUSOF** — cross-metric cycles (beginning/ending balance, inventory roll-forwards) → `skill:iterating-with-previous-and-cycles`
 
 ### 2.6 Handle BLANK correctly
 
@@ -195,3 +195,4 @@ This applies once per changed metric in the chain, not once for the whole change
 - `skill:using-formula-functions` — all function signatures and examples
 - `skill:writing-performant-formulas` — sparsity rules, anti-patterns, pre-delivery checklist
 - `skill:choosing-formula-patterns` — business requirement → pattern mapping
+- `skill:iterating-with-previous-and-cycles` — PREVIOUS/PREVIOUSOF cycles

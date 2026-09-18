@@ -61,7 +61,7 @@ Every dimension list requires **at least one unique property** for item identifi
 Default: `Name` is unique. Alternatives:
 
 - Set **Unique Item values** on another property (e.g., `Code`, `Employee ID`) using `tool:update_list_property`.
-- Use auto-generated unique IDs (Integer property) when no natural key exists: call `tool:create_list_property` with `is_auto_id: true` (`target_type` and `is_unique` are required by the schema but the backend forces Integer and unique)
+- Use auto-generated unique IDs (Integer property) when no natural key exists: call `tool:create_list_property` with `is_auto_id: true`, `target_type.type=Integer`, and `is_unique=true`. 
 
 Before import:
 
@@ -71,6 +71,13 @@ Before import:
 
 Changing a property to unique will be rejected as long as there are duplicates
 
+**Converting a property to auto-generated ID is destructive.**
+
+Calling `tool:update_list_property` with `is_auto_id: true`, `new_type.type=Integer`, and `unique=true` on an existing property **replaces all existing values** with sequential IDs (1, 2, 3…). The property can no longer be edited manually or mapped from imports.
+
+- Warn the user explicitly before applying.
+- On a live in-use application, work in a sandbox first.
+- Prefer creating a new unique property with the auto-generated ID in a production app and then do a cleaning in a later phase if necessary.
 
 ### List Subsets
 
@@ -121,7 +128,7 @@ Properties with low cardinality data are typically of type Dimensions as they ca
 
 ## Step 3: Create the dimension
 
-Always create the dimension in a folder. As per `skill:naming-and-organizing-applications`, there should be a 0 Dimension folder, if not create it with `tool:create_folder`
+Always create the dimension in a folder. As per `skill:naming-and-organizing-applications`, there should be a "0. Dimension" folder, if not create it with `tool:create_folder`
 
 CRUD order:
 1. **Top-level parent dimensions** — no Dimension-type dependencies (e.g., `Division`, `Region`). Use `tool:create_list`.

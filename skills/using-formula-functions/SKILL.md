@@ -114,9 +114,9 @@ Find the function below, then open the matching sub-file for full signatures, pa
 | EOMONTH | `EOMONTH(Date [, MonthOff])` | Last day of month |
 | STARTOFMONTH | `STARTOFMONTH(Date [, MonthOff])` | First day of month |
 | INPERIOD | `INPERIOD(Date, TimeDim)` | TRUE/BLANK |
-| DAYSINPERIOD | `DAYSINPERIOD(TimeDim [, Start] [, End] [, WorkDays] [, Holidays])` | Integer; no Day dim |
+| DAYSINPERIOD | `DAYSINPERIOD(TimeDim [, Start] [, End] [, WorkDays] [, Holidays])` | Integer; no Day dim; **Start incl, End excl** (+1 for inclusive) |
 | PRORATA | `PRORATA(TimeDim [, Start] [, End] [, WorkDays] [, Holidays])` | 0–1; **Start incl, End excl** (+1 for inclusive) |
-| NETWORKDAYS | `NETWORKDAYS(From, To, WorkDays, Holidays)` | **End excluded** |
+| NETWORKDAYS | `NETWORKDAYS(From, To [, WorkDays] [, Holidays])` | **End excluded** (+1 for inclusive); no weekend filter without WorkDays |
 | MONTHTODATE | `MONTHTODATE(Metric [, Agg])` | Resets each month |
 | QUARTERTODATE | `QUARTERTODATE(Metric [, Agg])` | Resets each quarter |
 | YEARTODATE | `YEARTODATE(Metric [, Agg])` | Resets each year |
