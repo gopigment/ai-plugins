@@ -89,7 +89,7 @@ If scope is healthy but execution is still slow, investigate iterative calculati
 ### Long iterative calculations (PREVIOUS over many periods)
 
 - **Symptom:** Slow execution proportional to time Dimension length.
-- **Fix:** Subset the iteration scope, replace CUMULATE/FILLFORWARD where possible, reduce dimensionality, and group expressions.
+- **Fix:** See `skill:iterating-with-previous-and-cycles` for the full optimization guide (subsetting, CUMULATE/FILLFORWARD replacements, dimensionality reduction, expression grouping).
 
 ### Large cross-joins from ADD
 

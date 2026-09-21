@@ -18,7 +18,7 @@ metadata:
 
 **Dimensions:** Version, Month, Product (or SKU), Region (or Channel). Add Customer segment if demand varies by customer type.
 
-**Structure:** historical demand metric (imported from ERP/WMS). Statistical forecast using FORECAST_ETS (seasonal) or FORECAST_LINEAR (trend-only), or ML Predictions for automated model selection. Judgmental adjustment metric (input) for sales team overrides on top of the statistical baseline. Final demand = statistical forecast + adjustment, or override-first using IFBLANK(adjustment, statistical).
+**Structure:** historical demand metric (imported from ERP/WMS). Statistical forecast using FORECAST_ETS (seasonal) or FORECAST_LINEAR (trend-only) (see `skill:forecasting-in-pigment`). Judgmental adjustment metric (input) for sales team overrides on top of the statistical baseline. Final demand = statistical forecast + adjustment, or override-first using IFBLANK(adjustment, statistical).
 
 **Version usage:** each planning cycle produces a demand plan version. Consensus demand (from S&OP) is a separate version or a dedicated metric combining inputs.
 
@@ -32,7 +32,7 @@ metadata:
 
 **Dimensions:** Version, Month, Product (or SKU), Warehouse (or Location). Product properties: Lead Time (days or months), Unit Cost, Min Order Quantity, Safety Stock Target.
 
-**Structure:** when both opening and closing balances must be visible (reporting, reorder analysis, drill-down), use separate beginning and ending balance metrics dimensioned by Product and Month. Link them with `PREVIOUSOF` over an iterative calculation cycle. Do **not** collapse to a single balance metric with `PREVIOUS(Month)` unless the user only needs one output line.
+**Structure:** when both opening and closing balances must be visible (reporting, reorder analysis, drill-down), use separate beginning and ending balance metrics dimensioned by Product and Month. Link them with `PREVIOUSOF` over an iterative calculation cycle (see `skill:iterating-with-previous-and-cycles`). Do **not** collapse to a single balance metric with `PREVIOUS(Month)` unless the user only needs one output line.
 
 Beginning balance = prior period ending balance (seed the first period from opening stock). Ending balance = beginning + supply/receipts − consumption/demand. Reorder logic is typically a flag plus quantity metric; supply can feed ending directly or via an intermediate receipts metric.
 

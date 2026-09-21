@@ -18,7 +18,7 @@ Load this skill **before** writing formulas. It maps business requirements to th
 | Actual vs Plan in one metric | Version time windows + unified reporting | `IF('Is_Actual', ..., ...)` with `Is_Actual`/`Is_Plan` booleans |
 | Driver-based forecasting | SWITCH engine + growth assumptions | `SWITCH` on method ID + `Is_Plan` guard |
 | Single-metric roll-forward (cash, one balance line) | Compounding chain in one metric | `PREVIOUS(Month)` + `IFDEFINED` seed |
-| Multi-metric balance roll-forward (inventory, cash, loan balances) | Cross-metric iterative chain — create the cycle **before** writing PREVIOUSOF formulas | Prior-period ending via `PREVIOUSOF('Ending …')`; ending = beginning + inflows − outflows — **not** `PREVIOUS(Month)` or `[SELECT: Month - 1]` |
+| Multi-metric balance roll-forward (inventory, cash, loan balances) | Cross-metric iterative chain — load `skill:iterating-with-previous-and-cycles`, create the cycle **before** writing PREVIOUSOF formulas | Prior-period ending via `PREVIOUSOF('Ending …')`; ending = beginning + inflows − outflows — **not** `PREVIOUS(Month)` or `[SELECT: Month - 1]` |
 | Prior year baseline | Time offset lookup | `[SELECT: Month-12]` (not PREVIOUS) |
 | Grow a prior-year baseline by a rate on top on data by Month | Time-dimensioned assumption + broadcast | `[SELECT: Month-12]` × `(1 + 'Growth %'[BY CONSTANT: Month.Year])` |
 | Allocate annual total to months | Period allocation | `[BY SPLIT: Month.Year]` (not BY CONSTANT) |
@@ -43,3 +43,4 @@ For domain-specific pattern combinations (OPEX, Workforce, Revenue, P&L, FX, Bal
 - `skill:using-formula-modifiers` — modifier mechanics
 - `skill:using-formula-functions` — function signatures
 - `skill:writing-performant-formulas` — pre-delivery checklist
+- `skill:iterating-with-previous-and-cycles` — PREVIOUS/PREVIOUSOF cycles

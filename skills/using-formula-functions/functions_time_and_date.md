@@ -88,14 +88,20 @@ IF(INPERIOD('Orders'.'Date', Quarter), 'Orders'.'Amount')
 
 `DAYSINPERIOD(TimeDimension [, StartDate] [, EndDate] [, WorkingDays] [, Holidays])`
 
-- Returns Integer per period
+- Returns Integer per period. 
+- **Start Date INCLUDED; End Date EXCLUDED.**
+- **No weekend filtering by default.** With no WorkingDays metric, every calendar day in the range is counted.
+
 - TimeDimension: Week, Month, Quarter, Half, Year (**not Day**)
-- WorkingDays: Boolean metric on Day of Week
-- Holidays: Boolean metric on Day
+- StartDate: Start date to count from
+- EndDate: End date to count to
+- WorkingDays: Boolean metric on Day of Week. Defines which days of the week are working and non-working days.
+- Holidays: Boolean metric on Day. Defines which dates are holidays.
 
 ```pigment
 DAYSINPERIOD(Month)
-DAYSINPERIOD(Month, 'Employee'.'Start Date', 'Employee'.'End Date')
+DAYSINPERIOD(Month, 'Employee'.'Start Date', 'Employee'.'End Date' + 1)        // +1 for inclusive end
+DAYSINPERIOD(Month, DATE(2024,6,1), DATE(2024,12,31), 'Working Days')
 DAYSINPERIOD(Month, DATE(2024,6,1), DATE(2024,12,31), 'Working Days', 'Holidays')
 ```
 
@@ -139,15 +145,15 @@ IFDEFINED(PRORATA(Day, 'Start Date', 'End Date' + 1), 1)       // 1/BLANK flag
 
 ### NETWORKDAYS
 
-`NETWORKDAYS(DateFrom, DateTo, WorkingDays, Holidays)`
+`NETWORKDAYS(DateFrom, DateTo [, WorkingDays] [, Holidays])`
 
 - Returns Integer
 - **DateTo is EXCLUDED** from count
-- All weekdays are working days by default unless WorkingDays metric defines otherwise
+- **No weekend filtering by default.** With no WorkingDays metric, every calendar day in the range is counted.
 - Requires native Pigment calendar
 
 ```pigment
-NETWORKDAYS(Month.'Start Date', Month.'End Date', 'Working Days', 'Holidays')
+NETWORKDAYS(Month.'Start Date', Month.'End Date' + 1, 'Working Days', 'Holidays')   // +1 for inclusive end
 ```
 
 ---
@@ -212,6 +218,9 @@ For everything else: running totals → CUMULATE; fill blanks → FILLFORWARD; M
 | MONTHDIF | Reference | Reference |
 | NETWORKDAYS | Included | **Excluded** |
 | PRORATA | Included | **Excluded** |
+| DAYSINPERIOD | Included | **Excluded** |
+
+Pass `EndDate + 1` to any of these when the end date is a day the user wants counted.
 
 ---
 
@@ -226,7 +235,7 @@ For everything else: running totals → CUMULATE; fill blanks → FILLFORWARD; M
 // Month property on the TL has formula: TIMEDIM('Transactions'.'Date', Month)
 
 // Business days in month
-NETWORKDAYS(Month.'Start Date', Month.'End Date', 'Working Days', 'Holidays')
+NETWORKDAYS(Month.'Start Date', Month.'End Date' + 1, 'Working Days', 'Holidays')
 
 // Fill missing prices
 FILLFORWARD('Product Price', Month)

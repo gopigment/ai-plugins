@@ -36,6 +36,7 @@ Roll up from a finer dimension to a coarser one via a mapping property:
 ```pigment
 'Employee Headcount'[BY SUM: 'Employee'.'Department']
 'Warehouse Capacity'[BY AVG: 'Month'.'Quarter']
+'Product'.'Supplier'[BY COUNTBLANK: 'Product'.'Warehouse']   // products with no supplier assigned, per warehouse
 ```
 
 `[BY: dim.prop]` removes `dim` and adds `prop`'s dimension — no separate REMOVE needed. Multi-level hierarchies chain BY: `'Revenue'[BY SUM: 'Month'.'Quarter'][BY SUM: 'Quarter'.'Year']`.

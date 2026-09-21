@@ -22,7 +22,7 @@ Before delivering any formula, verify each item. Rewrite until all pass.
 4. **Existence checks**: Prefer `ISDEFINED` / `IFDEFINED` / `IFBLANK` over `ISBLANK` / `ISNOTBLANK` (see `skill:using-formula-functions` for rare valid exceptions).
 5. **Scope-first**: `FILTER`, `EXCLUDE`, or `IFDEFINED` appear before calculations, not after.
 6. **Aggregations last**: `REMOVE`, `BY`, and other aggregations come after the core calculation.
-7. **Prior periods**: Use `SELECT` with offset — not `PREVIOUS` unless true iteration is required.
+7. **Prior periods**: Use `SELECT` with offset — not `PREVIOUS` unless true iteration is required (see `skill:iterating-with-previous-and-cycles`).
 8. **Allocation**: Use `BY` with a mapping when one exists — not `ADD`.
 9. **Date ranges**: Use `PRORATA` — not `IF(Date >= Start AND Date <= End, ...)`.
 10. **BY guards**: No `IF` / `ISBLANK` wrappers on `BY` when the source is dimension-typed.
@@ -93,7 +93,7 @@ Derive presence booleans with `ISDEFINED(PRORATA(...))`, not `ISBLANK(PRORATA(..
 
 Use `SELECT` with offset for simple lags — not `PREVIOUS` (iterative, expensive).
 
-`PREVIOUS(Month)` is correct only for true iterative calculations within a single metric (e.g. cumulative balance, cash roll-forward, inventory carry-forward). For multi-metric iteration (opening/closing inventory across metrics), use `PREVIOUSOF(...)` with a cycle.
+`PREVIOUS(Month)` is correct only for true iterative calculations within a single metric (e.g. cumulative balance, cash roll-forward, inventory carry-forward). For multi-metric iteration (opening/closing inventory across metrics), use `PREVIOUSOF(...)` with a cycle. See `skill:iterating-with-previous-and-cycles` for patterns.
 
 ## Allocation: BY Over ADD
 
@@ -136,7 +136,7 @@ Scan every formula for these patterns. Each row is a rewrite trigger.
 | `ISBLANK`/`ISNOTBLANK` in `AND`/`OR` chains | Densifies entire expression via blank-presence | `EXCLUDE` to remove blank rows, or nested `IFDEFINED` guards |
 | `0`/`FALSE` for empty numeric/boolean | Stores explicit value, destroys sparsity | `BLANK` (absence = not stored) |
 | Calculations before scoping | Computes irrelevant cells | `FILTER` / `EXCLUDE` / `IFDEFINED` first |
-| `PREVIOUS` for simple lag; `SELECT` for iterative calc | Lag: iterative overhead; Iterative: circular ref | Lag: `[SELECT: Month - 1]`; same-metric: `PREVIOUS(Month)`; multi-metric: `PREVIOUSOF(...)` + cycle |
+| `PREVIOUS` for simple lag; `SELECT` for iterative calc | Lag: iterative overhead; Iterative: circular ref | Lag: `[SELECT: Month - 1]`; same-metric: `PREVIOUS(Month)`; multi-metric: `PREVIOUSOF(...)` + cycle — `skill:iterating-with-previous-and-cycles` |
 | `ADD`/`ADD CONSTANT`/`ADD+FILTER` when mapping or `IF` fits | Dense cross-product or dense replication | `BY` with mapping; `BY CONSTANT` for replication; `IF(condition, value)` for conditional rows |
 | `IF`/`ISBLANK` guard on `BY` with dim-typed metric | Redundant, densifies | Remove guard |
 | `IF(Date >= Start AND Date <= End, 1, BLANK)` | Verbose, error-prone | `PRORATA(TimeDim, Start, End + 1)` |
@@ -162,4 +162,5 @@ Scan every formula for these patterns. Each row is a rewrite trigger.
 ## Related Skills
 
 - `skill:diagnosing-performance-issues` — profiler-based troubleshooting of delivered formulas
+- `skill:iterating-with-previous-and-cycles` — iterative calculation optimization
 - `skill:using-formula-functions` — `ISBLANK` rare-valid-exception allow-list
