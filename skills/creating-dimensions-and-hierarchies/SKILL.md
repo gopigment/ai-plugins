@@ -22,7 +22,7 @@ Then follow the workflow below
 
 ## Step 0: What already exists
 
-Before creating a dimension or making a plan for creating one, search for the existing ones with `tool:filtered_search`.
+Before creating a dimension or making a plan for creating one, search for existing dimensions with `tool:search_metrics_and_lists` or `tool:semantic_search` (kind Dimension).
 Do not create a dimension if one with a similar name exists. If there is doubt, read the dimension items and properties with `tool:get_list_items` to be sure. If there is still a doubt, ask the user.
 
 
@@ -141,7 +141,7 @@ Use `tool:create_list_property` to add a property to a dimension that already ex
 
 ## Step 4: Populate the list items
 
-If you were provided a CSV, load it using `tool:import_csv_to_list`, especially if the data set is large (> 1000 rows)
+If you were provided a CSV, ask the user to import it in the Pigment UI; for small datasets you can use `tool:add_list_items`.
 If the data was in the prompt, add list items in the dimension(s) (and each level if there are several) with `tool:add_list_items`
 
 
