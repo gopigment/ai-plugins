@@ -12,7 +12,7 @@ Run a structured, read-only audit. Do not modify anything unless the user explic
 
 ## CRITICAL -- Collect Formula Health Evidence First
 
-Start every audit by reviewing formula computation errors (ask the user to check **Issues & errors** in the Pigment UI or share an export). These are highest-severity because they produce wrong or missing outputs.
+Start every audit with `tool:list_issues` to surface active formula computation errors. These are highest-severity because they produce wrong or missing outputs.
 
 For each errored block, retrieve its formula with `tool:search_metrics_and_lists` (`show_details: true`) and identify the root cause (type mismatch, missing reference, scenario-specific failure). Use `tool:get_metric_dependencies` on errored blocks to trace downstream impact and distinguish root causes from cascading symptoms.
 
@@ -134,7 +134,7 @@ Use `tool:search_boards` and `tool:get_board` for suspicious boards. Flag:
 
 Before delivering the report, confirm all checks ran:
 
-- [ ] Formula health (UI Issues review + dependency tracing)
+- [ ] Formula health (`tool:list_issues` + dependency tracing)
 - [ ] Dependency fragility (critical output chains)
 - [ ] Formula patterns (sparsity, ACCESSRIGHTS guards, iterative, structural, dimension-aware, naming)
 - [ ] Cycles and versions (`tool:list_cycles`)
