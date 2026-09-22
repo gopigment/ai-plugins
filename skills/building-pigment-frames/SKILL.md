@@ -33,7 +33,7 @@ The Frame JS lives in a file on your filesystem. `tool:create_frame` and `tool:u
 2. Declare the **bindings** (Metrics, Lists, List Properties, Variables) and one **data source** per dataset the Frame reads (see [Data sources](#data-sources)). Warnings: a) rows are capped at 1,000 per window ; b) concurrent subscriptions per Frame are limited to 10 data-source subscriptions and 20 List subscriptions.
 3. `tool:write_file` the JS body to a file (e.g. `/frames/revenue-heatmap.js`), then `tool:create_frame` once with that `path`. Never re-create (name collision). Use `tool:search_frames` with a `name` if unsure it exists.
 4. For every later change, `tool:edit_file` the same file, then `tool:update_frame` with the same `path`. A Frame write reads the file at call time, so the file is the source of truth - keep editing it rather than rewriting it from scratch.
-5. Always resend the complete `bindings` and `data_sources` arrays when calling `tool:create_frame` / `tool:update_frame`; an omitted `data_sources` drops every data source. `tool:search_frames` by `id` or `name` gives you the `bindings` array but not the data sources — keep track of the ones you declared; a bare listing gives neither.
+5. Always resend the complete `bindings`, `data_sources`, and `data_sinks` arrays when calling `tool:create_frame` / `tool:update_frame`; an omitted array drops every entry of that kind. `tool:search_frames` by `id` or `name` gives you the `bindings` array but not the data sources/sinks — keep track of the ones you declared; a bare listing gives neither.
 6. **Grow a large body in the file, not in tool arguments.** A Frame's JS body can be long enough that emitting it whole in one response risks hitting the model's max output size. For a substantial new Frame, `tool:write_file` a working skeleton (IIFE, `#app` setup, `__cleanup`, and clearly unique placeholder markers for the sections still to come — e.g. `// SECTION: subscribe`, `// SECTION: render`), then fill each placeholder with `tool:edit_file`, one section at a time. Call `tool:create_frame` / `tool:update_frame` once the file is complete. Make one of those sections `// SECTION: styles`.
 7. If the user's request asks for a Pigment-native, on-brand, or polished look, and skill:designing-pigment-frames is among your available skills (it is feature-flagged, so it may not be): code the Frame first, leaving `// SECTION: styles` as a placeholder, then load that skill and fill the placeholder with its design pass before you finish. Without that ask, or when the skill is unavailable, a plain placeholder style is fine; do not load the skill on your own.
 8. If a Frame write reports the file was not found, the file was never written or the path is wrong: check with `tool:ls`, then `tool:write_file` before retrying.
@@ -66,25 +66,23 @@ Do not copy the Frame editor placeholder; it omits IIFE cleanup and uses templat
 
 ## Bindings
 
-JSON array on `create_frame` / `update_frame`. Tool input uses **snake_case** (`metric_id`, `list_id`, `list_property_technical_name`, `can_read`, `can_write`).
+JSON array on `create_frame` / `update_frame`. **A binding is only a concept mapping**: it maps a name used in the Frame's JS to a concept in the underlying Pigment model (a Metric, List, List Property, Variable, or legacy View). Tool input uses **snake_case** (`metric_id`, `list_id`, `list_property_technical_name`, `can_read`, `can_write`).
 
 | `type` | id field | SDK use |
 | --- | --- | --- |
-| `Metric` | `metric_id` | `subscribeToDataSource` via data source `values`; `editValue` |
-| `List` | `list_id` | `subscribeToDataSource` via data source `labels` and `selectors`; `dynamicFilters`; `subscribeToItems`; `addItem`; `editItem` |
-| `ListProperty` | `list_id` + `list_property_technical_name` | `subscribeToDataSource` via data source `values` and `labels`; `editItem` |
+| `Metric` | `metric_id` | `subscribeToDataSource` via data source `values`; `editValue` via a data sink |
+| `List` | `list_id` | `subscribeToDataSource` via data source `labels` and `selectors`; `dynamicFilters`; `subscribeToItems`; `addItem`/`editItem` via a data sink |
+| `ListProperty` | `list_id` + `list_property_technical_name` | `subscribeToDataSource` via data source `values` and `labels`; `editItem` (values map, not the sink itself) |
 | `Variable` | `variable_id` | `dynamicFilters` on `subscribeToDataSource` |
 | `View` | `view_id` | legacy `subscribeToVizualization` only, migrate away from it for `subscribeToDataSource` |
 
-- `can_read: true` on every binding referenced in `values` of a data source
-- `can_read: true` also required for `subscribeToVizualization` / `subscribeToItems`.
-- `can_write: true` for List bindings used with `addItem` / `editItem`, for ListProperty bindings used with `editItem`, and for Metric bindings used with `editValue`.
+**Important:** the SDK can natively `subscribeToItems` on any `List` binding declared here directly — no `data_source` or `data_sink` needed just to list a List's Items.
 
-A binding only grants access to a raw entity and names it for later use.
+**`can_read` and `can_write` are legacy fields.** Their value has **no impact on any SDK call**. Read access comes solely from referencing the binding in a `data_source`; write access comes solely from referencing it in a `data_sink`.
 
 ## Data sources
 
-A data source describes how a Frame can access data. They are declared as a JSON array called `data_sources` and passed to `create_frame` / `update_frame`, next to `bindings`. `data_sources` can only reference existing entities by referencing `bindings` declared above by their names.
+**Purpose: read data from the Pigment model.** A data source describes how a Frame can access data. They are declared as a JSON array called `data_sources` and passed to `create_frame` / `update_frame`, next to `bindings`. `data_sources` can only reference existing entities by referencing `bindings` declared above by their names.
 
 Where a binding just grants access to one entity, a data source shapes several of them into a dataset returned via `subscribeToDataSource`. The same binding can back several data sources.
 
@@ -139,6 +137,30 @@ The example below declares a data source on a single Metric declared as `revMetr
   ]
 }
 ```
+
+## Data sinks
+
+**Purpose: write data back to the Pigment model.** `data_sinks` is a field in the Frame manifest, alongside `bindings` and `data_sources`. It lists every Pigment block (List or Metric) the Frame needs to write to, and listing a binding there is what grants write access to it — nothing else does.
+
+Each entry is `{ "name": <string>, "binding": <binding name> }`:
+
+| Field | Role |
+| --- | --- |
+| `name` | The name used to reference this sink from the code, passed as the first argument to `addItem` / `editItem` / `editValue` |
+| `binding` | Name of a binding declared in `bindings`, of type `List` or `Metric`, identifying what gets written to |
+
+```json
+{
+  "bindings": [
+    { "name": "countryList", "type": "List", "list_id": "<uuid>", "can_read": true, "can_write": true }
+  ],
+  "data_sinks": [
+    { "name": "countrySink", "binding": "countryList" }
+  ]
+}
+```
+
+With no writes needed, pass `data_sinks` as an empty array `[]`.
 
 ## PigmentSDK
 
@@ -229,20 +251,22 @@ Warning: subscribeToItems only returns the Item name, not the Properties. To fet
 
 ### Writes
 
+`addItem`, `editItem`, and `editValue` all take a **data sink name** as their first argument — the `name` declared in `data_sinks` — never the underlying binding's name. The sink's `binding` resolves to the actual List or Metric being written to.
+
 ```js
-// Add a new Item to a List (can_write: true required)
-await window.PigmentSDK.addItem('countryList', { 'Country Name': 'France' });
+// Add a new Item to a List (List bound by the 'countrySink' data sink)
+await window.PigmentSDK.addItem('countrySink', { 'Country Name': 'France' });
 
-// Edit an existing Item in a List (can_write: true required on each ListProperty binding used)
-await window.PigmentSDK.editItem('countryList', 'France', { countryCodeProperty: 'FR' });
+// Edit an existing Item in a List
+await window.PigmentSDK.editItem('countrySink', 'France', { countryCodeProperty: 'FR' });
 
-// Edit a cell value in a Metric (can_write: true required on the Metric binding)
-await window.PigmentSDK.editValue('revMetric', { 'countryList': 'France', 'timeList': '2024' }, 42000);
+// Edit a cell value in a Metric (Metric bound by the 'revSink' data sink)
+await window.PigmentSDK.editValue('revSink', { 'countryList': 'France', 'timeList': '2024' }, 42000);
 ```
 
-`editItem(listAlias, item, values)`: `item` is the current name of the Item; `values` is a partial map of `ListProperty` binding aliases (declared in `bindings`) to new values.
+`editItem(sinkName, item, values)`: `item` is the current name of the Item; `values` is a partial map of `ListProperty` binding names (declared in `bindings`) to new values.
 
-`editValue(metricAlias, coordinates, value)`: `coordinates` maps each List alias (dimension) to the selected item label; `value` is `boolean | number | string | null`.
+`editValue(sinkName, coordinates, value)`: `coordinates` maps each List binding name (dimension) to the selected item label; `value` is `boolean | number | string | null`.
 
 ## Implementation Patterns
 
@@ -288,7 +312,7 @@ In `root.__cleanup`: `unsubscribe()` all subs; `removeEventListener` all named g
 
 ## Legacy: View subscription (`subscribeToVizualization`)
 
-> **Discouraged, scheduled for decommission.** `subscribeToVizualization` reads a pre-built View through a `View` binding. We highly recommend migrating away from it. Never use it in a new Frame and migrate any Frame you touch that still relies on it to `subscribeToDataSource`. The rest of this section only exists to understand such legacy code.
+> **Discouraged, scheduled for decommission.** Frames used to have to plug into a pre-built View (on a List, Metric, or Table) to read anything at all; that is no longer the case — `bindings` + `data_sources` read Metrics and Lists directly, without any View. `subscribeToVizualization` is the legacy path that still reads through a `View` binding, and it only survives in Frames that predate `data_sources`. Never use it in a new Frame. When you touch an existing Frame that still relies on it, offer the user to migrate it to the new `data_sources`-based manifest instead of only patching around it. The rest of this section only exists to understand such legacy code.
 
 - **Backing Views:** legacy Frames needed a backing View on a List, Metric or Table with the right layout. Data sources replace this step entirely.
 - **Bindings:** a `View` binding (`view_id`, `can_read: true`) per View, plus `List` / `Variable` bindings for `pageDefinitions` (no `can_read` needed).

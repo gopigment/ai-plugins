@@ -14,7 +14,7 @@ When modifying an existing Pigment application (adding blocks, changing formulas
 
 ## Stage 1 — Plan
 
-During Stage 1, do NOT call any modeling tool and do NOT load any execution skill. Loading another planning skill is allowed. Use only discovery tools (`tool:search_metrics_and_lists`, `tool:search_folders`, `tool:search_tables`, `tool:semantic_search`, `tool:get_metric_dependencies`, `tool:get_data_dependency_tree`, `tool:list_issues`, `tool:calendar_get`, `tool:get_applications`, `tool:search_boards`) and the sections below to produce the spec.
+During Stage 1, do NOT call any modeling tool and do NOT load any execution skill. Loading another planning skill is allowed. Use only discovery tools (`tool:search_metrics_and_lists`, `tool:search_folders`, `tool:search_tables`, `tool:semantic_search`, `tool:get_metric_dependencies`, `tool:get_data_dependency_tree`, `tool:calendar_get`, `tool:get_applications`, `tool:search_boards`) and the sections below to produce the spec.
 
 ### Discover the current state
 
@@ -23,7 +23,7 @@ Map the relevant portion of the application before deciding anything. Do not rel
 - **Inventory** — find the blocks related to the change with `tool:search_metrics_and_lists`, `tool:search_folders`, or `tool:search_tables`, narrowing by block type; `tool:semantic_search` when names are vague; `tool:get_applications` for exploration across applications.
 - **Upstream sources** — trace every block you will touch with `tool:get_data_dependency_tree` using `direction: "Sources"`. This is unconditional: deciding that no formula change is needed is itself a conclusion about upstream data, so it must be checked first.
 - **Downstream dependents** — `tool:get_metric_dependencies` returns **referrers only** (`referringMetrics`, `referringLists`, `referringTables`, `referringBoards`, `referringViews`, `hasStructureDependency`). It tells you nothing about upstream sources, so an empty result never means "no dependencies", only that nothing points at this block. Blocks with many dependents need extra care.
-- **Formula health** — call `tool:list_issues` and record the pre-existing errors, so you can tell inherited errors from ones you introduce.
+- **Formula health** — ask the user for pre-existing formula errors from the Pigment UI Issues panel (or record any errors they report), so you can tell inherited errors from ones you introduce.
 - **Conventions in use** — naming (prefixes like INPUT_, CALC_, DATA_; PascalCase dimensions; numbered folders), folder structure, Version dimension and its items, calendar (`tool:calendar_get`), plus libraries (`tool:list_application_libraries`) and scenarios (`tool:list_scenarios`) when relevant. Adopt what the application already does; the structural invariants from `skill:understanding-pigment-modeling` still apply to new blocks. Do not impose standard conventions on a live application unless the user asks for cleanup.
 - **Domain skill** — a planning skill exists for each domain: OPEX and budgeting, workforce and hiring, sales and pipeline, supply chain and inventory. If the application matches one, load it from the skills library headers before Stage 2, and read the sub-files it points to when the pattern needs them (e.g. the engine sub-file for OPEX method selection).
 
@@ -111,7 +111,7 @@ Never delete a block that still has downstream dependents without updating or re
 
 After completing all changes:
 
-- [ ] **Formula health** — `tool:list_issues`: no new errors introduced (compare against the pre-existing errors recorded during discovery)
+- [ ] **Formula health** — no new formula errors introduced (compare against pre-existing errors recorded during discovery)
 - [ ] **Dependency integrity** — `tool:get_metric_dependencies` on every modified block: upstream/downstream chains intact
 - [ ] **Naming consistency** — new/renamed blocks follow existing convention
 - [ ] **Folder placement** — no blocks left in "No Folder"

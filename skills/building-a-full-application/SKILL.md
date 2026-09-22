@@ -153,7 +153,7 @@ Close the spec with two short sections: the **open questions** you could not res
 Before telling the user the build is done:
 
 - [ ] **Spec coverage** — every block the approved spec listed exists; nothing was silently skipped or renamed
-- [ ] **Formula health** — `tool:list_issues` reports no errors on the application
+- [ ] **Formula health** — no formula errors on the application (confirm via Pigment UI Issues or user-provided error list)
 - [ ] **No empty dimensions** — every dimension list created has items (`tool:get_list_items`)
 - [ ] **Version dimension** — it exists with at least an `Actual` item, and the metrics holding plan data carry it
 - [ ] **Values plausible** — spot-check the primary output metrics with `tool:fetch_metric_data`; a wrong order of magnitude means a wrong formula, not a display problem

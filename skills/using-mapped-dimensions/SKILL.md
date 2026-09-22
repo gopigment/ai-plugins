@@ -42,8 +42,8 @@ Use `tool:create_metric` to create the mapping metric.
 IF(Month >= 'Employee'.'Transfer Date', 'Employee'.'New Team', 'Employee'.'Original Team')
 ```
 
-- **Manual input**: use `tool:set_metric_input` or an import.
-- **Import**: no agent tool available for importing into metrics (only dimensions and transaction lists via `tool:import_csv_to_list`); ask the user to perform metric imports in the Pigment UI.
+- **Manual input**: use `tool:set_metric_input`.
+- **Import**: no public MCP bulk-import for metrics; ask the user to load mapping values in the Pigment UI, or use `tool:set_metric_input` for small datasets.
 
 ### Step 3 — Use Joined Pivot in Views
 

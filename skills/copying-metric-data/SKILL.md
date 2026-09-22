@@ -26,7 +26,7 @@ Use it to recognize common Metric-to-Metric import intents, then create a suppor
 
 Do NOT use this skill for:
 
-- Importing an attached CSV or Excel file - use the `integrating-pigment-data` skill
+- Importing an attached CSV or Excel file - use Pigment's data import UI (not covered by this skill)
 - Writing a formula that reads another metric - use the `writing-pigment-formulas` skill
 
 ## What This Skill Can Configure Today
