@@ -23,7 +23,7 @@ Read the current configuration with `tool:get_views` and `include: ["Rows", "Col
 | Pages | no | `hiddenDimensionsAggregations` | no |
 | Not in the View at all | no | `hiddenDimensionsAggregations` | no |
 
-Hidden-dimension aggregation adds no row and no column. It only decides how the visible cells fold away the dimensions you are not showing: a metric on Country Ã— Month displayed by Month alone still has to collapse Country. Setting a pivot aggregation on a page is the most common mistake and does nothing.
+Hidden-dimension aggregation adds no row and no column. It only decides how the visible cells fold away the dimensions you are not showing: a metric on Country x Month displayed by Month alone still has to collapse Country. Setting a pivot aggregation on a page is the most common mistake and does nothing.
 
 The mirror mistake is quieter. A dimension the request names is usually **visible**, so its aggregator belongs on that pivot; putting it in `hiddenDimensionsAggregations` leaves the total cells you were asked about computing their default. And a calendar dimension is temporal: `temporalDimensionsAggregator` governs Month, Quarter and Year, `otherDimensionsAggregator` never does.
 
@@ -75,8 +75,8 @@ Constraints, all hard:
 
 Run this whenever you add a metric to a Table View through `tool:update_view_values`. It is ratio-like if the **name** hints at it (`%`, `rate`, `ratio`, `margin`, `growth`, `variance`, `GM%`) or the **formula** divides or compares two metrics (`A / B`, `DIVIDE`, `(A - B) / B`). Use `tool:search_metrics_and_lists` with `show_details: true` to read the formula when unsure.
 
-- **Ratio / percentage** â†’ operation `Ratio`, with **A** the numerator and **B** the denominator, exactly as in the formula (`GM% = Gross Margin / Revenue`).
-- **Growth / relative variance** â†’ operation `Growth`, with **A** the minuend of `(A - B) / B` and **B** the base.
+- **Ratio / percentage** -> operation `Ratio`, with **A** the numerator and **B** the denominator, exactly as in the formula (`GM% = Gross Margin / Revenue`).
+- **Growth / relative variance** -> operation `Growth`, with **A** the minuend of `(A - B) / B` and **B** the base.
 
 ### Wire it in the same editing pass
 

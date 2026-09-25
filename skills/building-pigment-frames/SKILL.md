@@ -29,15 +29,15 @@ The Frame JS lives in a file on your filesystem. `tool:create_frame` and `tool:u
 | `tool:update_frame` | Push the current file contents to an existing Frame; full replacement of `name`, `path`, `bindings`, `data_sources`. |
 | `tool:search_frames` | Look frames up. Pass `id` or `name` for one frame, which returns its full definition (`bindings` included, ready for update). Pass neither to list ids + names; add `show_details: true` to get every body too. Empty result means no match. |
 
-1. Identify the raw data (Metrics & Lists) that you would like to display on the Frame (ask the user to confirm if needed). No backing View or Table is needed: the Frame reads Metrics and List Properties directly through **data sources** that shape the rows (`labels`), columns (`values`) and pre-aggregation filters (`selectors`) it needs. Ask the user to confirm that shape before writing any JS.
+0. Identify the data (Metrics & Lists) that you Frames need to read from and write to. The Frame reads Metrics and List Properties directly through **data sources** that shape the rows (`labels`), columns (`values`) and pre-aggregation filters (`selectors`) it needs. The Frame writes back to Lists and Metrics directly through **data sinks** that target a List Item or Metric cell (`item` / `coordinates`) with the new property or cell values (`values`) it needs. Ask the user to confirm the read & write access they want to grant the Frame.
+1. Ask the user which kind of design they want for the Frame, before writing any code. Offer 3-4 design options. Include a **Minimal design** (plain structure with native browser styling; fastest to build and to iterate on). Only if `skill:designing-pigment-frames` is among your available skills (it is feature-flagged), include a **Pigment-like design** (follows Pigment platform's design principles) → if this option is chosen, load `skill:designing-pigment-frames` and use it to create the Frame design.Wait for the user's answer before moving on; do not assume a default.
 2. Declare the **bindings** (Metrics, Lists, List Properties, Variables) and one **data source** per dataset the Frame reads (see [Data sources](#data-sources)). Warnings: a) rows are capped at 1,000 per window ; b) concurrent subscriptions per Frame are limited to 10 data-source subscriptions and 20 List subscriptions.
 3. `tool:write_file` the JS body to a file (e.g. `/frames/revenue-heatmap.js`), then `tool:create_frame` once with that `path`. Never re-create (name collision). Use `tool:search_frames` with a `name` if unsure it exists.
 4. For every later change, `tool:edit_file` the same file, then `tool:update_frame` with the same `path`. A Frame write reads the file at call time, so the file is the source of truth - keep editing it rather than rewriting it from scratch.
 5. Always resend the complete `bindings`, `data_sources`, and `data_sinks` arrays when calling `tool:create_frame` / `tool:update_frame`; an omitted array drops every entry of that kind. `tool:search_frames` by `id` or `name` gives you the `bindings` array but not the data sources/sinks — keep track of the ones you declared; a bare listing gives neither.
-6. **Grow a large body in the file, not in tool arguments.** A Frame's JS body can be long enough that emitting it whole in one response risks hitting the model's max output size. For a substantial new Frame, `tool:write_file` a working skeleton (IIFE, `#app` setup, `__cleanup`, and clearly unique placeholder markers for the sections still to come — e.g. `// SECTION: subscribe`, `// SECTION: render`), then fill each placeholder with `tool:edit_file`, one section at a time. Call `tool:create_frame` / `tool:update_frame` once the file is complete. Make one of those sections `// SECTION: styles`.
-7. If the user's request asks for a Pigment-native, on-brand, or polished look, and skill:designing-pigment-frames is among your available skills (it is feature-flagged, so it may not be): code the Frame first, leaving `// SECTION: styles` as a placeholder, then load that skill and fill the placeholder with its design pass before you finish. Without that ask, or when the skill is unavailable, a plain placeholder style is fine; do not load the skill on your own.
-8. If a Frame write reports the file was not found, the file was never written or the path is wrong: check with `tool:ls`, then `tool:write_file` before retrying.
-9. Whenever the user reports a bug (blank page or anything that does not work expectedly), you can ask the user to record the logs using the dedicated buttons in the UI. You will be able to read the recorded logs.
+6. **Grow a large body in the file, not in tool arguments.** A Frame's JS body can be long enough that emitting it whole in one response risks hitting the model's max output size. For a substantial new Frame, `tool:write_file` a working skeleton (IIFE, `#app` setup, `__cleanup`, and clearly unique placeholder markers for the sections still to come — e.g. `// SECTION: subscribe`, `// SECTION: render`, `// SECTION: styles`), then fill each placeholder with `tool:edit_file`, one section at a time. Call `tool:create_frame` / `tool:update_frame` once the file is complete.
+7. If a Frame write reports the file was not found, the file was never written or the path is wrong: check with `tool:ls`, then `tool:write_file` before retrying.
+8. Whenever the user reports a bug (blank page or anything that does not work expectedly), you can ask the user to record the logs using the dedicated buttons in the UI. You will be able to read the recorded logs.
 
 ## Sandboxed Runtime
 
@@ -78,7 +78,7 @@ JSON array on `create_frame` / `update_frame`. **A binding is only a concept map
 
 **Important:** the SDK can natively `subscribeToItems` on any `List` binding declared here directly — no `data_source` or `data_sink` needed just to list a List's Items.
 
-**`can_read` and `can_write` are legacy fields.** Their value has **no impact on any SDK call**. Read access comes solely from referencing the binding in a `data_source`; write access comes solely from referencing it in a `data_sink`.
+**`can_read` and `can_write` are optional and have no impact on any SDK call.** Read access comes solely from referencing the binding in a `data_source`; write access comes solely from referencing it in a `data_sink`. For a new binding in the current (non-legacy) manifest format, do not include `can_read`/`can_write` at all. When editing an existing Frame that already has them set on some bindings, leave those as-is rather than stripping them.
 
 ## Data sources
 
@@ -123,9 +123,9 @@ The example below declares a data source on a single Metric declared as `revMetr
 ```json
 {
   "bindings": [
-    { "name": "revMetric", "type": "Metric", "metric_id": "<uuid>", "can_read": true, "can_write": false },
-    { "name": "monthList", "type": "List", "list_id": "<uuid>", "can_read": false, "can_write": false },
-    { "name": "countryList", "type": "List", "list_id": "<uuid>", "can_read": false, "can_write": false }
+    { "name": "revMetric", "type": "Metric", "metric_id": "<uuid>" },
+    { "name": "monthList", "type": "List", "list_id": "<uuid>" },
+    { "name": "countryList", "type": "List", "list_id": "<uuid>" }
   ],
   "data_sources": [
     {
@@ -152,7 +152,7 @@ Each entry is `{ "name": <string>, "binding": <binding name> }`:
 ```json
 {
   "bindings": [
-    { "name": "countryList", "type": "List", "list_id": "<uuid>", "can_read": true, "can_write": true }
+    { "name": "countryList", "type": "List", "list_id": "<uuid>" }
   ],
   "data_sinks": [
     { "name": "countrySink", "binding": "countryList" }
@@ -162,13 +162,28 @@ Each entry is `{ "name": <string>, "binding": <binding name> }`:
 
 With no writes needed, pass `data_sinks` as an empty array `[]`.
 
+## Naming cheat sheet
+
+Three different identifier kinds show up in Frame JS. Mixing them up is the most common source of runtime errors — use this table to pick the right one:
+
+| Concept | Identifier to use | Where it shows up |
+| --- | --- | --- |
+| Data source | `data_sources[i].name` | 1st arg of `subscribeToDataSource` |
+| Data sink | `data_sinks[i].name` | 1st arg of `addItem` / `editItem` / `editValue` |
+| List, Metric, ListProperty, Variable | Binding `name` (declared in `bindings`) | `values[i].binding` / `labels[i].binding` / `selectors[i].binding` inside a data source definition; `dynamicFilters[i].binding`; the JS object keys of the `values` map passed to `addItem`/`editItem` (one key per property being written); the JS object keys of the `coordinates` map passed to `editValue` (one key per Dimension); 1st arg of `subscribeToItems` (a List binding is read directly, no data source/sink needed) |
+| List Item (a.k.a. modality/row of a List) | Friendly Item name, as a plain string, used directly — no binding, no lookup | `item` (2nd arg of `editItem`); `dynamicFilters[i].selection` entries; the JS object values of the `coordinates` map passed to `editValue`; Item labels received back from `subscribeToItems`/`subscribeToDataSource` |
+
 ## PigmentSDK
 
 Methods: `subscribeToDataSource`, `subscribeToItems`, `addItem`, `editItem`, `editValue`. `subscribeToVizualization` still exists but is legacy and should never be used in new code and be removed from existing code.
 
+**Error shape, everywhere:** every `onError` callback (on all `subscribeTo*` methods) and every rejected Promise (`addItem`/`editItem`/`editValue`) receives a plain JavaScript `Error` object. Its `.message` is a human-readable string generated by the host — there is no `.code`, `.kind`, or other structured field to branch on. That message is localized to the end user's UI language.
+
 ### Data source subscription
 
 Use it to pull data from Pigment for your Frame. You can only pull data from data sources you previously defined into the `data_sources` field. Data source get pulled via `subscribeToDataSource` by passing their name.
+
+`subscribeToDataSource` returns synchronously (not a Promise) a handle with exactly `{ unsubscribe(), updateDynamicFilters(filters), updateScroll(scroll) }` — no other fields. Data itself never comes from that return value; it only arrives via the `onData`/`onError` callbacks passed in `options`.
 
 ```js
 const dsSub = window.PigmentSDK.subscribeToDataSource('revenueByTime', {
@@ -238,6 +253,8 @@ Use `updateScroll` on the existing handle, do not resubscribe when relying on th
 
 ### List subscription
 
+`subscribeToItems` returns synchronously a handle with only `{ unsubscribe() }` — unlike `subscribeToDataSource`, there is no `updateX` method on it.
+
 ```js
 const listSub = window.PigmentSDK.subscribeToItems('countryList', {
   onData: function (d) { d.items; d.partialResult; },
@@ -245,17 +262,30 @@ const listSub = window.PigmentSDK.subscribeToItems('countryList', {
 });
 ```
 
-`partialResult === true`: truncated list; no pagination API. Show a warning.
+#### Data shape
 
-Warning: subscribeToItems only returns the Item name, not the Properties. To fetch List Items with Properties, use `subscribeToDataSource`.
+The shape of the `d` object received on `onData` is:
+
+- `d.items` is an array of Item names (strings) for the subscribed List — just the friendly names, no ids and no Properties. To fetch List Items with Properties, use `subscribeToDataSource` instead.
+- `d.partialResult` is `true` when the List was truncated because it's larger than what a single subscription can return — there is no pagination API for `subscribeToItems`, so show a warning banner in that case. `false` means `d.items` is the complete List.
 
 ### Writes
 
 `addItem`, `editItem`, and `editValue` all take a **data sink name** as their first argument — the `name` declared in `data_sinks` — never the underlying binding's name. The sink's `binding` resolves to the actual List or Metric being written to.
 
+#### Data shape
+
+All three return a Promise. There is nothing to destructure from either outcome:
+
+- Success: the Promise resolves to an **empty object `{}`** — no created item, no id, no echoed values. The only way to observe the effect of a write is through a subsequent `onData` push on an active subscription covering that data, not through the resolved value.
+- Failure: the Promise rejects with a plain `Error` object, same shape as the `onError` callbacks described above — `.message` is a localized, human-readable string with no `.code`/`.kind` field to branch on.
+
+**`addItem` and `editItem`'s `values` map must be keyed by `ListProperty` *binding* names (declared in `bindings`), never by the property's friendly display name** (e.g. `'Country Name'`, `'Birth Date'`). Declare a `ListProperty` binding for every property you intend to write (e.g. `{ "name": "countryNameProp", "type": "ListProperty", "list_id": "<uuid>", "list_property_technical_name": "Country Name" }`), then use that binding's `name` as the key.
+
 ```js
 // Add a new Item to a List (List bound by the 'countrySink' data sink)
-await window.PigmentSDK.addItem('countrySink', { 'Country Name': 'France' });
+// Keys are ListProperty binding names (e.g. 'countryNameProp'), not friendly property names.
+await window.PigmentSDK.addItem('countrySink', { countryNameProp: 'France' });
 
 // Edit an existing Item in a List
 await window.PigmentSDK.editItem('countrySink', 'France', { countryCodeProperty: 'FR' });
@@ -264,7 +294,7 @@ await window.PigmentSDK.editItem('countrySink', 'France', { countryCodeProperty:
 await window.PigmentSDK.editValue('revSink', { 'countryList': 'France', 'timeList': '2024' }, 42000);
 ```
 
-`editItem(sinkName, item, values)`: `item` is the current name of the Item; `values` is a partial map of `ListProperty` binding names (declared in `bindings`) to new values.
+`addItem(sinkName, values)` / `editItem(sinkName, item, values)`: `item` is the current name of the Item (`editItem` only); `values` is a partial map of `ListProperty` **binding** names (declared in `bindings`) to new values — never the properties' friendly display names.
 
 `editValue(sinkName, coordinates, value)`: `coordinates` maps each List binding name (dimension) to the selected item label; `value` is `boolean | number | string | null`.
 
@@ -310,13 +340,14 @@ function isReady(data) {
 
 In `root.__cleanup`: `unsubscribe()` all subs; `removeEventListener` all named global listeners; `clearTimeout`/`clearInterval`; `cancelAnimationFrame`; `disconnect()` observers; remove `document.body` nodes; set `lastData = null`. Never use anonymous functions for global listeners.
 
-## Legacy: View subscription (`subscribeToVizualization`)
+## Legacy version
 
 > **Discouraged, scheduled for decommission.** Frames used to have to plug into a pre-built View (on a List, Metric, or Table) to read anything at all; that is no longer the case — `bindings` + `data_sources` read Metrics and Lists directly, without any View. `subscribeToVizualization` is the legacy path that still reads through a `View` binding, and it only survives in Frames that predate `data_sources`. Never use it in a new Frame. When you touch an existing Frame that still relies on it, offer the user to migrate it to the new `data_sources`-based manifest instead of only patching around it. The rest of this section only exists to understand such legacy code.
 
 - **Backing Views:** legacy Frames needed a backing View on a List, Metric or Table with the right layout. Data sources replace this step entirely.
-- **Bindings:** a `View` binding (`view_id`, `can_read: true`) per View, plus `List` / `Variable` bindings for `pageDefinitions` (no `can_read` needed).
+- **Bindings:** a `View` binding (`view_id`) per View — always declared with `"can_read": true, "can_write": false`, even though it has no practical effect on the SDK — plus `List` / `Variable` bindings for `pageDefinitions` (no `can_read`/`can_write` needed on those).
 - **Limits:** shares the 10 concurrent subscriptions with `subscribeToDataSource`; rows capped at 1,000 per window.
+- **Return value:** like `subscribeToDataSource`, it returns synchronously a handle — here `{ unsubscribe(), updatePageDefinitions(defs), updateScroll(scroll) }`.
 
 ```js
 const vizSub = window.PigmentSDK.subscribeToVizualization('salesView', {
@@ -377,3 +408,7 @@ function isReadyViz(data) {
   return !hasLoadingKind(data.labels.rows) && !hasLoadingKind(data.labels.columns) && !hasLoadingKind(data.cells);
 }
 ```
+
+### `addItem`/`editItem` by friendly property name
+
+Legacy Frames predating `ListProperty` bindings had no binding to reference for a property, so `addItem`/`editItem` keyed `values` by the property's friendly name directly (e.g. `{ 'Country Name': 'France' }`).

@@ -19,6 +19,17 @@ It is drawn as an inset `box-shadow`, not a `border`, so it composes with the fo
 ### B0 · Shared base
 
 ```css
+.type-button-label,
+.button,
+.button-medium,
+.button-small {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  white-space: nowrap;
+  color: inherit;
+}
 .button {
   display: inline-flex;
   align-items: center;
