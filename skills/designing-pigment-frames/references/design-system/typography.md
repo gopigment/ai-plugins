@@ -79,13 +79,15 @@ Section headers within a page (card titles, panel headers, page sections).
 
 ### T5 · Column title
 
-Table/column headers, small eyebrow labels, kickers.
+Table/column headers, small eyebrow labels, kickers. `.type-kicker` (used for a card's eyebrow
+label, e.g. [cards.md](cards.md)'s C2–C4) shares this exact style.
 
 ```html
 <span class="type-column-title">Last Updated</span>
 ```
 
 ```css
+.type-kicker,
 .type-column-title {
   font-family: var(--font-sans);
   font-size: 11px;
@@ -302,5 +304,25 @@ _Don't confuse with:_ T5 Column title — same 11px/16px size, but this is sente
   line-height: 16px;
   color: var(--text-secondary);
   margin: 0;
+}
+```
+
+### T17 · Anchor link
+
+An inline text link, e.g. a "Learn more" at the end of a paragraph (see [cards.md](cards.md)'s C3).
+
+```html
+<a href="#" class="anchor-link">Learn more</a>
+```
+
+```css
+.anchor-link {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  color: var(--text-highlight);
+  text-decoration: underline;
+  text-underline-offset: var(--space-0-5);
+  text-decoration-thickness: 1px;
+  width: fit-content;
 }
 ```

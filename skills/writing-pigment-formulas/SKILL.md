@@ -119,7 +119,7 @@ Full reference with syntax → `skill:using-formula-functions`. Key categories:
 | Aggregation | `SUMOF`, `AVGOF`, `COUNTOF`, `MINOF`, `MAXOF` | Aggregate a list property without BY |
 | Text | `LEFT`, `RIGHT`, `MID`, `FIND`, `SUBSTITUTE`, `TEXT`, `VALUE`, `&`, `CONTAINS` | String manipulation; type conversion; `CONTAINS(substring, haystack)` — substring first |
 | Date / Time | `DATE`, `YEAR`, `MONTH`, `DAY`, `NETWORKDAYS`, `DAYSINPERIOD`, `PRORATA` | Date arithmetic; period coverage |
-| Numeric | `ROUND`, `ABS`, `MIN`, `MAX`, `RANK`, `MOVINGSUM`, `CUMULATE` | Rounding; ranking; rolling windows |
+| Numeric | `ROUND`, `ROUNDUP`, `ROUNDDOWN`, `ABS`, `MIN`, `MAX`, `RANK`, `MOVINGSUM`, `CUMULATE` | Rounding; ranking; rolling windows |
 | Lookup | `MATCH`, `ITEM` | Find items in lists; convert text to dimension |
 | Iterative | `PREVIOUS`, `PREVIOUSOF`, `FILLFORWARD` | Time-series accumulation; gap filling (require cycles); see below |
 | Utility | `TIMEDIM`, `ISDEFINED`, `IN`, `SHIFT` | Date→dim conversion; existence check; set membership; dimension offset |
