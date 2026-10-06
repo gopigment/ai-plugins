@@ -69,7 +69,7 @@ Constraints, all hard:
 - **Table Views only.** Views on a Metric or on a List support simple aggregation only.
 - Exactly **two operands**, both numeric **metric** value fields, no self-reference.
 - It is a **View configuration**: the aggregator itself creates nothing. The ratio row still needs its own metric — create it first, then aggregate its value field.
-- **Not a display option.** `showValueAsConfiguration` (percent of another metric, percent of total, running total) restyles a value that already exists; it neither creates the value nor changes what a total computes. Any value that is one metric over another needs its own ratio metric plus a `Ratio` aggregator — never a show-value-as setting, never a bare formula left to aggregate itself.
+- **Not a display option.** Show Value As (`tool:update_view_show_value_as` - percent of another metric, percent of total, running total) restyles a value that already exists; it neither creates the value nor changes what a total computes. Any value that is one metric over another needs its own ratio metric plus a `Ratio` aggregator — never a show-value-as setting, never a bare formula left to aggregate itself.
 
 ### Detect a ratio-like metric when you add it
 

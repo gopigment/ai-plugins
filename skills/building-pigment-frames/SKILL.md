@@ -30,7 +30,7 @@ The Frame JS lives in a file on your filesystem. `tool:create_frame` and `tool:u
 | `tool:search_frames` | Look frames up. Pass `id` or `name` for one frame, which returns its full definition (`bindings` included, ready for update). Pass neither to list ids + names; add `show_details: true` to get every body too. Empty result means no match. |
 
 0. Identify the data (Metrics & Lists) that you Frames need to read from and write to. The Frame reads Metrics and List Properties directly through **data sources** that shape the rows (`labels`), columns (`values`) and pre-aggregation filters (`selectors`) it needs. The Frame writes back to Lists and Metrics directly through **data sinks** that target a List Item or Metric cell (`item` / `coordinates`) with the new property or cell values (`values`) it needs. Ask the user to confirm the read & write access they want to grant the Frame.
-1. Ask the user which kind of design they want for the Frame, before writing any code. Offer 3-4 design options. Include a **Minimal design** (plain structure with native browser styling; fastest to build and to iterate on). Only if `skill:designing-pigment-frames` is among your available skills (it is feature-flagged), include a **Pigment-like design** (follows Pigment platform's design principles) → if this option is chosen, load `skill:designing-pigment-frames` and use it to create the Frame design.Wait for the user's answer before moving on; do not assume a default.
+1. Before writing any code, ask the user if they have specific requirements regarding the design of the Frame: encourage them to share a color palette, screenshots, light / dark theme preferences. If `skill:designing-pigment-frames` is among your available skills (it is feature-flagged), load `skill:designing-pigment-frames` and use it to create the Frame design. If the user does not have any specific requirements, use a minimal, modern design with a light theme, clean typography, and a neutral color palette with a single accent color.
 2. Declare the **bindings** (Metrics, Lists, List Properties, Variables) and one **data source** per dataset the Frame reads (see [Data sources](#data-sources)). Warnings: a) rows are capped at 1,000 per window ; b) concurrent subscriptions per Frame are limited to 10 data-source subscriptions and 20 List subscriptions.
 3. `tool:write_file` the JS body to a file (e.g. `/frames/revenue-heatmap.js`), then `tool:create_frame` once with that `path`. Never re-create (name collision). Use `tool:search_frames` with a `name` if unsure it exists.
 4. For every later change, `tool:edit_file` the same file, then `tool:update_frame` with the same `path`. A Frame write reads the file at call time, so the file is the source of truth - keep editing it rather than rewriting it from scratch.
@@ -66,7 +66,7 @@ Do not copy the Frame editor placeholder; it omits IIFE cleanup and uses templat
 
 ## Bindings
 
-JSON array on `create_frame` / `update_frame`. **A binding is only a concept mapping**: it maps a name used in the Frame's JS to a concept in the underlying Pigment model (a Metric, List, List Property, Variable, or legacy View). Tool input uses **snake_case** (`metric_id`, `list_id`, `list_property_technical_name`, `can_read`, `can_write`).
+JSON array on `create_frame` / `update_frame`. **A binding is only a concept mapping**: it maps a name used in the Frame's JS to a concept in the underlying Pigment model (a Metric, List, List Property, Variable, or legacy View). Tool input uses **snake_case** (`metric_id`, `list_id`, `list_property_technical_name`).
 
 | `type` | id field | SDK use |
 | --- | --- | --- |
@@ -77,8 +77,6 @@ JSON array on `create_frame` / `update_frame`. **A binding is only a concept map
 | `View` | `view_id` | legacy `subscribeToVizualization` only, migrate away from it for `subscribeToDataSource` |
 
 **Important:** the SDK can natively `subscribeToItems` on any `List` binding declared here directly — no `data_source` or `data_sink` needed just to list a List's Items.
-
-**`can_read` and `can_write` are optional and have no impact on any SDK call.** Read access comes solely from referencing the binding in a `data_source`; write access comes solely from referencing it in a `data_sink`. For a new binding in the current (non-legacy) manifest format, do not include `can_read`/`can_write` at all. When editing an existing Frame that already has them set on some bindings, leave those as-is rather than stripping them.
 
 ## Data sources
 
@@ -141,6 +139,8 @@ The example below declares a data source on a single Metric declared as `revMetr
 ## Data sinks
 
 **Purpose: write data back to the Pigment model.** `data_sinks` is a field in the Frame manifest, alongside `bindings` and `data_sources`. It lists every Pigment block (List or Metric) the Frame needs to write to, and listing a binding there is what grants write access to it — nothing else does.
+
+**Shared Blocks are read-only.** A Frame can read a Block shared from another application via a Library (i.e. a Block that lives outside the Frame's own application but was included in a Library shared with it) through a `data_source`, exactly like any other Block. For security reasons it can never write to it: do not declare a `data_sink` on a binding to a shared Block.
 
 Each entry is `{ "name": <string>, "binding": <binding name> }`:
 
@@ -345,7 +345,7 @@ In `root.__cleanup`: `unsubscribe()` all subs; `removeEventListener` all named g
 > **Discouraged, scheduled for decommission.** Frames used to have to plug into a pre-built View (on a List, Metric, or Table) to read anything at all; that is no longer the case — `bindings` + `data_sources` read Metrics and Lists directly, without any View. `subscribeToVizualization` is the legacy path that still reads through a `View` binding, and it only survives in Frames that predate `data_sources`. Never use it in a new Frame. When you touch an existing Frame that still relies on it, offer the user to migrate it to the new `data_sources`-based manifest instead of only patching around it. The rest of this section only exists to understand such legacy code.
 
 - **Backing Views:** legacy Frames needed a backing View on a List, Metric or Table with the right layout. Data sources replace this step entirely.
-- **Bindings:** a `View` binding (`view_id`) per View — always declared with `"can_read": true, "can_write": false`, even though it has no practical effect on the SDK — plus `List` / `Variable` bindings for `pageDefinitions` (no `can_read`/`can_write` needed on those).
+- **Bindings:** a `View` binding (`view_id`) per View, plus `List` / `Variable` bindings for `pageDefinitions`.
 - **Limits:** shares the 10 concurrent subscriptions with `subscribeToDataSource`; rows capped at 1,000 per window.
 - **Return value:** like `subscribeToDataSource`, it returns synchronously a handle — here `{ unsubscribe(), updatePageDefinitions(defs), updateScroll(scroll) }`.
 

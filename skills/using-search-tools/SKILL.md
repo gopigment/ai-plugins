@@ -41,10 +41,11 @@ So: name everything you need up front, put it in as few calls as possible, and f
 | Find blocks by concept/topic when you do not know the exact name                                             | `tool:semantic_search`                                                                             | Medium per call                                      |
 | Trace multi-hop formula lineage (what feeds a metric, or what consumes it)                                   | `tool:get_data_dependency_tree`                                                                    | Low per call— recursive graph traversal; no AI       |
 | Full impact analysis before deleting/renaming a metric (all consumers: formulas, views, boards, automations) | `tool:get_metric_dependencies`                                                                     | Low per call— flat inventory lookup; no AI           |
+| Complex searches combining OR / AND across many blocks, or no relevant filter exists in the `search_*` tools | several `tool:search_metrics_and_lists`, `tool:search_folders`, or `tool:search_tables` calls, then combine the results | Medium–high — quite long to run, but a chain of searches is longer |
 | Other approaches failed, or no other tool fits                                                               | `tool:search`                                                                                      | Highest — LLM expert reads blocks and produces prose |
 
 
-**Rule of thumb**: Always prefer `tool:search_metrics_and_lists`, `tool:search_folders`, or `tool:search_tables` when you can express the query as a concrete filter. Fall back to `tool:semantic_search` when you only have a concept.
+**Rule of thumb**: Always prefer `tool:search_metrics_and_lists`, `tool:search_folders`, or `tool:search_tables` when you can express the query as a concrete filter. Fall back to `tool:semantic_search` when you only have a concept. When a condition needs OR / AND across blocks, issue the `search_*` calls that cover each part and combine the results.
 
 **Parallelization**: all search and dependency tool calls are independent and can be batched in a single turn. When you need multiple pieces of information (e.g. list dimensions + list metrics + check dependencies), issue them all at once instead of sequentially.
 
@@ -111,6 +112,14 @@ This is the common case once you know what you are looking for.
 3. Batch dependency checks in parallel (one call per metric, all in a single turn)
 4. Cross-check with `tool:get_data_dependency_tree` direction Usages → confirm no downstream formula consumers
 5. Flag metrics with zero references as candidates for deletion; present to user for confirmation before removing
+
+### Complex multi-condition search
+
+Use when the condition combines OR / AND across blocks (e.g. "metrics in folder A or B, with a formula using `X`, that are not referenced by any table") or when no `search_*` filter expresses it.
+
+1. Try the `search_*` filters first: if one call, or a few parallel calls, express the condition, stop here
+2. Otherwise split the OR / AND into the `search_*` calls that cover each part, run them in parallel, and combine the results
+3. Report the matches
 
 ---
 
@@ -200,6 +209,7 @@ Flat inventory of everywhere a metric is referenced. Grouped by consumer kind: f
 - **Using** `tool:search` **to get a block list** — it returns prose reasoning, not structured lists.
 - **Using** `tool:search` **to trace dependencies** — use `tool:get_data_dependency_tree` for precise multi-hop chains.
 - **Using** `tool:get_data_dependency_tree` **for impact analysis** — it only shows formula references; use `tool:get_metric_dependencies` to see boards, views and automations too.
+- **Chaining many `search_*` calls when one filter list would do** — pass every name, folder, or formula pattern in one call instead of one call per value.
 
 
 

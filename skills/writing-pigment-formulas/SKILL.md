@@ -1,6 +1,6 @@
 ---
 name: writing-pigment-formulas
-description: "Execution skill. Use when writing, editing, or debugging Pigment metric formulas — quoting, references, data types, BLANK, and comments."
+description: "Execution skill. Load it before the first `validate_formula`, or before any `create_metric`, `update_metric`, `create_list_property` or `update_list_property` call that sets a formula; never write a formula without loading it first. Use when writing, editing, or debugging Pigment metric or list property formulas — quoting, references, data types, BLANK, comments, and replacing hard-coded items, dates and thresholds with input metrics."
 metadata:
   skill_path: /skills/writing-pigment-formulas/SKILL.md
   base_directory: /skills/writing-pigment-formulas
@@ -56,12 +56,13 @@ Guidance on commenting:
 
 Full item path: `'List'.'Property'."Item"` — default property can be omitted: `Status."Active"`.
 
-**⛔ Never hard-code dimension items or dates in formulas.**
-`Month."Jun 24"`, `Version."Actual"`, `Country."France"` are all forbidden.
+**⛔ Never hard-code dimension items, dates or thresholds in formulas.**
+`Month."Jun 24"`, `Version."Actual"`, `Country."France"`, `DATE(2024, 1, 1)`, `'Revenue' > 50000` are all forbidden.
 
 - For a specific member → create a Dimension-typed input metric and reference that.
 - For "last actual month" → use `[SELECT LASTNONBLANK: 'Is Actual']` or equivalent flag metric.
 - For a fixed date → create a Date-typed input metric.
+- For a target, threshold or limit → create a Number-typed input metric.
   The only exceptions are stable structural items (e.g. `Version."Actual"` in a Version-aware
   application where that item is guaranteed to always exist and never be renamed).
 
@@ -163,7 +164,7 @@ Run through this checklist first:
 1. [ ] Single quotes on all identifiers; double quotes on items and strings
 2. [ ] BLANK (not 0/FALSE) where no value should exist
 3. [ ] No ISBLANK / ISNOTBLANK; use IFDEFINED / IFBLANK / ISDEFINED
-4. [ ] No hard-coded dimension items or dates
+4. [ ] No hard-coded dimension items, dates or thresholds
 5. [ ] Transaction list: single BY with all dim mappings; never chain BY
 6. [ ] Allocation: BY (not ADD) when a mapping exists; SPLIT explicitly requested where the ask is "split"/"distribute"/"divide equally"/"spread" — not left on the CONSTANT default
 7. [ ] Formula result type matches target metric type
