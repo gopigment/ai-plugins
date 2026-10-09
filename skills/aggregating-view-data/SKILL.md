@@ -23,7 +23,7 @@ Read the current configuration with `tool:get_views` and `include: ["Rows", "Col
 | Pages | no | `hiddenDimensionsAggregations` | no |
 | Not in the View at all | no | `hiddenDimensionsAggregations` | no |
 
-Hidden-dimension aggregation adds no row and no column. It only decides how the visible cells fold away the dimensions you are not showing: a metric on Country Ã— Month displayed by Month alone still has to collapse Country. Setting a pivot aggregation on a page is the most common mistake and does nothing.
+Hidden-dimension aggregation adds no row and no column. It only decides how the visible cells fold away the dimensions you are not showing: a metric on Country x Month displayed by Month alone still has to collapse Country. Setting a pivot aggregation on a page is the most common mistake and does nothing.
 
 The mirror mistake is quieter. A dimension the request names is usually **visible**, so its aggregator belongs on that pivot; putting it in `hiddenDimensionsAggregations` leaves the total cells you were asked about computing their default. And a calendar dimension is temporal: `temporalDimensionsAggregator` governs Month, Quarter and Year, `otherDimensionsAggregator` never does.
 
@@ -69,14 +69,14 @@ Constraints, all hard:
 - **Table Views only.** Views on a Metric or on a List support simple aggregation only.
 - Exactly **two operands**, both numeric **metric** value fields, no self-reference.
 - It is a **View configuration**: the aggregator itself creates nothing. The ratio row still needs its own metric — create it first, then aggregate its value field.
-- **Not a display option.** `showValueAsConfiguration` (percent of another metric, percent of total, running total) restyles a value that already exists; it neither creates the value nor changes what a total computes. Any value that is one metric over another needs its own ratio metric plus a `Ratio` aggregator — never a show-value-as setting, never a bare formula left to aggregate itself.
+- **Not a display option.** Show Value As (`tool:update_view_show_value_as` - percent of another metric, percent of total, running total) restyles a value that already exists; it neither creates the value nor changes what a total computes. Any value that is one metric over another needs its own ratio metric plus a `Ratio` aggregator — never a show-value-as setting, never a bare formula left to aggregate itself.
 
 ### Detect a ratio-like metric when you add it
 
 Run this whenever you add a metric to a Table View through `tool:update_view_values`. It is ratio-like if the **name** hints at it (`%`, `rate`, `ratio`, `margin`, `growth`, `variance`, `GM%`) or the **formula** divides or compares two metrics (`A / B`, `DIVIDE`, `(A - B) / B`). Use `tool:search_metrics_and_lists` with `show_details: true` to read the formula when unsure.
 
-- **Ratio / percentage** â†’ operation `Ratio`, with **A** the numerator and **B** the denominator, exactly as in the formula (`GM% = Gross Margin / Revenue`).
-- **Growth / relative variance** â†’ operation `Growth`, with **A** the minuend of `(A - B) / B` and **B** the base.
+- **Ratio / percentage** -> operation `Ratio`, with **A** the numerator and **B** the denominator, exactly as in the formula (`GM% = Gross Margin / Revenue`).
+- **Growth / relative variance** -> operation `Growth`, with **A** the minuend of `(A - B) / B` and **B** the base.
 
 ### Wire it in the same editing pass
 

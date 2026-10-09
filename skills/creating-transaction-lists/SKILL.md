@@ -72,4 +72,4 @@ This matters when later calculations (cohort analysis, variance, ranking, drill-
 
 ## How to Create Transaction Lists
 
-Use `tool:create_list` with the transaction list type. Use `tool:create_list_property` to add properties (amount, date, product reference, etc.). Use `tool:add_list_items` to populate it.
+Use `tool:create_list` with the transaction list type. Use `tool:create_list_property` to add properties (amount, date, product reference, etc.). Populate it with `tool:add_list_items`. For a large CSV, ask the user to import it in the Pigment UI.

@@ -1,6 +1,6 @@
 ---
 name: designing-pigment-frames
-description: "Apply Pigment's visual design language to a Frame that already renders — use when an existing Frame must look on-brand, native, or less generic. Not for initial Frame creation. Build it with skill:building-pigment-frames first, then come back here for the design passes."
+description: "Apply Pigment's visual design language to a Frame that already renders — use when an existing Frame must look on-brand, native, or less generic. Not for initial Frame creation. Build it with `skill:building-pigment-frames` first, then come back here for the design passes."
 metadata:
   skill_path: /skills/designing-pigment-frames/SKILL.md
   base_directory: /skills/designing-pigment-frames
@@ -8,7 +8,7 @@ metadata:
     - "*.md"
 ---
 
-# Designing Pigment Frames
+# Styling Pigment Frames
 
 Bring a Frame that already works up to the visual language of the Pigment platform. You tend to
 converge toward generic, "on distribution" output, which users find off-putting. The reference files
@@ -17,13 +17,14 @@ here exist so that you do not have to invent anything.
 ## When to Use
 
 **Build first, design after.** Do not load this skill during initial Frame creation. Build with
-skill:building-pigment-frames until the Frame renders its data, show it, then style it — a user
+`skill:building-pigment-frames` until the Frame renders its data, show it, then style it — a user
 cannot judge how a Frame looks until they can see it.
 
 The one design step that belongs in the build is the **base stylesheet**: the contents of
 [`references/styles/stylesheet.md`](references/styles/stylesheet.md) in the
 [styles section](#the-styles-section). That alone keeps v1 from looking generic, because it gives the
-Frame Pigment's tokens, type scale and spacing. Component work waits for the passes.
+Frame Pigment's color, spacing, radius and motion tokens as CSS variables. Type styles and every
+component's own CSS come from their own recipe file, in the design passes.
 
 ## What You Are Styling
 
@@ -34,7 +35,8 @@ style itself.
 
 ## The Styles Section
 
-Emit the base stylesheet **once**, into one marked block:
+Emit the base stylesheet **once**, into one marked block — this is the token file only, not any
+component's CSS:
 
 ```js
 // SECTION: styles
@@ -54,6 +56,10 @@ The id lookup makes the block idempotent, so a hot reload does not stack a secon
 literal is right here despite the build skill's advice against them: the CSS holds no backtick and
 no `${`, and the alternative is tens of thousands of escaped characters.
 
+Every later pass **appends** to this same block with a targeted `tool:edit_file` call — paste the CSS
+straight out of whichever recipe file that pass opened, right before the closing `` ` ``. Never
+rewrite the whole block: a Frame only ships CSS for the components it actually uses.
+
 **Change styles with targeted `tool:edit_file` calls against this block.** Never `tool:read_file` the
 whole Frame file for a style change and never rewrite it from scratch: `read_file`, `write_file` and
 `edit_file` output is never evicted, so each whole-file read or rewrite sits in context for the rest
@@ -69,7 +75,8 @@ finding the same fault in a finished artifact is not.
    styles section, verify it is complete rather than writing it again. If it is missing, write it
    now — once.
 2. **Structure** — page canvas, headers, grid, section rhythm.
-3. **Components** — one component at a time, each styled from its own reference file.
+3. **Components** — one component at a time: each reference file gives you the markup and its CSS
+   together — copy both in, appending the CSS to the styles block.
 4. **Sweep** — the whole-output checks.
 
 ## Routing: Read Only What the Pass Needs
@@ -80,9 +87,11 @@ Every reference file is small and single-purpose. **Open only what the pass in f
 Three kinds of file live under `references/`:
 
 - `foundations/` — the rules: which color, which type style, which spacing, which radius.
-- `design-system/` and `patterns/` — copy-pasteable recipes for one component or composition.
-- [`styles/stylesheet.md`](references/styles/stylesheet.md) — every token as a CSS variable. This is
-  the single source of truth for values, and the only file you emit verbatim.
+- `design-system/` and `patterns/` — copy-pasteable recipes for one component or composition,
+  markup and CSS together.
+- [`styles/stylesheet.md`](references/styles/stylesheet.md) — every design token as a CSS variable
+  (colors, spacing, radius, shadows, motion, breakpoints), and nothing component-specific. This is
+  the single source of truth for those values, and the only file you emit whole.
 
 Prefer a recipe over deriving a look from the foundation tables: re-deriving by hand is where weight,
 sizing and motion violations creep in.

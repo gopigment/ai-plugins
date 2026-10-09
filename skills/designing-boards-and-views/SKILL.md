@@ -33,12 +33,14 @@ Never create Views on sublists.
 | Pivots on Metric / Table Views | `tool:update_view_pivots` |
 | Pivots on List Views | `tool:update_list_view_pivots` |
 | Value fields (add, remove, hide) | `tool:update_view_values` |
+| Show a value as % of total, growth, cumulative, … | `tool:update_view_show_value_as` |
 | Totals and aggregators | `tool:update_view_aggregations` |
+| Calculated items (variance, growth rows/columns) | `tool:update_view_calculated_items` |
 | Filters / sorts | `tool:update_view_filters` / `tool:update_view_sorts` |
 | Chart type and options | `tool:update_view_chart_config` |
 | KPI options | `tool:update_view_kpi_config` |
 | Cell colors, bold, alignment | `tool:update_view_formatting` |
-| Tree vs tabular, row height, totals position | `tool:update_view_grid_layout` |
+| Tree vs tabular, row height, totals position, column widths | `tool:update_view_grid_layout` |
 | Name, description, template, `sharingStatus` | `tool:update_view` |
 | Grid templates | `tool:get_all_view_templates` |
 | Save draft Views | `tool:save_draft_views` |

@@ -27,8 +27,8 @@
 | Function | Syntax | Behavior | Negative example |
 | --- | --- | --- | --- |
 | **ROUND** | `ROUND(Number [, Digits])` | Nearest value | Standard rounding |
-| **ROUNDUP** | `ROUNDUP(Number [, Digits])` | Away from zero | `ROUNDUP(-2.1)` → -3 |
-| **ROUNDDOWN** | `ROUNDDOWN(Number [, Digits])` | Toward zero | `ROUNDDOWN(-2.9)` → -2 |
+| **ROUNDUP** | `ROUNDUP(Number [, Digits])` | Rounds up (away from zero) | `ROUNDUP(-2.1)` → -3 |
+| **ROUNDDOWN** | `ROUNDDOWN(Number [, Digits])` | Rounds down (toward zero) | `ROUNDDOWN(-2.9)` → -2 |
 | **TRUNC** | `TRUNC(Number [, KeptDigits])` | Truncate decimals | KeptDigits is **Integer only** (not Metric); negative → BLANK |
 | **CEILING** | `CEILING(Number)` | Toward +∞ (integer) | `CEILING(-2.36)` → **-2** |
 | **FLOOR** | `FLOOR(Number)` | Toward -∞ (integer) | `FLOOR(-2.36)` → **-3** |

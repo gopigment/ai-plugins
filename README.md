@@ -64,7 +64,7 @@ Skills come in four kinds: **foundational** (read first), **planning** (decide w
 | Skill | Description |
 |-------|-------------|
 | **Understanding Pigment Modeling** | Foundational mental model — in-memory engine, blocks, dimensionality, sparsity |
-| **Analyzing Pigment Data** | Query formulation, data discovery, analysis patterns, result interpretation |
+| **Analyzing Views** | On-board and headless filter planning from view pivots and page selectors |
 | **Gathering Architecture Requirements** | Structured discovery before building anything |
 | **Architecting Multi-Application Solutions** | Splitting work across applications, Hub-and-spoke designs |
 | **Building a Full Application** | End-to-end build of a new application |
@@ -78,6 +78,7 @@ Skills come in four kinds: **foundational** (read first), **planning** (decide w
 | **Using Mapped Dimensions** | Dynamic and time-dependent hierarchies, card metrics |
 | **Setting Up Calendar** | Calendar type, fiscal year, time dimensions |
 | **Building Versions & Planning Cycles** | Versions, planning cycles, actuals vs forecast |
+| **Forecasting in Pigment** | Growth-rate hypotheses and statistical forecasting functions |
 | **Securing with Access Rights** | Access rights design, AR metrics, apply rules, debugging visibility |
 | **Sharing Data Between Applications** | Libraries and cross-application block sharing |
 | **Copying Metric Data** | Metric-to-metric copy configurations |
@@ -85,8 +86,10 @@ Skills come in four kinds: **foundational** (read first), **planning** (decide w
 | **Writing Pigment Formulas** | Pigment's proprietary formula language — quoting, references, syntax |
 | **Using Formula Functions** | Built-in function signatures and examples |
 | **Using Formula Modifiers** | Dimension mapping when source and target differ |
+| **Iterating with Previous & Cycles** | PREVIOUS, PREVIOUSOF, and iterative calculation cycles |
 | **Writing Performant Formulas** | Pre-delivery checklist, sparsity rules, anti-patterns |
 | **Diagnosing Performance Issues** | Profiling slow calculations and timeouts |
+| **Profiling Model Performance** | Performance Insights tools — change profiles, bottlenecks, before/after timings |
 | **Designing Boards & Views** | Board sections, widgets, layout, pivots, filters, sorting, aggregators |
 | **Aggregating View Data** | Totals, subtotals and roll-up behaviour in Views |
 | **Formatting & Highlighting** | Decimals, currency, percent, K/M scaling, text and boolean display |

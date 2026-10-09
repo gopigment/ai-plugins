@@ -63,9 +63,9 @@ Find the function below, then open the matching sub-file for full signatures, pa
 | MOD | `MOD(N, Div)` | Remainder |
 | QUOTIENT | `QUOTIENT(N, Div)` | Integer part |
 | POWER | `POWER(N, P)` | |
-| ROUND | `ROUND(N [, Digits])` | 0–14 digits; out of range → BLANK |
-| ROUNDUP | `ROUNDUP(N [, Digits])` | Away from zero |
-| ROUNDDOWN | `ROUNDDOWN(N [, Digits])` | Toward zero |
+| ROUND | `ROUND(N [, Digits])` | Nearest; 0–14 digits; out of range → BLANK |
+| ROUNDUP | `ROUNDUP(N [, Digits])` | Rounds up (away from zero) |
+| ROUNDDOWN | `ROUNDDOWN(N [, Digits])` | Rounds down (toward zero) |
 | TRUNC | `TRUNC(N [, KeptDigits])` | KeptDigits Integer only (not Metric); negative → BLANK |
 | CEILING | `CEILING(N)` | Toward +∞; `CEILING(-2.36)` → -2 |
 | FLOOR | `FLOOR(N)` | Toward -∞; `FLOOR(-2.36)` → -3 |

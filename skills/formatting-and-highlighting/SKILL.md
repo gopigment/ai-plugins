@@ -12,7 +12,7 @@ Set formatting on `tool:create_metric` / `tool:update_metric` via the `defaultFo
 
 Skip this skill for `tool:update_metric` calls that don't touch default format (renaming, changing dimensions, editing description).
 
-Out of scope: view display modes, aggregators, sort, filter; conditional formatting (UI-only); static cell formatting (background/text color, bold, italic, alignment) -- use `skill:designing-boards-and-views` (`tool:update_view_formatting`).
+Out of scope: view display modes, aggregators, sort, filter; static and conditional cell formatting (background/text color, bold, italic, alignment, highlight rules, color scales) -- use `skill:designing-boards-and-views` (`tool:update_view_formatting`).
 
 ## Critical Rules
 
@@ -108,4 +108,7 @@ Out of scope: view display modes, aggregators, sort, filter; conditional formatt
 
 ## Conditional Formatting & Highlighting
 
-Conditional formatting rules are **UI-only**: the agent cannot apply them. Static cell highlighting is available via `tool:update_view_formatting` (`skill:designing-boards-and-views`).
+Conditional formatting is applied with `tool:update_view_formatting` (`skill:designing-boards-and-views`), through `scope.condition`. It is not part of a metric's default format.
+
+- A rule can depend on another metric of the View (`conditionedByMetricValueFieldId`), which must already be in the View.
+- Operands are literals: to compare two metrics (e.g. Actual below Budget), model a variance metric and condition on it.

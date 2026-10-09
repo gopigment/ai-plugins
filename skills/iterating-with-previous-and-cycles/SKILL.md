@@ -70,6 +70,10 @@ Before using PREVIOUSOF, create an iterative calculation cycle listing all parti
 6. Use `tool:update_cycle` to add or remove metrics from an existing cycle.
 7. Verify all mutually dependent metrics participate.
 
+### Reference cycles to the user
+
+When naming a cycle in a reply, use the mention syntax with its id (returned by `tool:list_cycles` or `tool:create_cycle`) and its application id: `[<cycle name>](mention:cycle:<cycle-uuid>@<app-uuid>)`. It renders as a chip that opens the application's Calculations settings. Fall back to the backticked cycle name only when the ids are not available.
+
 ### Constraints
 
 - Maximum ~10 metrics per cycle (verify the current platform limit)
