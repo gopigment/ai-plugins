@@ -27,17 +27,32 @@ The Frame JS lives in a file on your filesystem. `tool:create_frame` and `tool:u
 | `tool:edit_file` | Change the JS file in place. Prefer it over rewriting the whole file. |
 | `tool:create_frame` | Create once (name, `path`, bindings, data sources). Errors on name collision. |
 | `tool:update_frame` | Push the current file contents to an existing Frame; full replacement of `name`, `path`, `bindings`, `data_sources`. |
-| `tool:search_frames` | Look frames up. Pass `id` or `name` for one frame, which returns its full definition (`bindings` included, ready for update). Pass neither to list ids + names; add `show_details: true` to get every body too. Empty result means no match. |
+| `tool:update_frame_body` | Exact, case-sensitive find-and-replace edits on the body already saved in Pigment. Keeps name, bindings, data sources and data sinks. All-or-nothing: fails if the old text is missing, or matches more than once without the replace-all flag. Returns edit counts, not the new body. It does not read or change your file. |
+| `tool:search_frames` | Look frames up. Pass `id` or `name` for one frame, which returns its full definition (`bindings`, `data_sources` and `data_sinks` included, ready for update). Pass neither to list ids + names; add `show_details: true` to get every body too. Empty result means no match. |
 
 0. Identify the data (Metrics & Lists) that you Frames need to read from and write to. The Frame reads Metrics and List Properties directly through **data sources** that shape the rows (`labels`), columns (`values`) and pre-aggregation filters (`selectors`) it needs. The Frame writes back to Lists and Metrics directly through **data sinks** that target a List Item or Metric cell (`item` / `coordinates`) with the new property or cell values (`values`) it needs. Ask the user to confirm the read & write access they want to grant the Frame.
 1. Before writing any code, ask the user if they have specific requirements regarding the design of the Frame: encourage them to share a color palette, screenshots, light / dark theme preferences. If `skill:designing-pigment-frames` is among your available skills (it is feature-flagged), load `skill:designing-pigment-frames` and use it to create the Frame design. If the user does not have any specific requirements, use a minimal, modern design with a light theme, clean typography, and a neutral color palette with a single accent color.
 2. Declare the **bindings** (Metrics, Lists, List Properties, Variables) and one **data source** per dataset the Frame reads (see [Data sources](#data-sources)). Warnings: a) rows are capped at 1,000 per window ; b) concurrent subscriptions per Frame are limited to 10 data-source subscriptions and 20 List subscriptions.
 3. `tool:write_file` the JS body to a file (e.g. `/frames/revenue-heatmap.js`), then `tool:create_frame` once with that `path`. Never re-create (name collision). Use `tool:search_frames` with a `name` if unsure it exists.
-4. For every later change, `tool:edit_file` the same file, then `tool:update_frame` with the same `path`. A Frame write reads the file at call time, so the file is the source of truth - keep editing it rather than rewriting it from scratch.
-5. Always resend the complete `bindings`, `data_sources`, and `data_sinks` arrays when calling `tool:create_frame` / `tool:update_frame`; an omitted array drops every entry of that kind. `tool:search_frames` by `id` or `name` gives you the `bindings` array but not the data sources/sinks — keep track of the ones you declared; a bare listing gives neither.
-6. **Grow a large body in the file, not in tool arguments.** A Frame's JS body can be long enough that emitting it whole in one response risks hitting the model's max output size. For a substantial new Frame, `tool:write_file` a working skeleton (IIFE, `#app` setup, `__cleanup`, and clearly unique placeholder markers for the sections still to come — e.g. `// SECTION: subscribe`, `// SECTION: render`, `// SECTION: styles`), then fill each placeholder with `tool:edit_file`, one section at a time. Call `tool:create_frame` / `tool:update_frame` once the file is complete.
-7. If a Frame write reports the file was not found, the file was never written or the path is wrong: check with `tool:ls`, then `tool:write_file` before retrying.
-8. Whenever the user reports a bug (blank page or anything that does not work expectedly), you can ask the user to record the logs using the dedicated buttons in the UI. You will be able to read the recorded logs.
+4. For every later change, `tool:edit_file` the same file, then `tool:update_frame` with the same `path`. A Frame write reads the file at call time, so the file is the source of truth - keep editing it rather than rewriting it from scratch. Use `tool:update_frame_body` only for a small fix when you have no file for the Frame.
+5. Make sure to save the changes that you made in the database using `tool:update_frame_body` or `tool:update_frame`. All changes that you make locally (in your context or file you write to) must be saved in the database using these tools to make sure the user can render it.
+6. Always resend the complete `bindings`, `data_sources`, and `data_sinks` arrays when calling `tool:create_frame` / `tool:update_frame`; an omitted array drops every entry of that kind. Before `tool:update_frame`, read the current arrays with `tool:search_frames` by `id` or `name`, which returns all three; a bare listing returns none of them.
+7. **Grow a large body in the file, not in tool arguments.** A Frame's JS body can be long enough that emitting it whole in one response risks hitting the model's max output size. For a substantial new Frame, `tool:write_file` a working skeleton (IIFE, `#app` setup, `__cleanup`, and clearly unique placeholder markers for the sections still to come — e.g. `// SECTION: subscribe`, `// SECTION: render`, `// SECTION: styles`), then fill each placeholder with `tool:edit_file`, one section at a time. Call `tool:create_frame` / `tool:update_frame` once the file is complete.
+8. If a Frame write reports the file was not found, the file was never written or the path is wrong: check with `tool:ls`, then `tool:write_file` before retrying.
+9. Whenever the user reports a bug (blank page or anything that does not work expectedly), you can ask the user to record the logs using the dedicated buttons in the UI. You will be able to read the recorded logs.
+
+## Publishing
+
+Frame writes are drafts. Only the user can publish.
+
+- `tool:create_frame`, `tool:update_frame` and `tool:update_frame_body` save to the user's private draft. You have no tool to publish or delete a Frame.
+- The user sees the draft in the Frame editor ("You are viewing a draft"). Everyone else sees the published version. A new Frame starts published and empty, so nobody else sees your work until the user publishes.
+- To publish, the user opens the Frame, selects **Publish** in the header, and confirms. They need edit rights on the Frame. **Discard** deletes the draft.
+- A write after a publish starts a new draft from the published version, and the user must publish again. A write before a publish edits the same draft.
+- The Frame name is not part of the draft: a rename is live for everyone at once.
+- After a publish, writes through data sinks do not ask the user to confirm, unless a user turns confirmation back on in the Frame's **Configure data inputs** setting. You cannot read or change this setting.
+
+When the Frame works, tell the user that it is still a draft and ask them to publish it.
 
 ## Sandboxed Runtime
 
@@ -346,7 +361,7 @@ In `root.__cleanup`: `unsubscribe()` all subs; `removeEventListener` all named g
 
 - **Backing Views:** legacy Frames needed a backing View on a List, Metric or Table with the right layout. Data sources replace this step entirely.
 - **Bindings:** a `View` binding (`view_id`) per View, plus `List` / `Variable` bindings for `pageDefinitions`.
-- **Limits:** shares the 10 concurrent subscriptions with `subscribeToDataSource`; rows capped at 1,000 per window.
+- **Limits:** a Frame that predates `data_sources` shares 15 concurrent subscriptions between `subscribeToVizualization` and `subscribeToDataSource`; rows capped at 1,000 per window. New Frames get 10 for `subscribeToDataSource`, and the host rejects `subscribeToVizualization` with an error.
 - **Return value:** like `subscribeToDataSource`, it returns synchronously a handle — here `{ unsubscribe(), updatePageDefinitions(defs), updateScroll(scroll) }`.
 
 ```js

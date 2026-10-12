@@ -4,7 +4,7 @@ description: >
   Guide for determining which filters apply and how — covering both on-board queries (where the view
   is provided in user visible context) and headless queries (where the view is not provided in the
   user visible context). Use when the query involves filtering, slicing, grouping, or applying board
-  page selectors — before calling the get_views tool or search_views tool.
+  page selectors — before planning filters, or before calling the get_views tool or search_views tool.
 metadata:
   skill_path: /skills/analyzing-views/SKILL.md
   base_directory: /skills/analyzing-views
@@ -32,15 +32,15 @@ This skill applies once you have retrieved a view — either via User Visible Co
 
 ---
 
-## Reading a `tool:get_views` response
+## Reading a view's configuration
 
-`tool:get_views` returns the full pivot configuration for each page selector: pivot type (Dimension, Grouping, or Joined), the source dimension ID, the mapping metric ID (Joined pivots only), and the property path (Grouping pivots only). This is the only call that surfaces pivot type information — it must be called before any filter planning.
+The view configuration holds the full pivot configuration for each page selector: pivot type (Dimension, Grouping, or Joined), the source dimension ID, the mapping metric ID (Joined pivots only), and the property path (Grouping pivots only). It is the only source of pivot type information — you need it before any filter planning. It comes from `tool:get_views`, unless a tool response already in the conversation includes this view's configuration: then plan from that response and do not call `tool:get_views` again.
 Use when: you have a specific view ID (from UVC or chosen via `tool:search_views`) and need to plan which filters to apply — e.g. "show me revenue by territory for Q3" on a board, or after selecting a view in a headless flow.
 
 `tool:search_views` (called with the block id in `block_ids`) returns slim selection metadata: view name, referring board names, and dimension names as plain strings. Joined and Dimension pivots return the same dimension name — the type distinction is lost. Use `tool:search_views` only to select the most relevant view, then follow with `tool:get_views` to get the full pivot configuration.
 Use when: you found a block via search and need to pick the most relevant view before filter planning — e.g. headless query where no view ID is in context yet.
 
-On reading the `tool:get_views` result, scan each page selector entry and build a plan:
+On reading the view configuration, scan each page selector entry and build a plan:
 
 - Check the pivot type for each selector. The type field tells you how to wire the filter:
   - **Dimension**: note the dimension ID — filter applies directly.
@@ -66,13 +66,13 @@ For each active selector, look up its pivot type in the view's pivot configurati
 
 **User override**: if the user explicitly requests different filter values or asks to ignore a selector, their instruction takes precedence. Only override when explicit — never infer an override from absence of mention.
 
-**Multi-value selectors**: if the board selector has multiple selected values, fetch once per selected value, union the results, then aggregate. Never drop values to avoid splitting.
+**Multi-value selectors**: if the board selector has multiple selected values, fetch once per selected value, union the results, then aggregate. Never drop values to avoid splitting. Joined selectors are the exception: the mapping procedure handles all their selected values in one pass.
 
 **Unsupported pivot type — Slice**: if an active UVC board selector has `kind: Slice`, a customer data fetch cannot replicate it. Disclose this explicitly to the user: state which selector is active and that the fetched result will not honour that constraint. Offer to proceed without it.
 
 ### Display grain [on-board only]
 
-When the user asks about data on the current board/view, default the answer grain to the view's row/column pivots from `tool:get_views`. Only use a different grain if the user explicitly asks.
+When the user asks about data on the current board/view, default the answer grain to the view's row/column pivots from its configuration. Only use a different grain if the user explicitly asks.
 
 - **Dimension / Grouping** row or column pivots: pass them as `breakdown_dimensions`.
 - **Joined** row or column pivots: do not pass the mapped dimension directly — resolve via the mapping metric (same procedure as Joined filters), then present at that mapped grain.
@@ -108,15 +108,16 @@ When a board selector applies to a sibling metric but NOT the target metric (its
 
 Mapped dimensions cannot be filtered directly — they are added dynamically via a mapping metric, and the relationship can vary across dimensions (e.g. an Employee's Team may change by Month). Follow this procedure:
 
-1. **Identify the mapping metric** from the view's pivot config.
-2. **Fetch the mapping metric** (e.g. `Emp_Manager L3_Week`). Each cell value is an item from the target dimension.
-3. **Filter the results**: find all source dimension item combinations where the value equals the user's desired target. E.g. for `L3 Manager = "Sarah Chen"`, find all (Employee, Week) pairs where `Emp_Manager L3_Week = "Sarah Chen"`.
-4. **Apply source dimension filters** to the original metric using the identified items.
+1. **Identify the mapping metric** from the view's pivot config. The config only gives its id (`mappingMetricId`): get its name and dimensions with `tool:search_metrics_and_lists`, passing the id in `block_id_exact_match` with `show_details: true`.
+2. **Fetch the mapping metric**, broken down by all its dimensions. Each cell value is an item from the target dimension. Keep the cells whose value is one of the selected target items — e.g. for `L3 Manager = "Sarah Chen"`, the (Employee, Week) pairs where `Emp_Manager L3_Week = "Sarah Chen"`. Several selected target items are handled in this same step — no fetch per item. When the mapped dimension is only a breakdown (e.g. a Joined row or column pivot), with no item selected, keep all cells. If no cell is kept, the filtered result is empty: say so and do not fetch the original metric — an empty `item_filters` list is ignored and would return unfiltered data.
+3. **Fetch the original metric**, depending on how many dimensions the mapping metric spans:
+   - **One dimension, and the mapped dimension is only a filter** (e.g. Employee → Department, filtered to Sales): pass the kept items as `item_filters` on that dimension. The result is already filtered.
+   - **Several dimensions** (e.g. Employee × Week), **or the mapped dimension is a breakdown** (a Joined row or column pivot, or e.g. "by Department"): a merge of the original metric and the mapping metric is required, as `item_filters` apply to each dimension separately. Break the original metric down by all the mapping metric's dimensions, plus the breakdown the user asked for, and pass the kept items of each dimension as `item_filters` to narrow the fetch. Then, in one code execution, merge it with the kept mapping cells on all the mapping metric's dimensions and aggregate to the requested granularity, grouping by the mapping value when the mapped dimension is a breakdown.
 
 **Sister filters**: when fetching a Joined selector's mapping metric, do not apply other Joined selectors' values. Resolve each Joined selector separately, then apply all of them to the target metric.
 Example: for Joined selectors Manager and Region, do not filter the Manager mapping by Region, or the Region mapping by Manager.
 
-Constraints: never pass mapped dimensions directly into the data fetch. Confirm which source dimensions the mapping metric spans. If the mapping metric has a time dimension, apply the user's time filter to it as well — the relationship may be time-dependent.
+Constraints: never pass mapped dimensions directly into the data fetch. Apply the other filters on dimensions the two metrics share (e.g. the user's time filter) to both fetches — the mapping may be time-dependent.
 
 ### Disambiguating filter candidates [both flows]
 

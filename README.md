@@ -43,9 +43,28 @@ Your MCP URL can be found in your Pigment workspace under **Settings > Integrati
 
 The plugin connects your AI assistant to the Pigment MCP server, which has two modes.
 
-**Default** — read-only tools for data analysis. Only metrics where [AI data access](https://kb.pigment.com/docs/pigment-ai#ai-data-access) is enabled are accessible.
+#### Default mode
 
-**Advanced** — write tools for modeling Pigment applications (dimensions, metrics, formulas, calendars, boards, views, and more). Each user can enable it in **Settings > Advanced Features > Advanced MCP Tools**.
+Public mode provides read-only tools for exploring and analyzing your Applications. For instance, public tools let you:
+
+- Find Applications, Blocks, and Boards
+- Understand Metric structure and dependencies
+- Retrieve Metric and List data
+
+To make a Block's data accessible, you need to enable [AI data access](https://kb.pigment.com/docs/pigment-ai#ai-data-access) on it.
+
+#### Advanced mode
+
+Advanced mode provides read and write tools for modeling and editing your Applications. For instance, advanced tools let you:
+
+- Create Applications
+- Build and edit Blocks (Dimensions, Metrics and Tables)
+- Write formulas
+- Design Views and Boards
+- Input data
+- Audit performance
+
+Each user can enable advanced mode for their account in **Settings > Advanced features > Enable advanced tools on MCP server**. Advanced mode is off by default.
 
 Users connect with their own credentials via OAuth, so their Pigment access rights and permissions apply by design — they can't access or do more than what they can already do in Pigment.
 
