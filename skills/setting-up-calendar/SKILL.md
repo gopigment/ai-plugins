@@ -30,7 +30,7 @@ Use `tool:calendar_create` with these parameters:
 `tool:calendar_create` produces Private time dimension lists (Month, Quarter, Year). For a Hub application where calendars must be shared:
 
 1. After creating the calendar, call `tool:calendar_get` to retrieve the time dimension list IDs.
-2. For each time dimension list, call `tool:update_list` with `sharing_status: "Shared"`.
+2. Call `tool:update_list` for each time dimension list with `sharing_status: "Shared"`.
 
 This is separate from `tool:batch_share_blocks` which is for metrics and other blocks.
 

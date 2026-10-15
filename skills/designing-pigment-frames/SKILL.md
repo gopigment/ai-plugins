@@ -1,6 +1,6 @@
 ---
 name: designing-pigment-frames
-description: "Apply Pigment's visual design language to a Frame that already renders — use when an existing Frame must look on-brand, native, or less generic. Not for initial Frame creation. Build it with `skill:building-pigment-frames` first, then come back here for the design passes."
+description: "Apply Pigment's visual design language to a new or existing Frame - use when the Frame should look Pigment-like: on-brand, native, or less generic. Do not use it when the user gives their own design requirements (a brand, a palette, screenshots, or a look to match). This skill contains the Pigment design system, foundations, patterns, styles, typography and color schemes."
 metadata:
   skill_path: /skills/designing-pigment-frames/SKILL.md
   base_directory: /skills/designing-pigment-frames
@@ -10,21 +10,21 @@ metadata:
 
 # Styling Pigment Frames
 
-Bring a Frame that already works up to the visual language of the Pigment platform. You tend to
+Give a Frame, new or existing, the visual language of the Pigment platform. You tend to
 converge toward generic, "on distribution" output, which users find off-putting. The reference files
 here exist so that you do not have to invent anything.
 
 ## When to Use
 
-**Build first, design after.** Do not load this skill during initial Frame creation. Build with
-`skill:building-pigment-frames` until the Frame renders its data, show it, then style it — a user
-cannot judge how a Frame looks until they can see it.
+Use this skill when the Pigment design is needed: the user asks for a Frame that looks native to
+Pigment, or gives no other design requirements. Do not use it when the user gives their own brand,
+palette, screenshots or a look to match. Follow the user's design instead.
 
-The one design step that belongs in the build is the **base stylesheet**: the contents of
+Always start with the **base stylesheet**: the contents of
 [`references/styles/stylesheet.md`](references/styles/stylesheet.md) in the
-[styles section](#the-styles-section). That alone keeps v1 from looking generic, because it gives the
-Frame Pigment's color, spacing, radius and motion tokens as CSS variables. Type styles and every
-component's own CSS come from their own recipe file, in the design passes.
+[styles section](#the-styles-section). It gives the Frame Pigment's color, spacing, radius and motion
+tokens as CSS variables, so the Frame does not look generic. Type styles and every component's own
+CSS come from their own recipe file, in the design passes.
 
 ## What You Are Styling
 
@@ -60,10 +60,7 @@ Every later pass **appends** to this same block with a targeted `tool:edit_file`
 straight out of whichever recipe file that pass opened, right before the closing `` ` ``. Never
 rewrite the whole block: a Frame only ships CSS for the components it actually uses.
 
-**Change styles with targeted `tool:edit_file` calls against this block.** Never `tool:read_file` the
-whole Frame file for a style change and never rewrite it from scratch: `read_file`, `write_file` and
-`edit_file` output is never evicted, so each whole-file read or rewrite sits in context for the rest
-of the session and costs you the room to finish.
+**Change styles with targeted `tool:edit_file` calls against this block.** prefer to read Frame code in small batches when reading style content. Also prefer to edit it in small incremental edits.
 
 ## Design Passes
 
@@ -71,7 +68,7 @@ Run these in order, pushing the file with `tool:update_frame` after each one so 
 result. Each pass ends with its own [checks](#audit-checklist). Fixing a fault in pass 1 is cheap;
 finding the same fault in a finished artifact is not.
 
-1. **Base** — tokens, typography and spacing present and applied. If the build already wrote the
+1. **Base** — tokens, typography and spacing present and applied. If the Frame already has the
    styles section, verify it is complete rather than writing it again. If it is missing, write it
    now — once.
 2. **Structure** — page canvas, headers, grid, section rhythm.

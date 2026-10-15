@@ -136,10 +136,11 @@ SELECT filters then removes the filtered dimension(s). **Methods**: SUM (default
 | **Filter & remove** | `Metric[SELECT: Dim = item]` | Filters to matching rows, removes the dimension |
 | **1:1 mapping lookup** | `Metric[SELECT: DimA.TargetItem]` | Reads value at the mapped target item |
 | **Aggregate & allocate** | `Revenue[SELECT: Month.Quarter]` | Aggregates up then replicates to each source item |
-| **Offset** | `Metric[SELECT: Month - 12]` | Shifts dimension value; **keeps** the dimension |
+| **Offset** | `Metric[SELECT: Month - N]` / `Metric[SELECT: Month + N]` | Each item reads the value N items earlier (`- N`, lag) or N items later (`+ N`, lead); **keeps** the dimension |
 
 ```pigment
 'Revenue'[SELECT: Month - 12]              // Same month last year (keeps Month)
+'Revenue'[SELECT: Month + 2]               // January shows March's value (keeps Month)
 'Revenue'[SELECT: 'Month'.'Quarter']       // Quarterly total replicated to each month
 ```
 
