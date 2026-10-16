@@ -31,8 +31,8 @@ Never create Views on sublists.
 | Discover which pivots are valid | `tool:get_available_pivots` |
 | Create a View | `tool:create_view` |
 | Pivots on Metric / Table Views | `tool:update_view_pivots` |
-| Pivots on List Views | `tool:update_list_view_pivots` |
-| Value fields (add, remove, hide) | `tool:update_view_values` |
+| List Views: groupings, page selectors, and which properties are shown (show, hide, reorder) | `tool:update_list_view_pivots` |
+| Value fields on Metric / Table Views (add, remove, hide) | `tool:update_view_values` |
 | Show a value as % of total, growth, cumulative, … | `tool:update_view_show_value_as` |
 | Totals and aggregators | `tool:update_view_aggregations` |
 | Calculated items (variance, growth rows/columns) | `tool:update_view_calculated_items` |
@@ -131,7 +131,7 @@ Chart and Grid heights depend on data complexity: rows, columns, legends, axis l
 
 ## Reuse or Create
 
-Call `tool:search_views` to see what exists; this is a light pass, not a hard prerequisite. Pass `display_intent` (`Kpi`, `Grid`, or `Chart`, plus an optional `chart_type`) to get candidates sorted by compatibility. **On a List block use `Grid` or omit it** -- `Kpi`, `Chart` and any `chart_type` return an error, because a List only supports Grid display. Results are paginated and the intent only sorts within one page, so read the later pages before you conclude that nothing fits.
+Call `tool:search_views` to see what exists; this is a light pass, not a hard prerequisite. Pass `display_intent` (`Kpi`, `Grid`, or `Chart`, plus an optional `chart_type`) to keep only the candidates set up for that display mode. **On a List block use `Grid` or omit it** -- `Kpi`, `Chart` and any `chart_type` return an error, because a List only supports Grid display. Results are paginated, so read the later pages when the first one is full. If the intent returns nothing, search again without it: a View with the right pivots can still be adapted.
 
 Judge the **name** first: `View 1`, `Test` and other generic defaults are product placeholders, so create a new View instead. A descriptive name plus pivots that fit this widget and its board siblings is a reuse signal.
 

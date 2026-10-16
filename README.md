@@ -53,6 +53,28 @@ Public mode provides read-only tools for exploring and analyzing your Applicatio
 
 To make a Block's data accessible, you need to enable [AI data access](https://kb.pigment.com/docs/pigment-ai#ai-data-access) on it.
 
+<!-- mcp-tools:default:start -->
+<details>
+<summary>Available tools (14)</summary>
+
+- fetch_list_data
+- fetch_metric_data
+- get_applications
+- get_data_dependency_tree
+- get_metric_context
+- get_metric_dependencies
+- get_organization_info
+- get_views
+- search_boards
+- search_folders
+- search_metrics_and_lists
+- search_tables
+- search_views
+- semantic_search
+
+</details>
+<!-- mcp-tools:default:end -->
+
 #### Advanced mode
 
 Advanced mode provides read and write tools for modeling and editing your Applications. For instance, advanced tools let you:
@@ -63,6 +85,97 @@ Advanced mode provides read and write tools for modeling and editing your Applic
 - Design Views and Boards
 - Input data
 - Audit performance
+
+<!-- mcp-tools:advanced:start -->
+<details>
+<summary>Available tools (83)</summary>
+
+- add_list_items
+- batch_share_blocks
+- calendar_add_time_dimension
+- calendar_create
+- calendar_expand
+- calendar_get
+- calendar_remove_time_dimension
+- clear_widget_preview
+- copy_formula_as_user_inputs
+- create_application
+- create_board
+- create_cycle
+- create_folder
+- create_frame
+- create_list
+- create_list_property
+- create_metric
+- create_metric_copy_config
+- create_sublist
+- create_table
+- create_view
+- delete_application
+- delete_block
+- delete_cycle
+- delete_list_items
+- delete_list_property
+- delete_sandbox
+- delete_views
+- duplicate_application
+- duplicate_block
+- edit_list_item_history_properties
+- enable_application_library
+- get_all_view_templates
+- get_audit_trail
+- get_available_pivots
+- get_block_sharing_plan_for_batch_share
+- get_blocks_performance
+- get_board
+- get_list_items
+- get_metric_to_metric_copy_configs
+- get_top_blocks_by_performance
+- list_application_libraries
+- list_cycles
+- list_issues
+- list_scenarios
+- move_blocks
+- performance_changes_statistics
+- performance_profile_change
+- performance_profile_change_scope_details
+- performance_slowest_changes
+- save_draft_views
+- search
+- search_frames
+- set_board_permission_metrics
+- set_metric_input
+- set_widget_preview
+- update_application
+- update_board
+- update_board_page_configurations
+- update_board_widgets
+- update_cycle
+- update_folder_name
+- update_frame
+- update_frame_body
+- update_list
+- update_list_property
+- update_list_property_input_data
+- update_list_view_pivots
+- update_metric
+- update_table
+- update_view
+- update_view_aggregations
+- update_view_calculated_items
+- update_view_chart_config
+- update_view_filters
+- update_view_formatting
+- update_view_grid_layout
+- update_view_kpi_config
+- update_view_pivots
+- update_view_show_value_as
+- update_view_sorts
+- update_view_values
+- validate_formula
+
+</details>
+<!-- mcp-tools:advanced:end -->
 
 Each user can enable advanced mode for their account in **Settings > Advanced features > Enable advanced tools on MCP server**. Advanced mode is off by default.
 

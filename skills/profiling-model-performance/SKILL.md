@@ -161,6 +161,8 @@ Scope details of N execution(s):
 
 Scope text is `no change`, `no scope, full computation`, or `dim:uuid (N modalities), ...`: one entry per scoped dimension, restricted to N items. Dimensions of `Dimensions:` missing from `Effective scope:` are the unscoped ones (Y − X).
 
+`dim:uuid (unknown modalities count)` means the dimension is scoped but its item count was not recorded. It still counts as scoped in X/Y. Never report it as a full computation, and never guess the count: say it is unknown.
+
 - **Request only what you need:** the scope-loss origin and its direct ancestors (`Depends on:`), or the few steps whose X/Y you report. Do not request every execution of a big change.
 - Report dimensions by name, never by UUID.
 

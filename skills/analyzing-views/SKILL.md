@@ -27,17 +27,17 @@ This skill applies once you have retrieved a view — either via User Visible Co
 
 - **Dimension** — the selector directly uses a dimension (e.g. `Teams`, `Month`, `Version`). Apply filters directly on that dimension.
 - **Grouping** — the selector uses a *property on a dimension* to aggregate values (e.g. `Month → Year`, `Country → Region`, `Employee → Department`). The underlying data is at the finer granularity; apply as a filter on the property dimension (e.g. filter on `Month > Year`, not on `Month` directly).
-- **Joined** — the selector is derived from a *mapping metric* that translates one dimension into another (e.g. `Departments via MAP_Teams to Departments`). The block is dimensioned by the source (e.g. Teams), not the target (Departments). Cannot filter directly — see *Filtering on mapped dimensions (Joined pivots)*.
-- **Slice** — the selector is derived from a *slice configuration* that groups items from source dimensions into named subsets (e.g. `Americas`, `EMEA` via a Region Grouping). Filtering on Slice pivots is not currently supported — see *Unsupported pivot types* below.
+- **Mapped** (`kind: Joined` in the view configuration) — the selector is derived from a *mapping metric* that translates one dimension into another (e.g. `Departments via MAP_Teams to Departments`). The block is dimensioned by the source (e.g. Teams), not the target (Departments). Cannot filter directly — see *Filtering on Mapped pivots*.
+- **Slice** — the selector is derived from a *slice configuration* that groups items from source dimensions into named subsets (e.g. `Americas`, `EMEA` via a Region Grouping). Filtering on Slice pivots is not currently supported — see *Unsupported pivot type — Slice* below.
 
 ---
 
 ## Reading a view's configuration
 
-The view configuration holds the full pivot configuration for each page selector: pivot type (Dimension, Grouping, or Joined), the source dimension ID, the mapping metric ID (Joined pivots only), and the property path (Grouping pivots only). It is the only source of pivot type information — you need it before any filter planning. It comes from `tool:get_views`, unless a tool response already in the conversation includes this view's configuration: then plan from that response and do not call `tool:get_views` again.
+The view configuration holds the full pivot configuration for each page selector: pivot type (Dimension, Grouping, or Mapped), the source dimension ID, the mapping metric ID (Mapped pivots only), and the property path (Grouping pivots only). It is the only source of pivot type information — you need it before any filter planning. It comes from `tool:get_views`, unless a tool response already in the conversation includes this view's configuration: then plan from that response and do not call `tool:get_views` again.
 Use when: you have a specific view ID (from UVC or chosen via `tool:search_views`) and need to plan which filters to apply — e.g. "show me revenue by territory for Q3" on a board, or after selecting a view in a headless flow.
 
-`tool:search_views` (called with the block id in `block_ids`) returns slim selection metadata: view name, referring board names, and dimension names as plain strings. Joined and Dimension pivots return the same dimension name — the type distinction is lost. Use `tool:search_views` only to select the most relevant view, then follow with `tool:get_views` to get the full pivot configuration.
+`tool:search_views` (called with the block id in `block_ids`) returns slim selection metadata: view name, referring board names, and dimension names as plain strings. Mapped and Dimension pivots return the same dimension name — the type distinction is lost. Use `tool:search_views` only to select the most relevant view, then follow with `tool:get_views` to get the full pivot configuration.
 Use when: you found a block via search and need to pick the most relevant view before filter planning — e.g. headless query where no view ID is in context yet.
 
 On reading the view configuration, scan each page selector entry and build a plan:
@@ -45,9 +45,9 @@ On reading the view configuration, scan each page selector entry and build a pla
 - Check the pivot type for each selector. The type field tells you how to wire the filter:
   - **Dimension**: note the dimension ID — filter applies directly.
   - **Grouping**: note the source dimension ID and property path — filter applies on the property, not the dimension.
-  - **Joined**: note the mapping metric ID — a separate fetch of the mapping metric is required before filtering.
+  - **Mapped** (`Joined`): note the mapping metric ID — a separate fetch of the mapping metric is required before filtering.
   - **Slice**: flag immediately — filtering is not currently supported. Note which selector is active and skip it.
-- Flag any selector whose type is Joined, Grouping, or Slice — these require extra steps or cannot be applied.
+- Flag any selector whose type is Mapped, Grouping, or Slice — these require extra steps or cannot be applied.
 - If a page selector's pivot type is unclear or the required fields are missing, stop and ask before proceeding.
 
 ---
@@ -56,17 +56,17 @@ On reading the view configuration, scan each page selector entry and build a pla
 
 ### Board selector application [on-board only]
 
-All active UVC page selectors are required constraints on the **final result** — the analysis must honour every selector. That does **not** mean every selector’s values should be passed into every intermediate fetch (see Joined pivots below).
+All active UVC page selectors are required constraints on the **final result** — the analysis must honour every selector. That does **not** mean every selector’s values should be passed into every intermediate fetch (see Mapped pivots below).
 
 For each active selector, look up its pivot type in the view's pivot configuration and apply accordingly:
 
 - **Dimension** (direct): apply directly on the target dimension.
 - **Grouping**: apply as a property filter on the source dimension using the property path from the pivot config.
-- **Joined** (mapping): follow the mapped dimension procedure below.
+- **Mapped** (through a mapping metric): follow the mapped dimension procedure below.
 
 **User override**: if the user explicitly requests different filter values or asks to ignore a selector, their instruction takes precedence. Only override when explicit — never infer an override from absence of mention.
 
-**Multi-value selectors**: if the board selector has multiple selected values, fetch once per selected value, union the results, then aggregate. Never drop values to avoid splitting. Joined selectors are the exception: the mapping procedure handles all their selected values in one pass.
+**Multi-value selectors**: if the board selector has multiple selected values, fetch once per selected value, union the results, then aggregate. Never drop values to avoid splitting. Mapped selectors are the exception: the mapping procedure handles all their selected values in one pass.
 
 **Unsupported pivot type — Slice**: if an active UVC board selector has `kind: Slice`, a customer data fetch cannot replicate it. Disclose this explicitly to the user: state which selector is active and that the fetched result will not honour that constraint. Offer to proceed without it.
 
@@ -75,7 +75,7 @@ For each active selector, look up its pivot type in the view's pivot configurati
 When the user asks about data on the current board/view, default the answer grain to the view's row/column pivots from its configuration. Only use a different grain if the user explicitly asks.
 
 - **Dimension / Grouping** row or column pivots: pass them as `breakdown_dimensions`.
-- **Joined** row or column pivots: do not pass the mapped dimension directly — resolve via the mapping metric (same procedure as Joined filters), then present at that mapped grain.
+- **Mapped** row or column pivots: do not pass the mapped dimension directly — resolve via the mapping metric (same procedure as Mapped filters), then present at that mapped grain.
 
 ### Selector scope check [on-board only]
 
@@ -104,18 +104,18 @@ When a board selector applies to a sibling metric but NOT the target metric (its
 
 **Time selector trap**: time selectors (Snapshot Week, Quarter, Fiscal Period) are the most dangerous case. They often scope one metric ("pipeline as of this snapshot") but have completely different semantics on another ("only meetings in this one week"). If a time selector's dimension is not in the target metric's pivot config, never apply it directly. Be especially cautious with time-based selectors and flag the semantic difference when presenting options.
 
-### Filtering on mapped dimensions (Joined pivots) [both flows]
+### Filtering on Mapped pivots [both flows]
 
 Mapped dimensions cannot be filtered directly — they are added dynamically via a mapping metric, and the relationship can vary across dimensions (e.g. an Employee's Team may change by Month). Follow this procedure:
 
 1. **Identify the mapping metric** from the view's pivot config. The config only gives its id (`mappingMetricId`): get its name and dimensions with `tool:search_metrics_and_lists`, passing the id in `block_id_exact_match` with `show_details: true`.
-2. **Fetch the mapping metric**, broken down by all its dimensions. Each cell value is an item from the target dimension. Keep the cells whose value is one of the selected target items — e.g. for `L3 Manager = "Sarah Chen"`, the (Employee, Week) pairs where `Emp_Manager L3_Week = "Sarah Chen"`. Several selected target items are handled in this same step — no fetch per item. When the mapped dimension is only a breakdown (e.g. a Joined row or column pivot), with no item selected, keep all cells. If no cell is kept, the filtered result is empty: say so and do not fetch the original metric — an empty `item_filters` list is ignored and would return unfiltered data.
+2. **Fetch the mapping metric**, broken down by all its dimensions. Each cell value is an item from the target dimension. Keep the cells whose value is one of the selected target items — e.g. for `L3 Manager = "Sarah Chen"`, the (Employee, Week) pairs where `Emp_Manager L3_Week = "Sarah Chen"`. Several selected target items are handled in this same step — no fetch per item. When the mapped dimension is only a breakdown (e.g. a Mapped row or column pivot), with no item selected, keep all cells. If no cell is kept, the filtered result is empty: say so and do not fetch the original metric — an empty `item_filters` list is ignored and would return unfiltered data.
 3. **Fetch the original metric**, depending on how many dimensions the mapping metric spans:
    - **One dimension, and the mapped dimension is only a filter** (e.g. Employee → Department, filtered to Sales): pass the kept items as `item_filters` on that dimension. The result is already filtered.
-   - **Several dimensions** (e.g. Employee × Week), **or the mapped dimension is a breakdown** (a Joined row or column pivot, or e.g. "by Department"): a merge of the original metric and the mapping metric is required, as `item_filters` apply to each dimension separately. Break the original metric down by all the mapping metric's dimensions, plus the breakdown the user asked for, and pass the kept items of each dimension as `item_filters` to narrow the fetch. Then, in one code execution, merge it with the kept mapping cells on all the mapping metric's dimensions and aggregate to the requested granularity, grouping by the mapping value when the mapped dimension is a breakdown.
+   - **Several dimensions** (e.g. Employee × Week), **or the mapped dimension is a breakdown** (a Mapped row or column pivot, or e.g. "by Department"): a merge of the original metric and the mapping metric is required, as `item_filters` apply to each dimension separately. Break the original metric down by all the mapping metric's dimensions, plus the breakdown the user asked for, and pass the kept items of each dimension as `item_filters` to narrow the fetch. Then, in one code execution, merge it with the kept mapping cells on all the mapping metric's dimensions and aggregate to the requested granularity, grouping by the mapping value when the mapped dimension is a breakdown.
 
-**Sister filters**: when fetching a Joined selector's mapping metric, do not apply other Joined selectors' values. Resolve each Joined selector separately, then apply all of them to the target metric.
-Example: for Joined selectors Manager and Region, do not filter the Manager mapping by Region, or the Region mapping by Manager.
+**Sister filters**: when fetching a Mapped selector's mapping metric, do not apply other Mapped selectors' values. Resolve each Mapped selector separately, then apply all of them to the target metric.
+Example: for Mapped selectors Manager and Region, do not filter the Manager mapping by Region, or the Region mapping by Manager.
 
 Constraints: never pass mapped dimensions directly into the data fetch. Apply the other filters on dimensions the two metrics share (e.g. the user's time filter) to both fetches — the mapping may be time-dependent.
 
