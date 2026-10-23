@@ -2,8 +2,9 @@
 name: writing-pigment-formulas
 description: "Execution skill. Load it before the first `validate_formula`, or before any `create_metric`, `bulk_update_metrics`, `create_list_property` or `update_list_property` call that sets a formula; never write a formula without loading it first. Use when writing, editing, or debugging Pigment metric or list property formulas — quoting, references, data types, BLANK, comments, and replacing hard-coded items, dates and thresholds with input metrics."
 metadata:
-  skill_path: /skills/writing-pigment-formulas/SKILL.md
   base_directory: /skills/writing-pigment-formulas
+  includes:
+    - "SKILL.md"
 ---
 
 # Write Pigment Formulas

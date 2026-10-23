@@ -2,9 +2,9 @@
 name: copying-metric-data
 description: "Use this skill when a user wants to create a Pigment metric-to-metric copy import/config to freeze formula values, reduce recalculation, seed/refresh a metric, stage validated data, prepare export metrics, or copy data between metrics. It cannot run, schedule, delete, update existing configs, use snapshots/recovered apps, or configure selective mappings. Do NOT use for CSV/file imports or formulas."
 metadata:
-  skill_path: /skills/copying-metric-data/SKILL.md
   base_directory: /skills/copying-metric-data
   includes:
+    - "SKILL.md"
     - "*.md"
 ---
 

@@ -2,8 +2,9 @@
 name: building-pigment-frames
 description: Use this skill whenever you're building, updating, or troubleshooting a Pigment Frame — a full-page, custom-coded visualisation (JavaScript, canvas, or inline SVG) that reads Pigment data through the PigmentSDK. Reach for it any time a native View (Grid, Chart, KPI) or Board can't produce what's being asked for - a bespoke chart, a custom canvas drawing, an interactive widget, or a standalone page in the left navigation that behaves like a small app. Also use it if a Frame you've already built shows up blank or broken and needs debugging.
 metadata:
-  skill_path: /skills/building-pigment-frames/SKILL.md
   base_directory: /skills/building-pigment-frames
+  includes:
+    - "SKILL.md"
 ---
 
 # Building Pigment Frames

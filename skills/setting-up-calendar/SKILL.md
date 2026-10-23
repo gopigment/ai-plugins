@@ -2,8 +2,9 @@
 name: setting-up-calendar
 description: "Execution skill. Use when configuring an application calendar — choosing calendar type, fiscal year, date range, and time dimensions."
 metadata:
-  skill_path: /skills/setting-up-calendar/SKILL.md
   base_directory: /skills/setting-up-calendar
+  includes:
+    - "SKILL.md"
 ---
 
 # Setting Up Calendar

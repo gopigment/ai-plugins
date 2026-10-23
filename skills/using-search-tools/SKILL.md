@@ -5,8 +5,9 @@ description: >-
   breadth is free but call count is not, and lineage versus full impact analysis. Load
   before exploring an application, resolving block names, or checking what a change breaks.
 metadata:
-  skill_path: /skills/using-search-tools/SKILL.md
   base_directory: /skills/using-search-tools
+  includes:
+    - "SKILL.md"
 ---
 
 # Using Search and Dependency Tools

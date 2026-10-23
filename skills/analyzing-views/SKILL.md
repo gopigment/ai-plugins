@@ -6,9 +6,9 @@ description: >
   user visible context). Use when the query involves filtering, slicing, grouping, or applying board
   page selectors — before planning filters, or before calling the get_views tool or search_views tool.
 metadata:
-  skill_path: /skills/analyzing-views/SKILL.md
   base_directory: /skills/analyzing-views
   includes:
+    - "SKILL.md"
     - "*.md"
 
 ---

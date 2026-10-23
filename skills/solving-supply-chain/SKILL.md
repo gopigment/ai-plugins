@@ -2,8 +2,9 @@
 name: solving-supply-chain
 description: "Planning skill. Supply chain use cases: demand planning, inventory management, procurement planning, S&OP alignment. Each use case has inline guidance."
 metadata:
-  skill_path: /skills/solving-supply-chain/SKILL.md
   base_directory: /skills/solving-supply-chain
+  includes:
+    - "SKILL.md"
 ---
 
 # Supply Chain Planning

@@ -2,8 +2,9 @@
 name: iterating-with-previous-and-cycles
 description: "Execution skill. Use when writing PREVIOUS, PREVIOUSOF, or PREVIOUSBASE formulas, configuring iterative calculation cycles, or debugging circular dependency errors."
 metadata:
-  skill_path: /skills/iterating-with-previous-and-cycles/SKILL.md
   base_directory: /skills/iterating-with-previous-and-cycles
+  includes:
+    - "SKILL.md"
 ---
 
 # Iterating with PREVIOUS and Cycles

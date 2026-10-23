@@ -2,8 +2,9 @@
 name: creating-dimensions-and-hierarchies
 description: "Execution skill. Use when creating or modifying dimension lists (hierarchies) and dimension properties"
 metadata:
-  skill_path: /skills/creating-dimensions-and-hierarchies/SKILL.md
   base_directory: /skills/creating-dimensions-and-hierarchies
+  includes:
+    - "SKILL.md"
 ---
 
 # Creating Dimensions and Hierarchies

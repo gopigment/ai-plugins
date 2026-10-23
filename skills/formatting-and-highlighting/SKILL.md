@@ -2,8 +2,9 @@
 name: formatting-and-highlighting
 description: "Execution skill. Use when applying metric default formatting — decimals, prefix, suffix, currency ($/€), percent (%), K/M/bp/thousand/million scaling, thousand separator, sign / zero / negative handling, text mode (Text / Rich Text / URL / Image / LocaleDateTime), boolean display (checkbox / button). Load it when creating a metric whose values are not plain counts -- a ratio, percentage, growth, currency, boolean or text metric (comments, notes, links, URLs) -- even if the user said nothing about formatting."
 metadata:
-  skill_path: /skills/formatting-and-highlighting/SKILL.md
   base_directory: /skills/formatting-and-highlighting
+  includes:
+    - "SKILL.md"
 ---
 
 # Formatting and Highlighting

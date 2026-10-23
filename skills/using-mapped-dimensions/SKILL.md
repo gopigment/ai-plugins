@@ -2,8 +2,9 @@
 name: using-mapped-dimensions
 description: "Execution skill. Use when modeling dynamic or time-dependent hierarchies, card metrics for flexible reporting (e.g. headcount by team/function via BY-arrow mappings), or any scenario where reporting breakdowns must differ from the structural dimensions on the metric."
 metadata:
-  skill_path: /skills/using-mapped-dimensions/SKILL.md
   base_directory: /skills/using-mapped-dimensions
+  includes:
+    - "SKILL.md"
 ---
 
 # Using Mapped Dimensions

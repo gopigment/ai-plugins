@@ -2,8 +2,9 @@
 name: securing-with-access-rights
 description: "Execution skill. Use when restricting which users can read or write specific data cells based on dimension values, building AR metrics, or debugging access issues. Do NOT use for managing Roles or Permissions."
 metadata:
-  skill_path: /skills/securing-with-access-rights/SKILL.md
   base_directory: /skills/securing-with-access-rights
+  includes:
+    - "SKILL.md"
 ---
 
 # Securing with Access Rights

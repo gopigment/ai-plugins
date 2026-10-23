@@ -2,8 +2,9 @@
 name: forecasting-in-pigment
 description: "Execution skill. Use when creating forecasts or choosing between growth-rate hypotheses and statistical forecasting functions."
 metadata:
-  skill_path: /skills/forecasting-in-pigment/SKILL.md
   base_directory: /skills/forecasting-in-pigment
+  includes:
+    - "SKILL.md"
 ---
 
 # Forecasting in Pigment

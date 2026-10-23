@@ -2,9 +2,9 @@
 name: designing-pigment-frames
 description: "Apply Pigment's visual design language to a new or existing Frame - use when the Frame should look Pigment-like: on-brand, native, or less generic. Do not use it when the user gives their own design requirements (a brand, a palette, screenshots, or a look to match). This skill contains the Pigment design system, foundations, patterns, styles, typography and color schemes."
 metadata:
-  skill_path: /skills/designing-pigment-frames/SKILL.md
   base_directory: /skills/designing-pigment-frames
   includes:
+    - "SKILL.md"
     - "*.md"
 ---
 

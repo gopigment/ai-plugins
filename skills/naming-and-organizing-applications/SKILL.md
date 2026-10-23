@@ -2,8 +2,9 @@
 name: naming-and-organizing-applications
 description: "Execution skill. Use when naming or organizing Pigment Applications, folders, and blocks so models stay navigable, formula-safe, and consistent across teams."
 metadata:
-  skill_path: /skills/naming-and-organizing-applications/SKILL.md
   base_directory: /skills/naming-and-organizing-applications
+  includes:
+    - "SKILL.md"
 ---
 
 # Apply Naming and Folder Conventions Before Creating Blocks

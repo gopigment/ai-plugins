@@ -2,8 +2,9 @@
 name: building-versions-and-planning-cycles
 description: "Execution skill. Use when implementing versions, planning cycles, or actuals vs forecast separation, and whenever realized data is extended into a plan or budget — loading actuals then planning the remaining periods, forecasting forward from actuals, Actual/Budget/Plan layering, plan vs actual variance — even when the request never uses the word version. Covers Version Dimensions, Switchover patterns, Actual/Forecast layering, Native Scenarios, and Snapshots."
 metadata:
-  skill_path: /skills/building-versions-and-planning-cycles/SKILL.md
   base_directory: /skills/building-versions-and-planning-cycles
+  includes:
+    - "SKILL.md"
 ---
 
 # Building Versions and Planning Cycles

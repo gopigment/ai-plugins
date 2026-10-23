@@ -2,8 +2,9 @@
 name: using-formula-modifiers
 description: "Execution skill. Use when a formula's source metric dimensions differ from the target metric — apply BY, ADD, REMOVE, KEEP, SELECT, FILTER, EXCLUDE, TOPARENTLIST, or TOSUBSET. Also covers arrow-mapping syntax (BY ... ->) and tiered lookup patterns."
 metadata:
-  skill_path: /skills/using-formula-modifiers/SKILL.md
   base_directory: /skills/using-formula-modifiers
+  includes:
+    - "SKILL.md"
 ---
 
 # Apply Formula Modifiers

@@ -2,8 +2,9 @@
 name: creating-transaction-lists
 description: "Execution skill. Use when creating a transaction list, and whenever you aggregate rows from a transaction list into a metric — including a list that already exists in the application."
 metadata:
-  skill_path: /skills/creating-transaction-lists/SKILL.md
   base_directory: /skills/creating-transaction-lists
+  includes:
+    - "SKILL.md"
 ---
 
 # Creating Transaction Lists
