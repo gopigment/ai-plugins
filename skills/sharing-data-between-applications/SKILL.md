@@ -2,8 +2,9 @@
 name: sharing-data-between-applications
 description: "Execution skill. Use when sharing metrics or lists between Pigment Applications via Libraries and cross-Application formula references."
 metadata:
-  skill_path: /skills/sharing-data-between-applications/SKILL.md
   base_directory: /skills/sharing-data-between-applications
+  includes:
+    - "SKILL.md"
 ---
 
 # Decide Whether Cross-Application Sharing Is Needed
@@ -44,7 +45,7 @@ Changes to shared blocks in the source Application propagate automatically to al
 Dimension lists are shared using the `sharing_status` parameter, not `tool:batch_share_blocks`:
 
 - When creating a new dimension: `tool:create_list` with `sharing_status: "Shared"`
-- When sharing an existing dimension: `tool:update_list` with `sharing_status: "Shared"`
+- When sharing an existing dimension: `tool:bulk_update_lists` with `sharing_status: "Shared"`
 
 This applies to all dimension lists including calendar time dimensions (Month, Quarter, Year).
 

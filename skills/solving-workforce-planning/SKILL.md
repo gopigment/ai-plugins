@@ -2,9 +2,9 @@
 name: solving-workforce-planning
 description: "Planning skill. Workforce planning use cases: headcount tracking, hiring pipeline, compensation planning, employee transfers, HRIS integration. Each use case has inline guidance; load sub-files only for advanced patterns."
 metadata:
-  skill_path: /skills/solving-workforce-planning/SKILL.md
   base_directory: /skills/solving-workforce-planning
   includes:
+    - "SKILL.md"
     - "*.md"
 ---
 
@@ -18,7 +18,7 @@ metadata:
 
 **When:** track existing employees, count headcount and FTE by department, plan simple hires.
 
-**Dimensions:** Version, Month, Employee (or Position list), Department. Add Entity if multi-entity. Employee dimension stays lean: Employee ID (created when the Roster load creates missing items) and Name (pulled from the Roster TL). Department, Entity, Hire Date, Term Date, Salary, FTE live as properties on the Roster transaction list (dimensioned by Employee), not on the Employee dimension itself.
+**Dimensions:** Version, Month, Employee (or Position list), Department. Add Entity if multi-entity. Employee dimension stays lean: Employee ID (created when the Roster load creates missing items) and Name (pulled from the Roster TL). Department, Entity, Hire Date, Term Date, Salary, FTE live as properties on the Roster transaction list (dimensioned by Employee), not on the Employee dimension itself — see `skill:integrating-data` for the load pattern.
 
 **Structure:** Headcount metric based on Roster TL hire/term dates and Month comparison. FTE derived from headcount × FTE ratio (use PRORATA for partial months). Aggregate by Department via view grouping or REMOVE.
 

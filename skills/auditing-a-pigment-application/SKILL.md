@@ -2,8 +2,9 @@
 name: auditing-a-pigment-application
 description: "Execution skill. Use when auditing, reviewing, or health-checking a Pigment application. Covers the structured audit checklist, severity classification, and output format. Also triggers on requests to clean up, find unused blocks, assess model quality, or find what is wrong with an application."
 metadata:
-  skill_path: /skills/auditing-a-pigment-application/SKILL.md
   base_directory: /skills/auditing-a-pigment-application
+  includes:
+    - "SKILL.md"
 ---
 
 # Auditing a Pigment Application
@@ -52,7 +53,7 @@ Flag these patterns (highest priority first):
 
 ## HIGH -- Check Cycles and Versions
 
-Use `tool:list_cycles` to check planning cycles. Use `tool:search_metrics_and_lists` with `kind: ["Dimension"]` and a name regex to verify a Version dimension exists. A missing Version dimension is a high-severity structural gap; see `skill:building-versions-and-planning-cycles` for fixes.
+Use `tool:search_metrics_and_lists` with `kind: ["Dimension"]` and a name regex to verify a Version dimension exists. A missing Version dimension is a high-severity structural gap; see `skill:building-versions-and-planning-cycles` for fixes.
 
 ## HIGH -- Verify Calendar Coverage
 
@@ -137,7 +138,8 @@ Before delivering the report, confirm all checks ran:
 - [ ] Formula health (`tool:list_issues` + dependency tracing)
 - [ ] Dependency fragility (critical output chains)
 - [ ] Formula patterns (sparsity, ACCESSRIGHTS guards, iterative, structural, dimension-aware, naming)
-- [ ] Cycles and versions (`tool:list_cycles`)
+- [ ] Version dimension logic in place
+- [ ] Cycles (`tool:list_cycles`)
 - [ ] Calendar coverage (`tool:calendar_get`)
 - [ ] Scenario governance (`tool:list_scenarios`)
 - [ ] Library surface (`tool:list_application_libraries`)

@@ -6,9 +6,9 @@ description: >
   user visible context). Use when the query involves filtering, slicing, grouping, or applying board
   page selectors — before planning filters, or before calling the get_views tool or search_views tool.
 metadata:
-  skill_path: /skills/analyzing-views/SKILL.md
   base_directory: /skills/analyzing-views
   includes:
+    - "SKILL.md"
     - "*.md"
 
 ---
@@ -66,9 +66,9 @@ For each active selector, look up its pivot type in the view's pivot configurati
 
 **User override**: if the user explicitly requests different filter values or asks to ignore a selector, their instruction takes precedence. Only override when explicit — never infer an override from absence of mention.
 
-**Multi-value selectors**: if the board selector has multiple selected values, fetch once per selected value, union the results, then aggregate. Never drop values to avoid splitting. Mapped selectors are the exception: the mapping procedure handles all their selected values in one pass.
+**Multi-value selectors**: if the board selector has multiple selected values, make one `tool:fetch_metric_data` call per value, union the results, then aggregate. Never drop values to avoid splitting. Mapped selectors are the exception: the mapping procedure handles all their selected values in one pass.
 
-**Unsupported pivot type — Slice**: if an active UVC board selector has `kind: Slice`, a customer data fetch cannot replicate it. Disclose this explicitly to the user: state which selector is active and that the fetched result will not honour that constraint. Offer to proceed without it.
+**Unsupported pivot type — Slice**: if an active UVC board selector has `kind: Slice`, `tool:fetch_metric_data` cannot replicate it. Disclose this explicitly to the user: state which selector is active and that the fetched result will not honour that constraint. Offer to proceed without it.
 
 ### Display grain [on-board only]
 
@@ -106,7 +106,7 @@ When a board selector applies to a sibling metric but NOT the target metric (its
 
 ### Filtering on Mapped pivots [both flows]
 
-Mapped dimensions cannot be filtered directly — they are added dynamically via a mapping metric, and the relationship can vary across dimensions (e.g. an Employee's Team may change by Month). Follow this procedure:
+`tool:fetch_metric_data` cannot directly filter on mapped dimensions — they are added dynamically via a mapping metric, and the relationship can vary across dimensions (e.g. an Employee's Team may change by Month). Follow this procedure:
 
 1. **Identify the mapping metric** from the view's pivot config. The config only gives its id (`mappingMetricId`): get its name and dimensions with `tool:search_metrics_and_lists`, passing the id in `block_id_exact_match` with `show_details: true`.
 2. **Fetch the mapping metric**, broken down by all its dimensions. Each cell value is an item from the target dimension. Keep the cells whose value is one of the selected target items — e.g. for `L3 Manager = "Sarah Chen"`, the (Employee, Week) pairs where `Emp_Manager L3_Week = "Sarah Chen"`. Several selected target items are handled in this same step — no fetch per item. When the mapped dimension is only a breakdown (e.g. a Mapped row or column pivot), with no item selected, keep all cells. If no cell is kept, the filtered result is empty: say so and do not fetch the original metric — an empty `item_filters` list is ignored and would return unfiltered data.
@@ -117,7 +117,7 @@ Mapped dimensions cannot be filtered directly — they are added dynamically via
 **Sister filters**: when fetching a Mapped selector's mapping metric, do not apply other Mapped selectors' values. Resolve each Mapped selector separately, then apply all of them to the target metric.
 Example: for Mapped selectors Manager and Region, do not filter the Manager mapping by Region, or the Region mapping by Manager.
 
-Constraints: never pass mapped dimensions directly into the data fetch. Apply the other filters on dimensions the two metrics share (e.g. the user's time filter) to both fetches — the mapping may be time-dependent.
+Constraints: never pass mapped dimensions directly to `tool:fetch_metric_data`. Apply the other filters on dimensions the two metrics share (e.g. the user's time filter) to both fetches — the mapping may be time-dependent.
 
 ### Disambiguating filter candidates [both flows]
 

@@ -2,8 +2,9 @@
 name: building-versions-and-planning-cycles
 description: "Execution skill. Use when implementing versions, planning cycles, or actuals vs forecast separation, and whenever realized data is extended into a plan or budget — loading actuals then planning the remaining periods, forecasting forward from actuals, Actual/Budget/Plan layering, plan vs actual variance — even when the request never uses the word version. Covers Version Dimensions, Switchover patterns, Actual/Forecast layering, Native Scenarios, and Snapshots."
 metadata:
-  skill_path: /skills/building-versions-and-planning-cycles/SKILL.md
   base_directory: /skills/building-versions-and-planning-cycles
+  includes:
+    - "SKILL.md"
 ---
 
 # Building Versions and Planning Cycles
@@ -142,11 +143,18 @@ Repeat monthly. Keep Version dimension lean — retire superseded items after Sn
 
 ## Compare Versions with Data Slices
 
-No public MCP tool creates Data Slices. Ask the user to configure slices in the Pigment UI for cross-version reporting (Budget vs Actual variance). You can still create a slicing dimension list with `tool:create_list` / `tool:add_list_items` and wire views once slices exist.
+Use `tool:create_slice` for cross-version reporting (Budget vs Actual variance):
+
+1. Create a slicing dimension (e.g., `Financial Comparison`) using `tool:create_list`, add items like `Actuals 2025`, `Budget 2026` using `tool:add_list_items`
+2. Map each slice item to Version (and optionally Year or Scenario) combinations
+3. Pull from live data or a Snapshot as data source per slice
+4. Use slicing dimension in reporting views for side-by-side columns
+
+Data Slices can reference Snapshots for baselines such as "Last year forecast at close."
 
 ## Configure Native Scenarios
 
-Ask the user to create scenario branches in the Pigment UI when needed. Use `tool:list_scenarios` to inspect existing scenarios:
+Use `tool:create_scenario` to create scenario branches. Use `tool:list_scenarios` to check existing:
 
 - **Shared Scenarios**: visible across applications; required when changing assumptions on shared blocks from Libraries. Cannot convert to Local after creation.
 - **Local Scenarios**: restricted to one application; shared block data comes from nearest Shared Scenario.

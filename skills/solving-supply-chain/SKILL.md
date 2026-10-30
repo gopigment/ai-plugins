@@ -2,8 +2,9 @@
 name: solving-supply-chain
 description: "Planning skill. Supply chain use cases: demand planning, inventory management, procurement planning, S&OP alignment. Each use case has inline guidance."
 metadata:
-  skill_path: /skills/solving-supply-chain/SKILL.md
   base_directory: /skills/solving-supply-chain
+  includes:
+    - "SKILL.md"
 ---
 
 # Supply Chain Planning
@@ -18,7 +19,7 @@ metadata:
 
 **Dimensions:** Version, Month, Product (or SKU), Region (or Channel). Add Customer segment if demand varies by customer type.
 
-**Structure:** historical demand metric (imported from ERP/WMS). Statistical forecast using FORECAST_ETS (seasonal) or FORECAST_LINEAR (trend-only) (see `skill:forecasting-in-pigment`). Judgmental adjustment metric (input) for sales team overrides on top of the statistical baseline. Final demand = statistical forecast + adjustment, or override-first using IFBLANK(adjustment, statistical).
+**Structure:** historical demand metric (imported from ERP/WMS). Statistical forecast using FORECAST_ETS (seasonal) or FORECAST_LINEAR (trend-only), or ML Predictions for automated model selection (see `skill:forecasting-in-pigment`). Judgmental adjustment metric (input) for sales team overrides on top of the statistical baseline. Final demand = statistical forecast + adjustment, or override-first using IFBLANK(adjustment, statistical).
 
 **Version usage:** each planning cycle produces a demand plan version. Consensus demand (from S&OP) is a separate version or a dedicated metric combining inputs.
 

@@ -2,8 +2,9 @@
 name: gathering-architecture-requirements
 description: "Planning skill. Use before building anything to gather requirements through structured discovery questions. Covers dimensions, UX, data, governance, and planning cycles. Load this skill during Phase 0 of building-a-full-application."
 metadata:
-  skill_path: /skills/gathering-architecture-requirements/SKILL.md
   base_directory: /skills/gathering-architecture-requirements
+  includes:
+    - "SKILL.md"
 ---
 
 # Gathering Architecture Requirements

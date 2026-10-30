@@ -2,8 +2,9 @@
 name: creating-metrics-and-tables
 description: "Execution skill. Load it before the first `create_metric` or `bulk_update_metrics` call; never create or change a metric without loading it first. Use when creating metrics or tables, selecting metric data types, or finalizing metric structure."
 metadata:
-  skill_path: /skills/creating-metrics-and-tables/SKILL.md
   base_directory: /skills/creating-metrics-and-tables
+  includes:
+    - "SKILL.md"
 ---
 
 # Creating Metrics and Tables
@@ -18,8 +19,9 @@ A metric is a sparse multidimensional grid: dimensions define the axes, each cel
 4. **Pick the default aggregators** in the same call. A snapshot metric that rolls up with `Sum` across time reports twelve times its real value and raises no error. Both defaults are set through `tool:create_metric`; the rules are in `skill:aggregating-view-data`.
 5. **Set the default format** in the same call where the metric is user-facing (`skill:formatting-and-highlighting`).
 6. **Validate the formula first** with `tool:validate_formula` (`skill:writing-pigment-formulas`). Do this before creating the metric.
-7. **Create** with `tool:create_metric`, including the formula in the same call. Batch independent metrics together. Input metrics have no formula; populate them with `tool:set_metric_input` or an import. To change a formula later, use `tool:update_metric`.
+7. **Create** with `tool:create_metric`, including the formula in the same call. Batch independent metrics together. Input metrics have no formula; populate them with `tool:set_metric_input` or an import. To change a formula later, use `tool:bulk_update_metrics`.
 8. **Verify** with `tool:query_data` that the values are plausible before moving on.
+9. **Lay out the View (mandatory).** As soon as a table, or a block of user-facing metrics, is finished and verified, load `skill:design-business-views` and apply it to the block's default View. Do not move on to the next block, and do not report the work as done, before this is complete. Skip it only for intermediate calculation metrics nobody will open.
 
 Create source and input metrics before the calculated metrics that reference them, and tables after every metric they display. The full dependency chain is in `skill:building-a-full-application`.
 
@@ -63,3 +65,4 @@ Tables are for presentation and comparison, never for storing data. They sit at 
 - [ ] Assumption metrics carry their own planning grain, not the target's
 - [ ] Ratio and variance lines on tables have an Advanced Aggregator
 - [ ] `tool:query_data` returns values of a plausible magnitude
+- [ ] `skill:design-business-views` was loaded and applied to the default View of every finished table and user-facing block

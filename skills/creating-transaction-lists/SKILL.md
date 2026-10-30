@@ -2,8 +2,9 @@
 name: creating-transaction-lists
 description: "Execution skill. Use when creating a transaction list, and whenever you aggregate rows from a transaction list into a metric — including a list that already exists in the application."
 metadata:
-  skill_path: /skills/creating-transaction-lists/SKILL.md
   base_directory: /skills/creating-transaction-lists
+  includes:
+    - "SKILL.md"
 ---
 
 # Creating Transaction Lists
@@ -72,4 +73,4 @@ This matters when later calculations (cohort analysis, variance, ranking, drill-
 
 ## How to Create Transaction Lists
 
-Use `tool:create_list` with the transaction list type. Use `tool:create_list_property` to add properties (amount, date, product reference, etc.). Populate it with `tool:add_list_items`. For a large CSV, ask the user to import it in the Pigment UI.
+Use `tool:create_list` with the transaction list type. Use `tool:create_list_property` to add properties (amount, date, product reference, etc.). Populate it with `tool:add_list_items` or `tool:import_csv_to_list` depending on the volume (see `skill:integrating-data`).
