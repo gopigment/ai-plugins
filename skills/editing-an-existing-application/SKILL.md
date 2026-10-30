@@ -2,8 +2,9 @@
 name: editing-an-existing-application
 description: "Planning skill. Use when modifying, extending, refactoring, or restructuring an existing Pigment application. Covers discovery, impact analysis, change planning, and phased execution. Do not use for greenfield builds (use building-a-full-application instead)."
 metadata:
-  skill_path: /skills/editing-an-existing-application/SKILL.md
   base_directory: /skills/editing-an-existing-application
+  includes:
+    - "SKILL.md"
 ---
 
 # Editing an Existing Application
@@ -47,7 +48,7 @@ For each block to change:
 
 Order changes by dependency: upstream first (dimensions, source metrics, properties), downstream last (calculated metrics, views, boards).
 
-List which execution skills will be needed in Stage 2, and which steps are UI-only (conditional highlighting, access-right apply rules, scheduled imports) so the user knows what they must finish by hand.
+List which execution skills will be needed in Stage 2, and which steps are UI-only (access-right apply rules, scheduled imports) so the user knows what they must finish by hand.
 
 ### Replicate or move a folder subtree
 

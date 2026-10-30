@@ -1,9 +1,10 @@
 ---
 name: aggregating-view-data
-description: "Execution skill. Use when a View needs totals or subtotals, when a value must roll up with something other than Sum (average, min, max, count, last), when a snapshot metric adds up across time instead of holding, or when a ratio, percentage, growth or variance metric shows a wrong total. Covers metric default aggregators, pivot versus hidden-dimension aggregation, the aggregator reference per value type, and Advanced Aggregators on Table Views."
+description: "Execution skill. Use when a View needs totals or subtotals, when a value must roll up with something other than Sum (average, min, max, count, last), when a snapshot metric adds up across time instead of holding, or when a ratio, percentage, margin, growth or variance metric is added to a Table View or shows a wrong total (e.g. a row for margin as a percent of revenue). Covers metric default aggregators, pivot versus hidden-dimension aggregation, the aggregator reference per value type, and Advanced Aggregators on Table Views."
 metadata:
-  skill_path: /skills/aggregating-view-data/SKILL.md
   base_directory: /skills/aggregating-view-data
+  includes:
+    - "SKILL.md"
 ---
 
 # Aggregating View Data
@@ -33,7 +34,7 @@ Whether totals are *displayed*, and where, belongs to the Layout panel (`tool:up
 
 ## Set the Metric Defaults First
 
-Every metric carries two default aggregators, set together through `tool:create_metric` / `tool:update_metric`: one for **temporal** dimensions, one for all the others. Get them right and most Views need no override; at View level, `Default` means "inherit the metric".
+Every metric carries two default aggregators, set together through `tool:create_metric` / `tool:bulk_update_metrics`: one for **temporal** dimensions, one for all the others. Get them right and most Views need no override; at View level, `Default` means "inherit the metric".
 
 | Metric kind | Temporal default | Non-temporal default |
 | --- | --- | --- |

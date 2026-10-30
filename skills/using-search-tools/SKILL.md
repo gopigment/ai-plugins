@@ -5,8 +5,9 @@ description: >-
   breadth is free but call count is not, and lineage versus full impact analysis. Load
   before exploring an application, resolving block names, or checking what a change breaks.
 metadata:
-  skill_path: /skills/using-search-tools/SKILL.md
   base_directory: /skills/using-search-tools
+  includes:
+    - "SKILL.md"
 ---
 
 # Using Search and Dependency Tools
@@ -41,11 +42,11 @@ So: name everything you need up front, put it in as few calls as possible, and f
 | Find blocks by concept/topic when you do not know the exact name                                             | `tool:semantic_search`                                                                             | Medium per call                                      |
 | Trace multi-hop formula lineage (what feeds a metric, or what consumes it)                                   | `tool:get_data_dependency_tree`                                                                    | Low per call— recursive graph traversal; no AI       |
 | Full impact analysis before deleting/renaming a metric (all consumers: formulas, views, boards, automations) | `tool:get_metric_dependencies`                                                                     | Low per call— flat inventory lookup; no AI           |
-| Complex searches combining OR / AND across many blocks, or no relevant filter exists in the `search_*` tools | several `tool:search_metrics_and_lists`, `tool:search_folders`, or `tool:search_tables` calls, then combine the results | Medium–high — quite long to run, but a chain of searches is longer |
+| Complex searches combining OR / AND across many blocks, or no relevant filter exists in the `search_*` tools | `tool:download_application_snapshot`, then `ls` / `grep` / `execute_python_code` on the downloaded files | Medium–high — quite long to run, but a chain of searches is longer |
 | Other approaches failed, or no other tool fits                                                               | `tool:search`                                                                                      | Highest — LLM expert reads blocks and produces prose |
 
 
-**Rule of thumb**: Always prefer `tool:search_metrics_and_lists`, `tool:search_folders`, or `tool:search_tables` when you can express the query as a concrete filter. Fall back to `tool:semantic_search` when you only have a concept. When a condition needs OR / AND across blocks, issue the `search_*` calls that cover each part and combine the results.
+**Rule of thumb**: Always prefer `tool:search_metrics_and_lists`, `tool:search_folders`, or `tool:search_tables` when you can express the query as a concrete filter. Fall back to `tool:semantic_search` when you only have a concept. Use `tool:download_application_snapshot` only when the condition needs OR / AND combinations or no filter exists.
 
 **Parallelization**: all search and dependency tool calls are independent and can be batched in a single turn. When you need multiple pieces of information (e.g. list dimensions + list metrics + check dependencies), issue them all at once instead of sequentially.
 
@@ -118,8 +119,10 @@ This is the common case once you know what you are looking for.
 Use when the condition combines OR / AND across blocks (e.g. "metrics in folder A or B, with a formula using `X`, that are not referenced by any table") or when no `search_*` filter expresses it.
 
 1. Try the `search_*` filters first: if one call, or a few parallel calls, express the condition, stop here
-2. Otherwise split the OR / AND into the `search_*` calls that cover each part, run them in parallel, and combine the results
-3. Report the matches
+2. Otherwise call `tool:download_application_snapshot` once for the application. It is quite long to run, but a chain of searches is longer
+3. Read the paths and counts in its reply (files are under `/artifacts/app_snapshot/{application_id}/{timestamp}/`; `ls` the application folder and take the latest timestamp if you lose the path)
+4. Apply the OR / AND combination in a single `execute_python_code` call (`pd.read_json(path, lines=True)` per file); use `grep` only for a quick text hit
+5. Report the matches, and say which files the answer came from
 
 ---
 
@@ -209,7 +212,7 @@ Flat inventory of everywhere a metric is referenced. Grouped by consumer kind: f
 - **Using** `tool:search` **to get a block list** — it returns prose reasoning, not structured lists.
 - **Using** `tool:search` **to trace dependencies** — use `tool:get_data_dependency_tree` for precise multi-hop chains.
 - **Using** `tool:get_data_dependency_tree` **for impact analysis** — it only shows formula references; use `tool:get_metric_dependencies` to see boards, views and automations too.
-- **Chaining many `search_*` calls when one filter list would do** — pass every name, folder, or formula pattern in one call instead of one call per value.
+- **Using** `tool:download_application_snapshot` **when** `tool:search_metrics_and_lists` **(or** `tool:search_tables` **/** `tool:search_folders`**) can express the query as a filter** — the snapshot is slow and floods the workspace for a lookup one search answers. Reserve it for OR / AND combinations or conditions no filter covers.
 
 
 

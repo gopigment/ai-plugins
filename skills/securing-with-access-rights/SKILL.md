@@ -1,9 +1,10 @@
 ---
 name: securing-with-access-rights
-description: "Execution skill. Use when restricting which users can read or write specific data cells based on dimension values, building AR metrics, or debugging access issues. Do NOT use for managing Roles or Permissions."
+description: "Execution skill. Use when restricting which users can read or write specific data cells based on dimension values, building AR metrics, or debugging access issues. Do NOT use for managing Roles or Permissions (use skill:managing-roles-and-permissions)."
 metadata:
-  skill_path: /skills/securing-with-access-rights/SKILL.md
   base_directory: /skills/securing-with-access-rights
+  includes:
+    - "SKILL.md"
 ---
 
 # Securing with Access Rights
@@ -14,11 +15,11 @@ Keep these three concepts separate — they are managed by different tools and c
 
 | Concept | Controls | Managed by |
 | --- | --- | --- |
-| **Permissions** | Feature access — which *actions* a user can perform (create metrics, edit boards, import data, …) | Pigment UI (Roles, permissions & access) |
-| **Roles** | A named bundle of granted permissions (+ default read/write access) assigned to users | Pigment UI (Roles, permissions & access) |
+| **Permissions** | Feature access — which *actions* a user can perform (create metrics, edit boards, import data, …) | `tool:list_permissions` (read-only) |
+| **Roles** | A named bundle of granted permissions (+ default read/write access) assigned to users | `tool:list_roles`, `tool:create_role`, `tool:update_role`, `tool:delete_role`, `tool:assign_role_to_user` |
 | **Access Rights (AR)** | Cell-level *data* read/write (e.g. user can write US data, read FR data) | AR metrics and rules — this skill |
 
-**Golden rule:** Roles and Permissions protect *actions*; Access Rights protect *data*. Fine-grained data security is enforced by AR rules, **not** by roles alone. Managing Roles or Permissions themselves is out of scope for this skill.
+**Golden rule:** Roles and Permissions protect *actions*; Access Rights protect *data*. Fine-grained data security is enforced by AR rules, **not** by roles alone. If the user wants to read or manage Roles or Permissions, use `skill:managing-roles-and-permissions`, not this skill.
 
 ---
 
@@ -57,7 +58,7 @@ Use `tool:create_metric` with data type **Access Rights**, dimensioned by Role x
 
 ### Step 3 -- Populate allowed combinations
 
-Use `tool:update_metric`. Set **TRUE** (via ACCESSRIGHTS) only for allowed pairs; leave all others **BLANK** (never FALSE).
+Use `tool:bulk_update_metrics`. Set **TRUE** (via ACCESSRIGHTS) only for allowed pairs; leave all others **BLANK** (never FALSE).
 
 ```pigment
 ACCESSRIGHTS(
@@ -158,3 +159,6 @@ Flag and fix these when auditing or building AR:
 
 ---
 
+## See Also
+
+- `skill:managing-roles-and-permissions` — Roles and Permissions (feature access), role duplication, and `grantedPermissions`. Use it whenever the goal is restricting *actions*, not *data*.

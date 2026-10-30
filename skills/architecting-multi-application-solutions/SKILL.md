@@ -2,8 +2,9 @@
 name: architecting-multi-application-solutions
 description: "Planning skill. Use when deciding how to split work across Pigment applications, designing Hub-and-spoke data flows, or planning Test & Deploy across environments."
 metadata:
-  skill_path: /skills/architecting-multi-application-solutions/SKILL.md
   base_directory: /skills/architecting-multi-application-solutions
+  includes:
+    - "SKILL.md"
 ---
 
 # Architecting Multi-Application Solutions

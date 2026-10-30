@@ -2,8 +2,9 @@
 name: profiling-model-performance
 description: "Execution skill. Use when investigating slow inputs, slow calculations, or timeouts with the Performance Insights tools (performance_profile_change, performance_profile_change_scope_details, performance_slowest_changes, performance_changes_statistics, get_top_blocks_by_performance). Covers which tool to call, the includeAllExecutions default, reading change profiles (X/Y scope, contention, impacted viewed data), drilling into the scoped dimensions of some executions, locating the bottleneck, and comparing timings before/after a fix. Always profile before formula changes; never optimize from assumptions."
 metadata:
-  skill_path: /skills/profiling-model-performance/SKILL.md
   base_directory: /skills/profiling-model-performance
+  includes:
+    - "SKILL.md"
 ---
 
 # Profiling Model Performance
@@ -18,7 +19,7 @@ Measure compute performance with the Performance Insights tools, locate the bott
 | Tool | Use when |
 |---|---|
 | `tool:get_top_blocks_by_performance` | Hotspot block unknown; rank blocks app-wide over a time window |
-| `tool:get_blocks_performance` | Blocks already known; get their stats without re-ranking the model |
+| `tool:get_blocks_performance` | Blocks already known; get their stats without re-ranking the model. Accepts cycle ids: a cycle id is expanded into its metrics |
 | `tool:performance_slowest_changes` | No `changeId` known; rank the slowest user changes of an application over a time window (maximum 7 days) |
 | `tool:performance_profile_change` | Slow action reproduced and you have its `changeId` (UUID) from the audit trail or a slowest-changes result; returns the execution chain with a high-level overview of scopes (counts only) |
 | `tool:performance_profile_change_scope_details` | Profile already read; you need to know *which* dimensions an execution has and which ones its scopes restrict, for a few executions of that change |
@@ -57,6 +58,7 @@ A change that comes back with no execution at all is not necessarily an empty ch
 | `executions`, `avg_ms`, `sum_ms` | **All executions** of the block over the window, whatever their scope |
 | `full_executions`, `full_avg_ms`, `full_sum_ms` | Same stats restricted to **full executions**: the ones that recomputed the whole block because they ran with no scope |
 | `scoped_executions_pct` | `(executions - full_executions) / executions * 100` — share of executions that ran scoped |
+| `cycle_id`, `cycle_last_execution_ms` | Only for a metric in a cycle: the cycle and the duration of its last whole execution. The metric's own `avg_ms`/`sum_ms` cover only its share of the cycle executions, so compare it to `cycle_last_execution_ms` to see how much of the cycle it costs. To break a cycle down, pass the cycle id to `tool:get_blocks_performance` |
 
 Missing stats → widen the time window or switch `criteria`. Then profile a change on the suspect block.
 

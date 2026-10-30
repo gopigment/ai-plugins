@@ -2,8 +2,9 @@
 name: using-mapped-dimensions
 description: "Execution skill. Use when modeling dynamic or time-dependent hierarchies, card metrics for flexible reporting (e.g. headcount by team/function via BY-arrow mappings), or any scenario where reporting breakdowns must differ from the structural dimensions on the metric."
 metadata:
-  skill_path: /skills/using-mapped-dimensions/SKILL.md
   base_directory: /skills/using-mapped-dimensions
+  includes:
+    - "SKILL.md"
 ---
 
 # Using Mapped Dimensions
@@ -16,7 +17,7 @@ Mapped dimensions (time-dependent hierarchies, slowly changing dimensions) model
 | --- | --- | --- |
 | Relationship changes? | Rarely or never | Changes over time or by version |
 | History preservation | Updating the parent moves **all history** with the child | Each period retains its own parent assignment |
-| Where it works | Metric formulas, aggregation, views | **Views only** (Joined Pivot); core metrics stay lean |
+| Where it works | Metric formulas, aggregation, views | **Views only** (Mapped Dimensions) but mapping is used in formulas; core metrics stay lean |
 | Examples | Product to Category, Store to Region | Employee to Team (monthly), Cost Center to Department (re-org), Product to Promotion (seasonal) |
 
 **Rule of thumb**: if the parent-child mapping is the same for all periods, use a dimension-type property. If it varies by Month, Quarter, or Version, use a mapped dimension.
@@ -43,17 +44,17 @@ IF(Month >= 'Employee'.'Transfer Date', 'Employee'.'New Team', 'Employee'.'Origi
 ```
 
 - **Manual input**: use `tool:set_metric_input`.
-- **Import**: no public MCP bulk-import for metrics; ask the user to load mapping values in the Pigment UI, or use `tool:set_metric_input` for small datasets.
+- **Import**: load a CSV into the mapping metric with `tool:import_csv_to_metric` — see `skill:integrating-data`.
 
-### Step 3 — Use Joined Pivot in Views
+### Step 3 — Use Mapped Dimensions in Views
 
-Use `tool:create_view` then `tool:update_view_pivots` to add the mapped dimension as a **Joined Pivot**. Do **not** add the parent dimension to every underlying metric's structure.
+Use `tool:create_view` then `tool:update_view_pivots` to add the mapped dimension. Do **not** add the parent dimension to every underlying metric's structure.
 
-When users view a metric like `Salary` (structured on `Employee x Month`), the Joined Pivot through `Employee Team Mapping` aggregates salaries by Team with each month reflecting the correct assignment.
+When users view a metric like `Salary` (structured on `Employee x Month`), the mapped dimension through `Employee Team Mapping` aggregates salaries by Team with each month reflecting the correct assignment.
 
 ## Scope and Limitations
 
-- Mapped dimensions work in **Views only**. Cannot reference them in formulas.
+- Mapped dimensions work in **Views only**, but the mapping metric behind them can be used in formulas.
 - Mapping metric consumes storage proportional to `child items x periods`. Keep manageable.
 - Parent dimension does not become part of metric structure — keeps metrics lean, avoids dimension explosion.
 - BLANK mapping cells mean the child has no parent for that period and won't appear under any parent group in the View.
@@ -78,7 +79,7 @@ When users view a metric like `Salary` (structured on `Employee x Month`), the J
 | Approach | Pros | Cons |
 | --- | --- | --- |
 | **Dimension-type property** | Works everywhere (formulas, Views); simple | Overwrites history when parent changes |
-| **Mapped dimension** | Preserves history; no metric restructuring | View-only; requires a mapping metric |
+| **Mapped dimension** | Preserves history; no metric restructuring | View-only; requires a mapping metric (which can be used in formulas) |
 | **Separate dimension per period** | Full flexibility | Dimension explosion; hard to maintain |
 | **Boolean flag property** | Simple filtering | No aggregation to parent |
 

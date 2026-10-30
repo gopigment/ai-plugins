@@ -2,17 +2,20 @@
 name: diagnosing-performance-issues
 description: "Execution skill. Use when a Pigment application has slow calculations, timeouts, or when diagnosing performance bottlenecks. Covers profiler interpretation, scope chip reading, systematic troubleshooting workflow, and iterative calculation optimization."
 metadata:
-  skill_path: /skills/diagnosing-performance-issues/SKILL.md
   base_directory: /skills/diagnosing-performance-issues
+  includes:
+    - "SKILL.md"
 ---
 
 # Diagnose Pigment Performance Issues
 
 Use when calculations are slow, timing out, or the user asks to find bottlenecks.
 
+When the Performance Insights tools are available (`tool:get_top_blocks_by_performance`, `tool:performance_slowest_changes`, `tool:performance_profile_change`), measure with them first: see `skill:profiling-model-performance`. This skill then reads the results (scope, computation chains, fix patterns). The Profiler steps below are for when the tools are not available.
+
 ## Open the Profiler on the Slow Metric
 
-1. Ask the user to reproduce the slow action (input change, import, scenario switch) so a fresh update exists in History. Updates are profiled for three days only.
+1. Ask the user to reproduce the slow action (input change, import, scenario switch) so a fresh update exists in History. Updates are profiled for seven days only.
 2. Open the Profiler via:
    - **Application History:** Sidebar > History > hover the update > **Profile update**
    - **Block updates:** Expand the Block on a Board > Block updates icon > three-dot menu > profile
@@ -111,12 +114,15 @@ Daily calendars over many years amplify every iterative and unscoped calculation
 
 ## Tell the User When UI Action Is Required
 
-The agent cannot perform these steps:
+Profile with the Performance Insights tools (`skill:profiling-model-performance`) and trace dependencies with `tool:get_data_dependency_tree`. What is left for the user:
+
+- **Reproduce the slow action** (an input on a Board, an import, a scenario switch) when `tool:performance_slowest_changes` finds no recent change for it (it looks back 7 days at most). A formula change you make yourself needs no reproduction.
+
+Without the Performance Insights tools, the user must also do these steps:
 
 - **Performance Insights** (avg/max/total execution time, density): Block Explorer > All Blocks > Metrics tab > **Insights** toggle.
-- **Dependency diagram exploration**: Block Explorer or Metric settings > dependency diagram.
-- **Profiler access**: User must click Profile update in History or Block updates.
-- **Re-profile after fix**: User must reproduce the action and profile the new update.
+- **Profiler access**: click Profile update in History or Block updates, and share what it shows.
+- **Re-profile after fix**: reproduce the action and profile the new update.
 
 ## Report Findings
 
@@ -125,7 +131,7 @@ Structure every diagnosis as:
 1. **Bottleneck:** Metric name, step duration, scope (M/N), chip color
 2. **Root cause:** scope loss / iterative / cross-join / densification / access rights
 3. **Recommended fix:** specific formula change (one change at a time)
-4. **Verification:** ask user to re-profile and share before/after timing
+4. **Verification:** before/after timing of the new change (`tool:performance_changes_statistics`), or ask the user to re-profile and share it when the tools are not available
 
 Prioritize by Computation Duration impact. Fix scope loss before tuning iterative patterns.
 

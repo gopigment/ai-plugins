@@ -1,16 +1,17 @@
 ---
 name: formatting-and-highlighting
-description: "Execution skill. Use when applying metric default formatting — decimals, prefix, suffix, currency ($/€), percent (%), K/M/bp/thousand/million scaling, thousand separator, sign / zero / negative handling, text mode (Text / Rich Text / URL / Image / LocaleDateTime), boolean display (checkbox / button). Load it when creating a metric whose values are not plain counts -- a ratio, percentage, growth, currency, boolean or text metric (comments, notes, links, URLs) -- even if the user said nothing about formatting."
+description: "Execution skill. Load it whenever you create or update a metric that is not a plain count -- a ratio, percentage, growth, currency, boolean or text metric (comments, notes, links, URLs) -- to set its default format, even if the user never mentions formatting (e.g. a margin ratio metric, a metric of website links). Also covers decimals, prefix, suffix, currency ($/€), percent (%), K/M/bp/thousand/million scaling, thousand separator, sign / zero / negative handling, text mode (Text / Rich Text / URL / Image / LocaleDateTime), boolean display (checkbox / button)."
 metadata:
-  skill_path: /skills/formatting-and-highlighting/SKILL.md
   base_directory: /skills/formatting-and-highlighting
+  includes:
+    - "SKILL.md"
 ---
 
 # Formatting and Highlighting
 
-Set formatting on `tool:create_metric` / `tool:update_metric` via the `defaultFormat` field. A metric's default format applies to every View, Board, KPI, Grid, and Chart that displays it.
+Set formatting on `tool:create_metric` / `tool:bulk_update_metrics` via the `defaultFormat` field. A metric's default format applies to every View, Board, KPI, Grid, and Chart that displays it.
 
-Skip this skill for `tool:update_metric` calls that don't touch default format (renaming, changing dimensions, editing description).
+Skip this skill for `tool:bulk_update_metrics` calls that don't touch default format (renaming, changing dimensions, editing description).
 
 Out of scope: view display modes, aggregators, sort, filter; static and conditional cell formatting (background/text color, bold, italic, alignment, highlight rules, color scales) -- use `skill:designing-boards-and-views` (`tool:update_view_formatting`).
 

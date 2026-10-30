@@ -2,8 +2,9 @@
 name: designing-boards-and-views
 description: "Execution skill. Use when creating or editing a Board, a dashboard, or a View -- board sections and layout on the 12-column grid, widgets and their sizing (KPI, chart, grid, text, spacer, action button), board page selectors and their defaults, view pivots (rows / columns / pages), breaking down by or per a dimension, filters, sorts, totals, chart type and configuration, cell formatting, and draft views."
 metadata:
-  skill_path: /skills/designing-boards-and-views/SKILL.md
   base_directory: /skills/designing-boards-and-views
+  includes:
+    - "SKILL.md"
 ---
 
 # Designing Boards and Views
@@ -15,6 +16,8 @@ A View is **how** a Block (Metric, List, Table) is displayed: values, pivots, fi
 Number formatting (decimals, currency, percent, K/M scaling) is set on the **Metric**, not the View: load `skill:formatting-and-highlighting`. Totals, subtotals and non-default aggregators are in `skill:aggregating-view-data` -- load it as soon as a widget must show a total, or a line whose value divides one metric by another.
 
 Never create Views on sublists.
+
+Whenever you create or restyle a Grid View (`Table` or `List` display), load `skill:design-business-views`: it gives the layout rules every Grid follows (row/column/page placement, page order, tree mode, column widths) and recurring patterns such as the tabular input View or the default View of a Transaction List.
 
 ## Pick the Right Tool
 
@@ -131,13 +134,13 @@ Chart and Grid heights depend on data complexity: rows, columns, legends, axis l
 
 ## Reuse or Create
 
-Call `tool:search_views` to see what exists; this is a light pass, not a hard prerequisite. Pass `display_intent` (`Kpi`, `Grid`, or `Chart`, plus an optional `chart_type`) to keep only the candidates set up for that display mode. **On a List block use `Grid` or omit it** -- `Kpi`, `Chart` and any `chart_type` return an error, because a List only supports Grid display. Results are paginated, so read the later pages when the first one is full. If the intent returns nothing, search again without it: a View with the right pivots can still be adapted.
+Call `tool:search_views` to see what exists; this is a light pass, not a hard prerequisite. Pass `display_intent` (`Kpi`, `Grid`, or `Chart`, plus an optional `chart_type`) to keep only the candidates set up for that display mode. **On a List block use `Grid` or omit it** -- `Kpi`, `Chart` and any `chart_type` return an error, because a List only supports Grid display. With `block_ids` set, results are limited to Views on those blocks (`underlyingName` says which). `chartTypes` is the saved chart config, not the display mode, so a Grid can list one. Results are paginated, so read the later pages when the first one is full. If the intent returns nothing, search again without it: a View with the right pivots can still be adapted.
 
 Judge the **name** first: `View 1`, `Test` and other generic defaults are product placeholders, so create a new View instead. A descriptive name plus pivots that fit this widget and its board siblings is a reuse signal.
 
 Then judge the pivots: reuse when rows, columns and pages already match, or when one cheap edit (swap axes, remove a pivot, change granularity, add a missing page) closes the gap. Reusing does not let you inherit an empty `pages`: if the View is headed for a Board, adding the pages it lacks is part of the reuse, not a reason to reject the candidate. Prefer a richer View (formatting, conditional formatting) over a bare exact match; removing a pivot is cheap, recreating formatting is not. A View missing a dimension you need is harder to fix than a View with extra dimensions you can drop. For a KPI intent, an extra **row** pivot disqualifies a candidate; extra column pivots are fine. Restructuring a Grid into a Chart is expensive, and **Grid and Spreadsheet cannot be converted into each other at all** -- they are different display paradigms, so create a new View instead.
 
-When unclear, create. Convention for a new View: time dimensions in Columns, entity dimensions in Rows, and on a Table `metricsLocation: Rows` -- but `Columns` when the View is headed for a KPI widget. Name Grids without a suffix, Charts with the chart type (`Revenue - Waterfall`), KPIs with ` - KPI`.
+When unclear, create. Convention for a new View: time dimensions in Columns, entity dimensions in Rows, and on a Table `metricsLocation: Rows` -- but `Columns` when the View is headed for a KPI widget, or when it matches a pattern in `skill:design-business-views` that says otherwise. Name Grids without a suffix, Charts with the chart type (`Revenue - Waterfall`), KPIs with ` - KPI`.
 
 ## Create a View
 

@@ -2,8 +2,9 @@
 name: using-formula-modifiers
 description: "Execution skill. Use when a formula's source metric dimensions differ from the target metric — apply BY, ADD, REMOVE, KEEP, SELECT, FILTER, EXCLUDE, TOPARENTLIST, or TOSUBSET. Also covers arrow-mapping syntax (BY ... ->) and tiered lookup patterns."
 metadata:
-  skill_path: /skills/using-formula-modifiers/SKILL.md
   base_directory: /skills/using-formula-modifiers
+  includes:
+    - "SKILL.md"
 ---
 
 # Apply Formula Modifiers
@@ -59,7 +60,7 @@ Use arrow (`->`) when the mapping lives in a dimension-typed metric or you need 
 
 - **Left of `->` (replace)** — dimensions removed and replaced by the mapping's target dimension.
 - **Right of `->` (mapping/add)** — mapping metrics/properties defining new dimensions, plus extra grouping dims.
-- **Empty left** (`BY CONSTANT: -> 'Map'`) — adds a dimension without replacing any.
+- **Empty left** (`BY SUM: -> 'Map'`) — adds a dimension without replacing any.
 - **Unlisted source dims** — silently aggregated using the BY method. Typical "at risk" dims: Version, Time, Scenario, Currency.
   Use **arrow** when the mapping is a dimension-typed metric or multiple dims/properties in one BY. Use **plain property** (`'Country'.'Region'`) for simple hierarchy lookups.
 
@@ -238,7 +239,7 @@ Two equivalent syntaxes: `Block[mod1][mod2]` or `Block[mod1; mod2]` (semicolon).
 3. **BY before ADD** — when a mapping exists, use BY (sparse); use ADD only for full dense cardinality.
 4. **Match target dimensions** — the final expression dimensions must equal the target metric's dimensions.
 5. **Default methods** — SUM for aggregation, CONSTANT for allocation. Specify explicitly for AVG, MIN, MAX, COUNT, SPLIT.
-6. **Arrow syntax: account for all dimensions** — any source dimension not before `->` and not added after `->` is silently aggregated away.
+6. **Arrow syntax: account for all dimensions** — any dimensions before `->` are aggregated away. If nothing is before the `->`, source dimensions are kept
 7. **EXCLUDE over FILTER NOT** — prefer EXCLUDE for exclusions to avoid densifying blanks.
 8. **SELECT offset keeps the dimension** — unlike other SELECT modes that remove the filtered dimension.
 9. **Identifier quoting** — use single-quoted names: `'Country'.'Region'`, `'My Subset'`.

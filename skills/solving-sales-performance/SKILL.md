@@ -2,8 +2,9 @@
 name: solving-sales-performance
 description: "Planning skill. Sales performance use cases: quota planning, commission calculations, territory assignment, attainment tracking, pipeline coverage. Each use case has inline guidance."
 metadata:
-  skill_path: /skills/solving-sales-performance/SKILL.md
   base_directory: /skills/solving-sales-performance
+  includes:
+    - "SKILL.md"
 ---
 
 # Sales Performance

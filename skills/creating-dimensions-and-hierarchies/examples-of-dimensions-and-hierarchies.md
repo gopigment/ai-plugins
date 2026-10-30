@@ -12,7 +12,7 @@ Knowledge extension for the `creating-dimensions-and-hierarchies` skill.
 - **A1 · Account numbers are Text.** Chart-of-accounts codes are identifiers, not quantities — store them in a **Text** property, never Number.
 - **A2 · The leaf level carries one property per level.** In a hierarchy (dimensions linked by a Dimension-type property, i.e. a foreign key), the most granular dimension should hold a property for *every* level above it, so Page Filters are easy to use at any level. This applies only to that dimension's **MAIN** hierarchy.
 - **A3 · Reuse the native calendar** — Day, Week, Month, Quarter, Year. The exception is a Week calendar whose definition differs from the one the user requires.
-- **A4 · Never create a second Year dimension for a different fiscal year.** Add a Fiscal Year property on the native Year dimension instead.
+- **A4 · Never create a second Year dimension for a different fiscal year.** Add a Fiscal Year property on the native Month dimension instead.
 
 ---
 

@@ -2,8 +2,9 @@
 name: setting-up-calendar
 description: "Execution skill. Use when configuring an application calendar — choosing calendar type, fiscal year, date range, and time dimensions."
 metadata:
-  skill_path: /skills/setting-up-calendar/SKILL.md
   base_directory: /skills/setting-up-calendar
+  includes:
+    - "SKILL.md"
 ---
 
 # Setting Up Calendar
@@ -30,7 +31,7 @@ Use `tool:calendar_create` with these parameters:
 `tool:calendar_create` produces Private time dimension lists (Month, Quarter, Year). For a Hub application where calendars must be shared:
 
 1. After creating the calendar, call `tool:calendar_get` to retrieve the time dimension list IDs.
-2. Call `tool:update_list` for each time dimension list with `sharing_status: "Shared"`.
+2. Make a single call to `tool:bulk_update_lists` for all the time dimension lists, each with `sharing_status: "Shared"`.
 
 This is separate from `tool:batch_share_blocks` which is for metrics and other blocks.
 
@@ -60,7 +61,7 @@ Impact:
 
 Example with April start: FY 2026 = April 2025 - March 2026; Q1 = Apr-Jun 2025.
 
-**Set the fiscal year start during initial setup.** Changing it later affects existing formulas and YEARTODATE calculations.
+**Set the fiscal year start during initial setup.** It can't be changed afterwards.
 
 ## Define the Date Range
 
@@ -69,7 +70,7 @@ Example with April start: FY 2026 = April 2025 - March 2026; Q1 = Apr-Jun 2025.
 
 Common pattern: 3 years historical + 5 years forward = 8-year range.
 
-Use `tool:calendar_expand` to extend the range later. Extending is safe; existing data is preserved. Shortening is not possible if data exists in those periods.
+Use `tool:calendar_expand` to extend the range later. Extending is safe; existing data is preserved. Shortening will result in data loss.
 
 ## Select Time Dimensions
 
@@ -106,7 +107,7 @@ These repeat across years and enable pattern analysis:
 Year → Half → Quarter → Month → Week → Day
 ```
 
-Each level aggregates its children. This hierarchy powers `CUMULATE`, `LAG`, `YEARTODATE`, and `TIMEDIM`. Week may overlap month boundaries; Pigment handles this automatically.
+Each level aggregates its children. This hierarchy powers `CUMULATE`, `YEARTODATE`, and `TIMEDIM`. Week may overlap month boundaries; Pigment handles this automatically.
 
 ## Common Setup Patterns
 

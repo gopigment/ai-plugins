@@ -2,8 +2,9 @@
 name: building-pigment-frames
 description: Use this skill whenever you're building, updating, or troubleshooting a Pigment Frame — a full-page, custom-coded visualisation (JavaScript, canvas, or inline SVG) that reads Pigment data through the PigmentSDK. Reach for it any time a native View (Grid, Chart, KPI) or Board can't produce what's being asked for - a bespoke chart, a custom canvas drawing, an interactive widget, or a standalone page in the left navigation that behaves like a small app. Also use it if a Frame you've already built shows up blank or broken and needs debugging.
 metadata:
-  skill_path: /skills/building-pigment-frames/SKILL.md
   base_directory: /skills/building-pigment-frames
+  includes:
+    - "SKILL.md"
 ---
 
 # Building Pigment Frames
@@ -15,7 +16,7 @@ A **Frame** is a standalone, full-page custom visualisation rendered from author
 - Bespoke visual (canvas, inline SVG, custom DOM) that no native View mode (`Grid` / `Chart` / `KPI`) can produce. No CDN; inline all code.
 - Full page in left navigation (like Boards). No Frame widget; a Frame *is* the page.
 
-Frames do not support scenarios. Do not attempt to build them, edit them, compare them, or provide workarounds regarding them, it won't work. If the user requests to work with scenarios, tell them early that it is not supported.
+Frames support Scenarios through the `ScenarioList` binding, see [Scenarios](#scenarios). Only the new `data_sources` / `data_sinks` path supports them, never the legacy `subscribeToVizualization`.
 
 ## Tools and Workflow
 
@@ -88,6 +89,7 @@ JSON array on `create_frame` / `update_frame`. **A binding is only a concept map
 | `Metric` | `metric_id` | `subscribeToDataSource` via data source `values`; `editValue` via a data sink |
 | `List` | `list_id` | `subscribeToDataSource` via data source `labels` and `selectors`; `dynamicFilters`; `subscribeToItems`; `addItem`/`editItem` via a data sink |
 | `ListProperty` | `list_id` + `list_property_technical_name` | `subscribeToDataSource` via data source `values` and `labels`; `editItem` (values map, not the sink itself) |
+| `ScenarioList` | none (at most one per Frame) | `subscribeToDataSource` via data source `labels` and `selectors`; `dynamicFilters`; `subscribeToItems`; `editValue` coordinates. See [Scenarios](#scenarios) |
 | `Variable` | `variable_id` | `dynamicFilters` on `subscribeToDataSource` |
 | `View` | `view_id` | legacy `subscribeToVizualization` only, migrate away from it for `subscribeToDataSource` |
 
@@ -177,6 +179,48 @@ Each entry is `{ "name": <string>, "binding": <binding name> }`:
 
 With no writes needed, pass `data_sinks` as an empty array `[]`.
 
+A sink cannot target a `ScenarioList` binding.
+
+## Scenarios
+
+A `ScenarioList` binding (`{ "name": "scenarios", "type": "ScenarioList" }`) stands for the Scenarios of the Frame's Application. It has no id field and a Frame can declare **at most one**. It behaves like a `List` binding whose Items are the Scenario names, with these rules:
+
+- **Data source `labels`:** one row per Scenario (e.g. to compare Scenarios side by side).
+- **Data source `selectors`:** filter on some Scenarios before aggregation. A `ScenarioList` selector **requires the same binding in `labels`** of that data source; a selector alone is rejected. To read a single Scenario, keep it in `labels` and narrow it with `dynamicFilters`.
+- **No `ScenarioList` in the data source:** the data comes from the Application's default Scenario.
+- **`dynamicFilters`:** `{ binding: 'scenarios', selection: ['Base', 'Upside'] }`, Scenario names. **Unlike a List, an empty or missing selection does not mean "all":** for a List it keeps every Item, but for `scenarios` it returns data for the default Scenario only. To get data for all Scenarios, list every Scenario name explicitly in `selection` (get them with `subscribeToItems('scenarios', ...)`).
+- **`subscribeToItems('scenarios', ...)`:** returns the Scenario names (`partialResult` is always `false`). Use it to populate a Scenario picker.
+- **`editValue`:** add the binding to `coordinates` (`{ scenarios: 'Upside', countryList: 'France', ... }`) to write to a given Scenario. Omitted means the default Scenario. The `ScenarioList` key does not count as a Dimension of the Metric.
+- **Not supported:** `data_sinks` on a `ScenarioList` binding (sinks target `List` or `Metric` only), and `addItem`/`editItem` on Scenarios.
+
+```json
+{
+  "bindings": [
+    { "name": "revMetric", "type": "Metric", "metric_id": "<uuid>" },
+    { "name": "monthList", "type": "List", "list_id": "<uuid>" },
+    { "name": "scenarios", "type": "ScenarioList" }
+  ],
+  "data_sources": [
+    {
+      "name": "revenueByScenario",
+      "values": [{ "binding": "revMetric", "aggregator": "Sum" }],
+      "labels": [{ "binding": "monthList" }, { "binding": "scenarios" }],
+      "selectors": [{ "binding": "scenarios" }]
+    }
+  ]
+}
+```
+
+```js
+// Rows come with labels in `labels` order: [month, scenario name]
+window.PigmentSDK.subscribeToDataSource('revenueByScenario', {
+  onData: function (data) { /* data.rows[i].labels = ['January', 'Base'] */ },
+  onError: function (err) {},
+  dynamicFilters: [{ binding: 'scenarios', selection: ['Base', 'Upside'] }]
+});
+await window.PigmentSDK.editValue('revSink', { monthList: 'January', scenarios: 'Upside' }, 42000);
+```
+
 ## Naming cheat sheet
 
 Three different identifier kinds show up in Frame JS. Mixing them up is the most common source of runtime errors — use this table to pick the right one:
@@ -204,7 +248,7 @@ Use it to pull data from Pigment for your Frame. You can only pull data from dat
 const dsSub = window.PigmentSDK.subscribeToDataSource('revenueByTime', {
   onData: function (data) { if (!isReady(data)) return; render(data); },
   onError: function (err) { /* show err.message */ },
-  dynamicFilters: [], // optional; selections on the data source `selectors`, no selection or empty means All
+  dynamicFilters: [], // optional; selections on the data source `selectors`, no selection or empty means All (except `scenarios`: default Scenario only)
   scroll: { offset: 0, numberOfRows: 200 } // optional; only usable on List case, omit to fetch the default window
 });
 // dsSub.updateDynamicFilters([{ binding: 'countryList', selection: ['France', 'Spain'] }]);
@@ -243,7 +287,7 @@ Since no `dynamicFilters` were applied, January's value is `revMetric` summed ac
 
 `dynamicFilters` items are `{ binding, selection }`:
 - `binding` must be a `List` binding, not a `ListProperty` one. In case the `selectors` declared a `ListProperty`, the `binding` used here must be the List being targeted by the property. In other words, the List that we reach from `list_id.list_property_technical_name`.
-- `selection` is an array of Item labels of that List to keep. An empty `selection` keeps all the Items
+- `selection` is an array of Item labels of that List to keep. An empty `selection` keeps all the Items. **Exception:** for the `scenarios` binding an empty or missing selection returns the default Scenario only, see [Scenarios](#scenarios)
 
 Dynamic filters apply to `selectors` before aggregation. An unfiltered selector aggregates all its Items together, while a `selection` aggregates only those Items. A filter matching none of the data source's `selectors` is silently ignored.
 
@@ -311,7 +355,7 @@ await window.PigmentSDK.editValue('revSink', { 'countryList': 'France', 'timeLis
 
 `addItem(sinkName, values)` / `editItem(sinkName, item, values)`: `item` is the current name of the Item (`editItem` only); `values` is a partial map of `ListProperty` **binding** names (declared in `bindings`) to new values — never the properties' friendly display names.
 
-`editValue(sinkName, coordinates, value)`: `coordinates` maps each List binding name (dimension) to the selected item label; `value` is `boolean | number | string | null`.
+`editValue(sinkName, coordinates, value)`: `coordinates` maps each List binding name (dimension) to the selected item label; `value` is `boolean | number | string | null`. To write to a given Scenario, add the `ScenarioList` binding name to `coordinates` (see [Scenarios](#scenarios)).
 
 ## Implementation Patterns
 
