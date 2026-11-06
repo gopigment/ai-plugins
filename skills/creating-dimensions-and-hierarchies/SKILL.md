@@ -77,7 +77,7 @@ Changing a property to unique deletes that property's data, resulting in data lo
 Calling `tool:update_list_property` with `is_auto_id: true`, `new_type.type=Integer`, and `unique=true` on an existing property **replaces all existing values** with sequential IDs (1, 2, 3…). The property can no longer be edited manually or mapped from imports.
 
 - Warn the user explicitly before applying.
-- On a live in-use application, load `skill:safe-modeling` and work in a sandbox first.
+- On a live in-use application, work in a sandbox first.
 - Prefer creating a new unique property with the auto-generated ID in a production app and then do a cleaning in a later phase if necessary.
 
 ### List Subsets
@@ -142,6 +142,6 @@ Use `tool:create_list_property` to add a property to a dimension that already ex
 
 ## Step 4: Populate the list items
 
-Add list items in the dimension(s) (and each level if there are several) with `tool:add_list_items` or `tool:import_csv_to_list` depending on the volume (see `skill:integrating-data`).
+Add list items in the dimension(s) (and each level if there are several) with `tool:add_list_items`. For a large CSV, ask the user to import it in the Pigment UI.
 
 

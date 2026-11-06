@@ -18,7 +18,7 @@ metadata:
 
 **When:** track existing employees, count headcount and FTE by department, plan simple hires.
 
-**Dimensions:** Version, Month, Employee (or Position list), Department. Add Entity if multi-entity. Employee dimension stays lean: Employee ID (created when the Roster load creates missing items) and Name (pulled from the Roster TL). Department, Entity, Hire Date, Term Date, Salary, FTE live as properties on the Roster transaction list (dimensioned by Employee), not on the Employee dimension itself — see `skill:integrating-data` for the load pattern.
+**Dimensions:** Version, Month, Employee (or Position list), Department. Add Entity if multi-entity. Employee dimension stays lean: Employee ID (created when the Roster load creates missing items) and Name (pulled from the Roster TL). Department, Entity, Hire Date, Term Date, Salary, FTE live as properties on the Roster transaction list (dimensioned by Employee), not on the Employee dimension itself.
 
 **Structure:** Headcount metric based on Roster TL hire/term dates and Month comparison. FTE derived from headcount × FTE ratio (use PRORATA for partial months). Aggregate by Department via view grouping or REMOVE.
 
