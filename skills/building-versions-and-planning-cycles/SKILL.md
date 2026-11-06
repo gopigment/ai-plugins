@@ -128,8 +128,6 @@ All three skip the Version Dimension. `IFDEFINED` infers the split from whether 
 
 **Forbidden reasoning:** rationales such as "kept simple with a single combined output metric", "keeping it lean", "avoids unnecessary cardinality expansion", or "no Version Dimension needed here" are wrong when actuals and forecast coexist. Parameterising the cutoff into an input metric does not substitute for the Version Dimension. The Version Dimension is always required in that scenario.
 
-**Never use the calendar's Actual vs Forecast toggle** for this split: pass `actual_vs_forecast_enabled: false` to `tool:calendar_create`. It gives one global switchover that cannot vary per Version. See `skill:setting-up-calendar`.
-
 > **Alternative gating:** Templates may apply the flags differently (e.g. `[EXCLUDE:]` on flag metrics). That variation is about how the flags are consumed, not about whether Version and the flags exist — Steps 1 to 3 are required either way.
 
 ## Implement Rolling Forecasts
@@ -143,18 +141,11 @@ Repeat monthly. Keep Version dimension lean — retire superseded items after Sn
 
 ## Compare Versions with Data Slices
 
-Use `tool:create_slice` for cross-version reporting (Budget vs Actual variance):
-
-1. Create a slicing dimension (e.g., `Financial Comparison`) using `tool:create_list`, add items like `Actuals 2025`, `Budget 2026` using `tool:add_list_items`
-2. Map each slice item to Version (and optionally Year or Scenario) combinations
-3. Pull from live data or a Snapshot as data source per slice
-4. Use slicing dimension in reporting views for side-by-side columns
-
-Data Slices can reference Snapshots for baselines such as "Last year forecast at close."
+No public MCP tool creates Data Slices. Ask the user to configure slices in the Pigment UI for cross-version reporting (Budget vs Actual variance). You can still create a slicing dimension list with `tool:create_list` / `tool:add_list_items` and wire views once slices exist.
 
 ## Configure Native Scenarios
 
-Use `tool:create_scenario` to create scenario branches. Use `tool:list_scenarios` to check existing:
+Ask the user to create scenario branches in the Pigment UI when needed. Use `tool:list_scenarios` to inspect existing scenarios:
 
 - **Shared Scenarios**: visible across applications; required when changing assumptions on shared blocks from Libraries. Cannot convert to Local after creation.
 - **Local Scenarios**: restricted to one application; shared block data comes from nearest Shared Scenario.

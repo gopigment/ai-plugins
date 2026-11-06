@@ -36,6 +36,7 @@ Whenever you create or restyle a Grid View (`Table` or `List` display), load `sk
 | Pivots on Metric / Table Views | `tool:update_view_pivots` |
 | List Views: groupings, page selectors, and which properties are shown (show, hide, reorder) | `tool:update_list_view_pivots` |
 | Value fields on Metric / Table Views (add, remove, hide) | `tool:update_view_values` |
+| (Un)hide the tooltip displayed when hovering a Metric or Property header, on one View only (`tooltipHidden` on its value field) | `tool:update_view_values` |
 | Show a value as % of total, growth, cumulative, … | `tool:update_view_show_value_as` |
 | Totals and aggregators | `tool:update_view_aggregations` |
 | Calculated items (variance, growth rows/columns) | `tool:update_view_calculated_items` |

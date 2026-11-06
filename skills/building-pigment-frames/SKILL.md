@@ -33,7 +33,7 @@ The Frame JS lives in a file on your filesystem. `tool:create_frame` and `tool:u
 
 0. Identify the data (Metrics & Lists) that you Frames need to read from and write to. The Frame reads Metrics and List Properties directly through **data sources** that shape the rows (`labels`), columns (`values`) and pre-aggregation filters (`selectors`) it needs. The Frame writes back to Lists and Metrics directly through **data sinks** that target a List Item or Metric cell (`item` / `coordinates`) with the new property or cell values (`values`) it needs. Ask the user to confirm the read & write access they want to grant the Frame.
 1. Before writing any code, ask the user if they have specific requirements regarding the design of the Frame: encourage them to share a color palette, screenshots, light / dark theme preferences. If the user gives their own design requirements, follow them and do not load `skill:designing-pigment-frames`. Otherwise, if `skill:designing-pigment-frames` is among your available skills (it is feature-flagged), load it and use it to create the Frame design. If it is not available, use a modern design with a light theme, clean typography, and a neutral color palette with a single accent color.
-2. Declare the **bindings** (Metrics, Lists, List Properties, Variables) and one **data source** per dataset the Frame reads (see [Data sources](#data-sources)). Warnings: a) rows are capped at 1,000 per window ; b) concurrent subscriptions per Frame are limited to 10 data-source subscriptions and 20 List subscriptions.
+2. Declare the **bindings** (Metrics, Lists, List Properties, Scenarios) and one **data source** per dataset the Frame reads (see [Data sources](#data-sources)). Warnings: a) rows are capped at 1,000 per window ; b) concurrent subscriptions per Frame are limited to 10 data-source subscriptions and 20 List subscriptions.
 3. `tool:write_file` the JS body to a file (e.g. `/frames/revenue-heatmap.js`; for a substantial Frame, write the skeleton first, see rule 7), then `tool:create_frame` once with that `path`. Never re-create (name collision). Use `tool:search_frames` with a `name` if unsure it exists.
 4. For every later change, `tool:edit_file` the same file, then `tool:update_frame` with the same `path`. A Frame write reads the file at call time, so the file is the source of truth - keep editing it rather than rewriting it from scratch. Use `tool:update_frame_body` only for a small fix when you have no file for the Frame.
 5. Make sure to save the changes that you made in the database using `tool:update_frame_body` or `tool:update_frame`. All changes that you make locally (in your context or file you write to) must be saved in the database using these tools to make sure the user can render it.
@@ -82,7 +82,7 @@ Do not copy the Frame editor placeholder; it omits IIFE cleanup and uses templat
 
 ## Bindings
 
-JSON array on `create_frame` / `update_frame`. **A binding is only a concept mapping**: it maps a name used in the Frame's JS to a concept in the underlying Pigment model (a Metric, List, List Property, Variable, or legacy View). Tool input uses **snake_case** (`metric_id`, `list_id`, `list_property_technical_name`).
+JSON array on `create_frame` / `update_frame`. **A binding is only a concept mapping**: it maps a name used in the Frame's JS to a concept in the underlying Pigment model (a Metric, List, List Property, Scenario List, or legacy View). Tool input uses **snake_case** (`metric_id`, `list_id`, `list_property_technical_name`).
 
 | `type` | id field | SDK use |
 | --- | --- | --- |
@@ -90,8 +90,9 @@ JSON array on `create_frame` / `update_frame`. **A binding is only a concept map
 | `List` | `list_id` | `subscribeToDataSource` via data source `labels` and `selectors`; `dynamicFilters`; `subscribeToItems`; `addItem`/`editItem` via a data sink |
 | `ListProperty` | `list_id` + `list_property_technical_name` | `subscribeToDataSource` via data source `values` and `labels`; `editItem` (values map, not the sink itself) |
 | `ScenarioList` | none (at most one per Frame) | `subscribeToDataSource` via data source `labels` and `selectors`; `dynamicFilters`; `subscribeToItems`; `editValue` coordinates. See [Scenarios](#scenarios) |
-| `Variable` | `variable_id` | `dynamicFilters` on `subscribeToDataSource` |
 | `View` | `view_id` | legacy `subscribeToVizualization` only, migrate away from it for `subscribeToDataSource` |
+
+**Not supported:** `Variable` and `ListModality` bindings are not supported yet. Do not declare them; to filter on a List use a `List` binding with `selectors` and `dynamicFilters`. When touching an existing Frame that declares one, remove it.
 
 **Important:** the SDK can natively `subscribeToItems` on any `List` binding declared here directly — no `data_source` or `data_sink` needed just to list a List's Items.
 
@@ -115,9 +116,10 @@ Here are the extra constraints for a data source on Metrics:
 | Field | Requirements |
 | --- | --- |
 | `values[i].binding` | Binding of type `Metric`. The Metric we want to extract the data from |
-| `values[i].aggregator` | How the value is combined over the Dimensions it depends on that are not set in `labels` (`Sum`, `Avg`, `Min`, `Max`, `Count`, `First`, `Last`, ...). Unspecified means to keep the Metric's own aggregation |
 | `labels[i].binding` | Binding of type `List`, or of type `ListProperty` whose property targets a Dimension. Must abide by the Dimension rules below |
 | `selectors[i].binding` | Must abide by the same rules as `labels`. Filter applied before aggregation |
+
+_Aggregation._ A data source cannot choose its aggregation: the `aggregator` field no longer exists in `values` (do not send it). For Dimensions of the Metric that are not in `labels`, the values are combined with `Sum` when the Metric or Property is of type number or integer. Aggregation does not work on other types of Metric or Property (text, boolean, date, ...). If another method is needed (average, min, max, ...), fetch the rows and compute it in the Frame's JS.
 
 _Dimension rules._ Both `labels` and `selectors` must satisfy, against every Metric specified in `values`:
 
@@ -129,11 +131,10 @@ And for one on a List:
 | Field | Requirements |
 | --- | --- |
 | `values[i].binding` | Binding of type `ListProperty`. The properties we want to extract the data from. Must all belong to the same List |
-| `values[i].aggregator` | Must stay unspecified |
 | `labels[i].binding` | Binding of type `List` or `ListProperty`. Must all belong to the same List as the `values`. Last `labels` must be a binding to the List itself, all others must be properties targeting a Dimension |
 | `selectors[i].binding` | Binding of type `ListProperty`, the property targeting a Dimension. Must all belong to the same List as the `values` |
 
-The example below declares a data source on a single Metric declared as `revMetric` in the bindings. It asks for the `monthList` to be used as `labels` and `countryList` to be used as `selectors`. It implicitely implies that `revMetric` must be at least dimensioned by `monthList` and `countryList`. For any Dimension not declared in `labels`, at least `countryList`, it will apply a sum of the values for the countries being asked (or all of them if not specified).
+The example below declares a data source on a single Metric declared as `revMetric` in the bindings. It asks for the `monthList` to be used as `labels` and `countryList` to be used as `selectors`. It implicitely implies that `revMetric` must be at least dimensioned by `monthList` and `countryList`. For any Dimension not declared in `labels`, at least `countryList`, it will apply a `Sum` of the values for the countries being asked (or all of them if not specified).
 
 ```json
 {
@@ -145,7 +146,7 @@ The example below declares a data source on a single Metric declared as `revMetr
   "data_sources": [
     {
       "name": "revenueByTime",
-      "values": [{ "binding": "revMetric", "aggregator": "Sum" }],
+      "values": [{ "binding": "revMetric" }],
       "labels": [{ "binding": "monthList" }],
       "selectors": [{ "binding": "countryList" }]
     }
@@ -157,7 +158,7 @@ The example below declares a data source on a single Metric declared as `revMetr
 
 **Purpose: write data back to the Pigment model.** `data_sinks` is a field in the Frame manifest, alongside `bindings` and `data_sources`. It lists every Pigment block (List or Metric) the Frame needs to write to, and listing a binding there is what grants write access to it — nothing else does.
 
-**Shared Blocks are read-only.** A Frame can read a Block shared from another application via a Library (i.e. a Block that lives outside the Frame's own application but was included in a Library shared with it) through a `data_source`, exactly like any other Block. For security reasons it can never write to it: do not declare a `data_sink` on a binding to a shared Block.
+**Shared Blocks are writable.** A Frame can read and write a Block shared from another application via a Library (i.e. a Block that lives outside the Frame's own application but was included in a Library shared with it), exactly like any other Block. There is no write restriction specific to shared Blocks.
 
 Each entry is `{ "name": <string>, "binding": <binding name> }`:
 
@@ -203,7 +204,7 @@ A `ScenarioList` binding (`{ "name": "scenarios", "type": "ScenarioList" }`) sta
   "data_sources": [
     {
       "name": "revenueByScenario",
-      "values": [{ "binding": "revMetric", "aggregator": "Sum" }],
+      "values": [{ "binding": "revMetric" }],
       "labels": [{ "binding": "monthList" }, { "binding": "scenarios" }],
       "selectors": [{ "binding": "scenarios" }]
     }
@@ -229,7 +230,7 @@ Three different identifier kinds show up in Frame JS. Mixing them up is the most
 | --- | --- | --- |
 | Data source | `data_sources[i].name` | 1st arg of `subscribeToDataSource` |
 | Data sink | `data_sinks[i].name` | 1st arg of `addItem` / `editItem` / `editValue` |
-| List, Metric, ListProperty, Variable | Binding `name` (declared in `bindings`) | `values[i].binding` / `labels[i].binding` / `selectors[i].binding` inside a data source definition; `dynamicFilters[i].binding`; the JS object keys of the `values` map passed to `addItem`/`editItem` (one key per property being written); the JS object keys of the `coordinates` map passed to `editValue` (one key per Dimension); 1st arg of `subscribeToItems` (a List binding is read directly, no data source/sink needed) |
+| List, Metric, ListProperty | Binding `name` (declared in `bindings`) | `values[i].binding` / `labels[i].binding` / `selectors[i].binding` inside a data source definition; `dynamicFilters[i].binding`; the JS object keys of the `values` map passed to `addItem`/`editItem` (one key per property being written); the JS object keys of the `coordinates` map passed to `editValue` (one key per Dimension); 1st arg of `subscribeToItems` (a List binding is read directly, no data source/sink needed) |
 | List Item (a.k.a. modality/row of a List) | Friendly Item name, as a plain string, used directly — no binding, no lookup | `item` (2nd arg of `editItem`); `dynamicFilters[i].selection` entries; the JS object values of the `coordinates` map passed to `editValue`; Item labels received back from `subscribeToItems`/`subscribeToDataSource` |
 
 ## PigmentSDK
@@ -267,7 +268,7 @@ The shape of the `data` received on `onData` is the following:
 - `data.rowOffset` is the 0-based index of the first row in `data.rows` within the full data source, i.e. `data.rows[n]` is row `data.rowOffset + n` of the data source.
 - `data.totalRowCount` is the total number of rows in the data source, regardless of the requested scroll window.
 
-Applied to the same `revenueByTime` data source defined above (`values: [revMetric]` summed with `Sum`, `labels: [monthList]`, `selectors: [countryList]`), subscribing with no `dynamicFilters` (all countries aggregated together) delivers one row per month:
+Applied to the same `revenueByTime` data source defined above (`values: [revMetric]`, summed by default, `labels: [monthList]`, `selectors: [countryList]`), subscribing with no `dynamicFilters` (all countries aggregated together) delivers one row per month:
 
 ```json
 {
@@ -404,7 +405,7 @@ In `root.__cleanup`: `unsubscribe()` all subs; `removeEventListener` all named g
 > **Discouraged, scheduled for decommission.** Frames used to have to plug into a pre-built View (on a List, Metric, or Table) to read anything at all; that is no longer the case — `bindings` + `data_sources` read Metrics and Lists directly, without any View. `subscribeToVizualization` is the legacy path that still reads through a `View` binding, and it only survives in Frames that predate `data_sources`. Never use it in a new Frame. When you touch an existing Frame that still relies on it, offer the user to migrate it to the new `data_sources`-based manifest instead of only patching around it. The rest of this section only exists to understand such legacy code.
 
 - **Backing Views:** legacy Frames needed a backing View on a List, Metric or Table with the right layout. Data sources replace this step entirely.
-- **Bindings:** a `View` binding (`view_id`) per View, plus `List` / `Variable` bindings for `pageDefinitions`.
+- **Bindings:** a `View` binding (`view_id`) per View, plus `List` bindings for `pageDefinitions`.
 - **Limits:** a Frame that predates `data_sources` shares 15 concurrent subscriptions between `subscribeToVizualization` and `subscribeToDataSource`; rows capped at 1,000 per window. New Frames get 10 for `subscribeToDataSource`, and the host rejects `subscribeToVizualization` with an error.
 - **Return value:** like `subscribeToDataSource`, it returns synchronously a handle — here `{ unsubscribe(), updatePageDefinitions(defs), updateScroll(scroll) }`.
 
@@ -438,10 +439,10 @@ Label paths: `labels.rows[r]` and `labels.columns[c]` are arrays (one entry per 
 
 ### Page selection
 
-String aliases work for both **List** and **Variable** bindings. Pass `{ kind: 'metric' }` as the alias to select specific Metrics from the View by their ID. No scenario placeholder.
+String aliases work for **List** bindings. Pass `{ kind: 'metric' }` as the alias to select specific Metrics from the View by their ID. No scenario placeholder.
 
 ```js
-// Select by List/Variable alias
+// Select by List alias
 vizSub.updatePageDefinitions([{ alias: 'countryList', selection: ['France'] }]);
 
 // Select by Metric (selection contains Metric IDs from the View)

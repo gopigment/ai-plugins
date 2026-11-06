@@ -1,6 +1,6 @@
 ---
 name: forecasting-in-pigment
-description: "Execution skill. Use when creating forecasts, choosing between growth hypotheses, statistical functions, and ML Predictions, or configuring the Predictions tool."
+description: "Execution skill. Use when creating forecasts or choosing between growth-rate hypotheses and statistical forecasting functions."
 metadata:
   base_directory: /skills/forecasting-in-pigment
   includes:
@@ -13,15 +13,14 @@ metadata:
 
 For the correct time-offset formula pattern (`[SELECT: Month-12]` vs `PREVIOUS`), load `skill:choosing-formula-patterns`.
 
-Three forecasting approaches with different setup effort, accuracy, and use cases.
+Two forecasting approaches with different setup effort, accuracy, and use cases.
 
-## Choose Among the Three Forecasting Approaches
+## Choose Among the Forecasting Approaches
 
 | Approach | When to use | Setup effort | Accuracy |
 | --- | --- | --- | --- |
 | **Growth-rate hypotheses** | Simple budgets, top-down targets, early-stage planning with limited history | Low | Low to medium (depends on assumption quality) |
 | **Statistical formula functions** | Formula-driven forecasts with full modeler control over method and parameters | Medium | Medium to high (depends on data quality and function choice) |
-| **ML Predictions tool** | Automated model selection with large datasets, complex seasonality, or external factors | Medium to high | High (automated model tuning) |
 
 ### Approach 1 — Growth-Rate Hypotheses
 
@@ -93,27 +92,6 @@ For detailed function syntax and examples, see `skill:using-formula-functions` (
 
 **When to prefer:** modeler wants full control, transparent formula, moderate data volume with well-understood patterns.
 
-### Approach 3 — ML Predictions Tool
-
-Automated machine learning; selects the best model from a library of algorithms. Runs as a separate tool, not a formula.
-
-**Workflow:**
-
-1. `tool:prepare_forecast` — configure target metric, historical time range, forecast horizon
-2. `tool:create_forecast` — run the prediction job (creates the prediction dimension if needed)
-3. Review accuracy measures (MAPE, RMSE, MAE)
-4. `tool:copy_forecast_to_metric` or `tool:copy_forecast_data` — transfer forecast into a planning metric
-
-**Available models** (selected automatically or manually):
-
-- **AutoML**: tests multiple algorithms, picks the best. Default and recommended.
-- **Prophet**: strong with multiple seasonalities, holidays, trend changepoints. Good for business time series.
-- **AutoETS**: automated exponential smoothing state space models. Good for clear level/trend/season components.
-
-**External factors:** include external variables (e.g. weather, marketing spend, pricing) to improve accuracy. Must be available for both historical and forecast periods. Configure via `tool:prepare_forecast`.
-
-**When to prefer:** large datasets with complex/multiple seasonal patterns; automated model selection without hand-tuning; external factors influence the forecast; accuracy more important than formula transparency.
-
 ## Combining Approaches
 
 Statistical forecast + manual overrides:
@@ -126,13 +104,10 @@ Statistical forecast + manual overrides:
   )
 ```
 
-Another pattern: Predictions tool for initial baseline → copy results into a metric → apply growth-rate adjustments for management targets.
-
 ## Best Practices
 
 - Validate forecasts against holdout data when possible
 - Match forecast granularity to planning granularity
 - For seasonal functions, provide at least 2 full cycles of history
 - Document approach and parameters for reproducibility
-- Review Predictions tool accuracy measures before copying results into planning metrics
 - Forecasts typically apply to Budget or Forecast versions, not Actuals; use `IF('Is_Plan', ...)` to guard forecast formulas

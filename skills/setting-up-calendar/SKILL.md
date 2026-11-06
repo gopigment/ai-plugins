@@ -21,10 +21,9 @@ Use `tool:calendar_create` with these parameters:
 - `start_date` (required): e.g. "2020-01-01"
 - `end_date` (required): e.g. "2026-12-31"
 - `selected_time_dimensions` (required): list of time dimensions, e.g. ["Month", "Quarter", "Year"]
-- `actual_vs_forecast_enabled` (required): **always set to `false`.** See below.
 - `gregorian_config.fiscal_year_starting_month` (optional): 1-12, defaults to 1 (January)
 
-> **`actual_vs_forecast_enabled` is not how you split actuals from plan**, despite what the tool description suggests. It is legacy, and it gives one global switchover for the whole application: it cannot vary per planning cycle, so a Budget and a Forecast with different switchover dates cannot coexist. Pass `false` and model the split with a Version Dimension carrying a `Switchover Month` property plus `Is_Actual` / `Is_Plan` metrics — see `skill:building-versions-and-planning-cycles`.
+> The calendar does not split actuals from plan. Model that split with a Version Dimension carrying a `Switchover Month` property plus `Is_Actual` / `Is_Plan` metrics — see `skill:building-versions-and-planning-cycles`.
 
 ## Sharing Calendar Dimensions
 
