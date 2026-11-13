@@ -10,30 +10,27 @@ Enable MCP in your Pigment workspace: **Settings > Integrations > MCP**. See the
 
 ## Installation
 
+### Claude
+
+1. In Claude, on the web or in the desktop app, go to **Customize > Plugins**
+2. Search for **Pigment** and install the plugin
+3. Connect to your Pigment workspace (see [Configuration](#configuration))
+
+The plugin works in chat, Cowork and Claude Code. A plugin you install in Claude is also added to Claude Code the next time you start a session.
+
 ### Cursor
 
 1. Go to [Cursor plugins](https://cursor.com/dashboard/plugins)
 2. Import `https://github.com/gopigment/ai-plugins` as a marketplace
 3. Add Pigment plugin to Cursor from the plugins page, or open Cursor and run `/add-plugin pigment` in a new chat
 
-### Claude Code
-
-#### Desktop App
-
-1. Go to **Customize**, select **Add plugin**, then **Add marketplace** and paste `https://github.com/gopigment/ai-plugins`
-2. Install Pigment plugin
-
-#### Terminal CLI
-
-```
-/plugin marketplace add gopigment/ai-plugins
-
-/plugin install pigment@pigment
-```
-
 ### Configuration
 
-After installing, set your MCP server URL. The easiest way is to paste your MCP URL into the agent chat and ask it to update the configuration. You can also edit the `.mcp.json` file directly.
+**Claude Code:** when you enable the plugin, Claude Code asks for your **Pigment MCP ID**, the last part of your MCP URL (`https://pigment.app/api/mcp/public/<MCP ID>`). You can change it later in `/config`. You don't need to edit any file, and the value is kept across plugin updates.
+
+**Claude (chat and Cowork):** the skills load automatically. To connect to Pigment, add your MCP URL as a custom connector in Claude under **Settings > Connectors**.
+
+**Cursor:** after installing, open **Plugins → Configure** in the Cursor dashboard and set **Pigment MCP ID** to the last part of your MCP URL. Requires Cursor 3.19 or later.
 
 Your MCP URL can be found in your Pigment workspace under **Settings > Integrations > MCP**. See the [Pigment documentation](https://kb.pigment.com/docs/mcp-server-1) for detailed instructions.
 

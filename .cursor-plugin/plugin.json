@@ -1,7 +1,10 @@
 {
   "name": "pigment",
   "displayName": "Pigment",
-  "version": "2.0.7",
+  "version": "2.0.8",
+  "minClientVersions": {
+    "cursor": "3.19.0"
+  },
   "description": "Analyze business data and build planning models in your Pigment workspace",
   "license": "SEE LICENSE IN LICENSE",
   "author": {
@@ -17,6 +20,20 @@
     "analysis",
     "scenario"
   ],
+  "variables": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "PIGMENT_MCP_ID"
+    ],
+    "properties": {
+      "PIGMENT_MCP_ID": {
+        "type": "string",
+        "title": "Pigment MCP ID",
+        "description": "The last part of your MCP URL (https://pigment.app/api/mcp/public/<MCP ID>). Find it in Pigment under Settings > Integrations > MCP."
+      }
+    }
+  },
   "skills": "./skills/",
-  "mcpServers": "./.mcp.json"
+  "mcpServers": "./.cursor-plugin/mcp.json"
 }
