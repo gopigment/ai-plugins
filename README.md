@@ -10,26 +10,19 @@ Enable MCP in your Pigment workspace: **Settings > Integrations > MCP**. See the
 
 ## Installation
 
+### Claude
+
+1. In Claude, on the web or in the desktop app, go to **Customize > Plugins**
+2. Search for **Pigment** and install the plugin
+3. Connect Pigment as a connector (see [Configuration](#configuration))
+
+The plugin works in chat, Cowork and Claude Code. A plugin you install in Claude is also added to Claude Code the next time you start a session.
+
 ### Cursor
 
 1. Go to [Cursor plugins](https://cursor.com/dashboard/plugins)
 2. Import `https://github.com/gopigment/ai-plugins` as a marketplace
 3. Add Pigment plugin to Cursor from the plugins page, or open Cursor and run `/add-plugin pigment` in a new chat
-
-### Claude Code
-
-#### Desktop App
-
-1. Go to **Customize**, select **Add plugin**, then **Add marketplace** and paste `https://github.com/gopigment/ai-plugins`
-2. Install Pigment plugin
-
-#### Terminal CLI
-
-```
-/plugin marketplace add gopigment/ai-plugins
-
-/plugin install pigment@pigment
-```
 
 ### Configuration
 
