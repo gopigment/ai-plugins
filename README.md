@@ -35,7 +35,7 @@ Enable MCP in your Pigment workspace: **Settings > Integrations > MCP**. See the
 
 **Claude Code:** when you enable the plugin, Claude Code asks for your **Pigment MCP ID**, the last part of your MCP URL (`https://pigment.app/api/mcp/public/<MCP ID>`). You can change it later in `/config`. You don't need to edit any file, and the value is kept across plugin updates.
 
-**Cursor:** after installing, set your MCP server URL. The easiest way is to paste your MCP URL into the agent chat and ask it to update the configuration. You can also edit the `.cursor-plugin/mcp.json` file directly.
+**Cursor:** after installing, open **Plugins → Configure** in the Cursor dashboard and set **Pigment MCP ID** to the last part of your MCP URL. Requires Cursor 3.19 or later.
 
 Your MCP URL can be found in your Pigment workspace under **Settings > Integrations > MCP**. See the [Pigment documentation](https://kb.pigment.com/docs/mcp-server-1) for detailed instructions.
 
