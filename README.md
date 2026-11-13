@@ -55,15 +55,18 @@ To make a Block's data accessible, you need to enable [AI data access](https://k
 
 <!-- mcp-tools:default:start -->
 <details>
-<summary>Available tools (14)</summary>
+<summary>Available tools (17)</summary>
 
 - fetch_list_data
 - fetch_metric_data
 - get_applications
 - get_data_dependency_tree
+- get_list_dependencies
 - get_metric_context
 - get_metric_dependencies
 - get_organization_info
+- get_table_dependencies
+- get_view_dependencies
 - get_views
 - search_boards
 - search_folders
@@ -88,15 +91,18 @@ Advanced mode provides read and write tools for modeling and editing your Applic
 
 <!-- mcp-tools:advanced:start -->
 <details>
-<summary>Available tools (83)</summary>
+<summary>Available tools (88)</summary>
 
 - add_list_items
 - batch_share_blocks
+- bulk_update_lists
+- bulk_update_metrics
 - calendar_add_time_dimension
 - calendar_create
 - calendar_expand
 - calendar_get
 - calendar_remove_time_dimension
+- clear_board_permission_metrics
 - clear_widget_preview
 - copy_formula_as_user_inputs
 - create_application
@@ -133,6 +139,7 @@ Advanced mode provides read and write tools for modeling and editing your Applic
 - get_top_blocks_by_performance
 - list_application_libraries
 - list_cycles
+- list_data_flows
 - list_issues
 - list_scenarios
 - move_blocks
@@ -140,6 +147,8 @@ Advanced mode provides read and write tools for modeling and editing your Applic
 - performance_profile_change
 - performance_profile_change_scope_details
 - performance_slowest_changes
+- reorder_list_items
+- run_data_flow
 - save_draft_views
 - search
 - search_frames
@@ -148,17 +157,16 @@ Advanced mode provides read and write tools for modeling and editing your Applic
 - set_widget_preview
 - update_application
 - update_board
+- update_board_inherit_application_permissions
 - update_board_page_configurations
 - update_board_widgets
 - update_cycle
 - update_folder_name
 - update_frame
 - update_frame_body
-- update_list
 - update_list_property
 - update_list_property_input_data
 - update_list_view_pivots
-- update_metric
 - update_table
 - update_view
 - update_view_aggregations

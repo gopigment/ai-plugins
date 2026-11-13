@@ -4,6 +4,18 @@ The target view is available in the UVC — a widget of the board the user has o
 
 **User Visible Context (UVC)**: for the purposes of this skill, the relevant UVC is the board UVC — the structured block injected when the user is viewing a board. It contains the board ID, widget display names, widget names, view IDs, and active page selector values. If the UVC contains a board ID, widget display names, and view IDs, use these directly to identify the block and any active filters — no block search call is needed.
 
+## Overriding page and scenario selections
+
+This section applies only when `tool:fetch_view_data` has the arguments `page_selection_overrides` and `scenario_overrides`. Otherwise skip it and plan every change as `tool:fetch_metric_data` filters, as the rest of this file describes.
+
+When the user asks for the same view with other page or scenario selections ("show this for France", "what about Budget?"), plan it as a call to `tool:fetch_view_data` with `page_selection_overrides` and `scenario_overrides`, not as `tool:fetch_metric_data` filters:
+
+- The selections you do not override stay as the user set them, so the rest of the board's constraints still hold.
+- Give each page selector by its dimension ID from the board UVC, and its items by name. Pass `items` as null to select all items.
+- Several items or scenarios go in one call. Scenarios can only be several on a view with a scenario selector.
+
+Keep `tool:fetch_metric_data` for what overrides do not cover: tree selectors, variables, and a different breakdown or level of detail. For those, follow the rules below.
+
 ## Board selector application
 
 All active UVC page selectors are required constraints on the **final result** — the analysis must honour every selector. That does **not** mean every selector's values should be passed into every intermediate fetch (see Mapped pivots in SKILL.md).
@@ -14,11 +26,11 @@ For each active selector, look up its pivot type in the view's pivot configurati
 - **Grouping**: apply as a property filter on the source dimension using the property path from the pivot config.
 - **Mapped** (through a mapping metric): follow the mapped dimension procedure in SKILL.md.
 
-**User override**: if the user explicitly requests different filter values or asks to ignore a selector, their instruction takes precedence. Only override when explicit — never infer an override from absence of mention.
+**User override**: if the user explicitly requests different filter values or asks to ignore a selector, their instruction takes precedence. Only override when explicit — never infer an override from absence of mention. When `tool:fetch_view_data` accepts `page_selection_overrides` and the new values are for a page or scenario selector, use those overrides (see *Overriding page and scenario selections*) rather than filters on `tool:fetch_metric_data`.
 
-**Multi-value selectors**: if the board selector has multiple selected values, fetch once per selected value, union the results, then aggregate. Never drop values to avoid splitting. Mapped selectors are the exception: the mapping procedure handles all their selected values in one pass.
+**Multi-value selectors**: if the board selector has multiple selected values, make one `tool:fetch_metric_data` call per value, union the results, then aggregate. Never drop values to avoid splitting. Mapped selectors are the exception: the mapping procedure handles all their selected values in one pass.
 
-**Unsupported pivot type — Slice**: if an active UVC board selector has `kind: Slice`, a customer data fetch cannot replicate it. Disclose this explicitly to the user: state which selector is active and that the fetched result will not honour that constraint. Offer to proceed without it.
+**Unsupported pivot type — Slice**: if an active UVC board selector has `kind: Slice`, `tool:fetch_metric_data` cannot replicate it. The data `tool:fetch_view_data` returns already honours it: only figures you fetch with `tool:fetch_metric_data` do not. When you do, disclose this explicitly to the user: state which selector is active and that the fetched result will not honour that constraint. Offer to proceed without it.
 
 ## Display grain
 
