@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "pigment": {
+      "type": "http",
+      "url": "https://pigment.app/api/mcp/public/{your-mcp-id}"
+    }
+  }
+}
