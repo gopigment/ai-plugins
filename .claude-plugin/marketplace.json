@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "pigment",
-      "description": "Skills for analyzing business data and building planning models in Pigment. Connect the Pigment MCP server as a connector to use them.",
+      "description": "Analyze business data and build planning models in your Pigment workspace",
       "source": "./",
       "version": "2.0.8",
       "author": {
