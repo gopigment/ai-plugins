@@ -2,7 +2,7 @@
   "name": "pigment",
   "displayName": "Pigment",
   "description": "Analyze business data and build planning models in your Pigment workspace",
-  "version": "2.0.8",
+  "version": "2.0.10",
   "author": {
     "name": "Pigment"
   },
@@ -11,13 +11,5 @@
   "icon": "./.claude-plugin/icon.png",
   "documentationUrl": "https://kb.pigment.com/docs/mcp-server-1",
   "supportUrl": "https://support.pigment.com/",
-  "privacyPolicyUrl": "https://www.pigment.com/privacy-policy",
-  "userConfig": {
-    "mcp_id": {
-      "type": "string",
-      "title": "Pigment MCP ID",
-      "description": "The last part of your MCP URL (https://pigment.app/api/mcp/public/<MCP ID>). Find it in Pigment under Settings > Integrations > MCP.",
-      "required": true
-    }
-  }
+  "privacyPolicyUrl": "https://www.pigment.com/privacy-policy"
 }
