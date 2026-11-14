@@ -23,7 +23,7 @@
         "scenario"
       ],
       "skills": "./skills/",
-      "mcpServers": "./.mcp.json"
+      "mcpServers": "./.cursor-plugin/mcp.json"
     }
   ],
   "version": "2.0.9"
