@@ -1,10 +1,7 @@
 {
   "name": "pigment",
   "displayName": "Pigment",
-  "version": "2.0.8",
-  "minClientVersions": {
-    "cursor": "3.19.0"
-  },
+  "version": "2.0.9",
   "description": "Analyze business data and build planning models in your Pigment workspace",
   "license": "SEE LICENSE IN LICENSE",
   "author": {
