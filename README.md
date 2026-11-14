@@ -26,11 +26,7 @@ The plugin works in chat, Cowork and Claude Code. A plugin you install in Claude
 
 ### Configuration
 
-**Claude (chat, Cowork and Claude Code):** the Skills load automatically. Your Pigment MCP URL is specific to your workspace, so the plugin doesn't set it. To connect to Pigment, add your MCP URL as a custom connector in Claude under **Settings > Connectors**. Connectors you add there are also available in Claude Code when you sign in with your Claude account. To add it to Claude Code only, run:
-
-```
-claude mcp add --transport http pigment https://pigment.app/api/mcp/public/<MCP ID>
-```
+**Claude (chat, Cowork and Claude Code):** the Skills load automatically. Your Pigment MCP URL is specific to your workspace, so the plugin doesn't set it. To connect to Pigment, add your MCP URL as a custom connector in Claude under **Settings > Connectors**. Connectors you add there are also available in Claude Code when you sign in with your Claude account.
 
 **Cursor:** after installing, open **Plugins → Configure** in the Cursor dashboard and set **Pigment MCP ID** to the last part of your MCP URL. Requires Cursor 3.19 or later.
 
