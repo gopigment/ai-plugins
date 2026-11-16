@@ -59,7 +59,7 @@ When the Frame works, tell the user that it is still a draft and ask them to pub
 
 Iframe: `sandbox="allow-scripts"`, opaque origin. Host shell loads `/pigment-sdk.js`, then your file contents as a separate script into `#app`.
 
-**Allowed:** ES2015+ JS, DOM, Canvas, inline SVG/CSS. **Blocked:** network (`fetch`, CDN, `@import`), storage, `alert`/`confirm`/`prompt`, Workers, nested iframes, `parent`/`top`.
+**Allowed:** ES2015+ JS, DOM, Canvas, inline SVG/CSS. **Blocked:** network (`fetch`, CDN, `@import`), storage, `alert`/`confirm`/`prompt`, Workers, nested iframes. See [Writing safe Frame code](#writing-safe-frame-code).
 
 **Rules:**
 1. The file is pure JS (not HTML). Populate `#app`; no `<script>` wrapper.
@@ -79,6 +79,27 @@ Iframe: `sandbox="allow-scripts"`, opaque origin. Host shell loads `/pigment-sdk
 ```
 
 Do not copy the Frame editor placeholder; it omits IIFE cleanup and uses template literals.
+
+## Writing safe Frame code
+
+Follow these rules in every Frame. Check the file against them before every `tool:create_frame` / `tool:update_frame`.
+
+**1. No business data in the code.** Every viewer can read the body. Read data only through `bindings` and `data_sources`. Never write figures, headcount, salaries, personal data, internal codes, customer or account names, team or region labels, or thresholds and targets into code, comments, or sample or fallback data. Read thresholds from a Metric binding. With no data, show an empty state. Literals in skill examples (`'France'`, `42000`) are illustration only.
+Allowed: colours, sizes, date formats, currency symbols, units, static UI text.
+
+**2. Never address or mislead the viewer.** Never imitate Pigment dialogs (login, permission, consent), ask the viewer to copy, export, visit a URL or approve something, link outside the workspace, claim authority, misrepresent data, label a control differently from what it does, or hide or overlay controls.
+Write through a sink only from a control whose label says what it writes. Never write on load, timer, hover or render, and never repeat writes automatically.
+Allowed: UI copy, tooltips, help text, guidance such as "click a bar to filter".
+
+**3. No sandbox primitives or obfuscation.** Use only `window.PigmentSDK`. Never use, even through aliases or strings, and even when not blocked:
+- `postMessage`, `MessageChannel`, `BroadcastChannel`, `parent`, `top`, `opener`, `frames`, `frameElement`;
+- WebRTC, `<link rel=prefetch|preload|preconnect>`, external URLs in attributes, `srcset`, `href`, CSS `url()`;
+- `location`, `target=`, `<meta refresh>`, `history.pushState`, `document.write`;
+- `eval`, `new Function`, string timers, `import()`, `<script>`, inline `on*=`, `javascript:` URLs;
+- the network, storage and worker APIs above.
+
+No `atob`, `\x`/`\u` escapes, `String.fromCharCode`, string-built identifiers, minified code, `with`, or `Proxy`/`Reflect` tricks.
+Allowed: static `innerHTML`, timers with a function, `requestAnimationFrame`, `data:`/`blob:` URLs from Frame data.
 
 ## Bindings
 
