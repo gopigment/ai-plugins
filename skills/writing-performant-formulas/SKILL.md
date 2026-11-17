@@ -2,7 +2,7 @@
 name: writing-performant-formulas
 description: "Execution skill. Use when reviewing or finalizing Pigment formulas before delivery. Provides the mandatory pre-delivery checklist, sparsity preservation rules, scope-first patterns, and anti-patterns to avoid."
 metadata:
-  base_directory: /skills/writing-performant-formulas
+  base_directory: "/skills/writing-performant-formulas"
   includes:
     - "SKILL.md"
 ---

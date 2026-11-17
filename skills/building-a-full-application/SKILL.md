@@ -2,7 +2,7 @@
 name: building-a-full-application
 description: "Planning skill. Use when building a complete Pigment application from scratch or when the request spans multiple modeling phases. This skill, together with any other planning skill the request calls for, is sufficient to produce the full architecture spec; do not load execution skills until the spec is approved and you begin building blocks."
 metadata:
-  base_directory: /skills/building-a-full-application
+  base_directory: "/skills/building-a-full-application"
   includes:
     - "SKILL.md"
 ---

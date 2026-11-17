@@ -2,7 +2,7 @@
 name: using-formula-functions
 description: "Execution skill. Use when drafting or debugging a Pigment formula that calls built-in functions. Covers all function signatures, parameters, return types, and usage examples grouped by category."
 metadata:
-  base_directory: /skills/using-formula-functions
+  base_directory: "/skills/using-formula-functions"
   includes:
     - "SKILL.md"
     - "*.md"

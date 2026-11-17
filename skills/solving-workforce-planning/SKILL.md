@@ -2,7 +2,7 @@
 name: solving-workforce-planning
 description: "Planning skill. Workforce planning use cases: headcount tracking, hiring pipeline, compensation planning, employee transfers, HRIS integration. Each use case has inline guidance; load sub-files only for advanced patterns."
 metadata:
-  base_directory: /skills/solving-workforce-planning
+  base_directory: "/skills/solving-workforce-planning"
   includes:
     - "SKILL.md"
     - "*.md"

@@ -2,7 +2,7 @@
 name: understanding-pigment-modeling
 description: "Foundational skill. Read this skill first, for planning or doing any action in Pigment (creating an app, modifying an app, writing a formula or designing a view). It's a full tour of the platform and its features, the mental model you need to understand it and an explanation of the principle of Pigment modeling."
 metadata:
-  base_directory: /skills/understanding-pigment-modeling
+  base_directory: "/skills/understanding-pigment-modeling"
   includes:
     - "SKILL.md"
 ---

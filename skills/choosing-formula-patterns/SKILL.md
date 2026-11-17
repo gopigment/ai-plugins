@@ -2,7 +2,7 @@
 name: choosing-formula-patterns
 description: "Planning skill. Use before writing formulas to decide which patterns and modifiers are needed for the use case. Maps business requirements to formula pattern combinations."
 metadata:
-  base_directory: /skills/choosing-formula-patterns
+  base_directory: "/skills/choosing-formula-patterns"
   includes:
     - "SKILL.md"
 ---

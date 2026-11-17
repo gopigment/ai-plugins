@@ -2,7 +2,7 @@
 name: editing-an-existing-application
 description: "Planning skill. Use when modifying, extending, refactoring, or restructuring an existing Pigment application. Covers discovery, impact analysis, change planning, and phased execution. Do not use for greenfield builds (use building-a-full-application instead)."
 metadata:
-  base_directory: /skills/editing-an-existing-application
+  base_directory: "/skills/editing-an-existing-application"
   includes:
     - "SKILL.md"
 ---

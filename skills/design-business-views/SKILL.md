@@ -2,7 +2,7 @@
 name: design-business-views
 description: "Execution skill. Load it right after finishing a block people will read as a Grid (a new table, a set of metrics, a Transaction List) and whenever you create or restyle a view (`Table` or `List` display or even metrics), before the first `update_view_*` call. Covers pivot placement, page order, tree mode, column widths, metric names, header colors and recurring View patterns (tabular input View, default View of a Transaction List), even if the user said nothing about layout."
 metadata:
-  base_directory: /skills/design-business-views
+  base_directory: "/skills/design-business-views"
   includes:
     - "SKILL.md"
 ---

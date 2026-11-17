@@ -2,7 +2,7 @@
 name: designing-boards-and-views
 description: "Execution skill. Use when creating or editing a Board, a dashboard, or a View -- board sections and layout on the 12-column grid, widgets and their sizing (KPI, chart, grid, text, spacer, action button), board page selectors and their defaults, view pivots (rows / columns / pages), breaking down by or per a dimension, filters, sorts, totals, chart type and configuration, cell formatting, and draft views."
 metadata:
-  base_directory: /skills/designing-boards-and-views
+  base_directory: "/skills/designing-boards-and-views"
   includes:
     - "SKILL.md"
 ---

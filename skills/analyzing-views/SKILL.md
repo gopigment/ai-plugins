@@ -1,17 +1,11 @@
 ---
 name: analyzing-views
-description: >
-  Guide for determining which filters apply and how — covering both on-board queries (where the view
-  is provided in user visible context) and off-board queries (where the view is not on the board the user has open, or no board is open). Use when
-  the query involves filtering, slicing, grouping, or applying board page selectors — before planning
-  filters, or before calling the get_views tool or search_views tool. Flow-specific rules live in on-board.md and off-board.md,
-  so only the ones that apply are read.
+description: "Guide for determining which filters apply and how — covering both on-board queries (where the view is provided in user visible context) and off-board queries (where the view is not on the board the user has open, or no board is open). Use when the query involves filtering, slicing, grouping, or applying board page selectors — before planning filters, or before calling the get_views tool or search_views tool. Flow-specific rules live in on-board.md and off-board.md, so only the ones that apply are read."
 metadata:
-  base_directory: /skills/analyzing-views
+  base_directory: "/skills/analyzing-views"
   includes:
     - "SKILL.md"
     - "*.md"
-
 ---
 
 # Analyzing views

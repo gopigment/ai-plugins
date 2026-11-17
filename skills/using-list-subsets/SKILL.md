@@ -2,7 +2,7 @@
 name: using-list-subsets
 description: "Execution skill. Use when creating, modifying, or reasoning about List Subsets — mirror dimensions, same-dimension-on-two-axes, cohort modeling, restricted dropdowns, iterative performance optimization, or any request involving subsets."
 metadata:
-  base_directory: /skills/using-list-subsets
+  base_directory: "/skills/using-list-subsets"
   includes:
     - "SKILL.md"
 ---

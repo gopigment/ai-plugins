@@ -1,7 +1,7 @@
 {
   "name": "pigment",
   "displayName": "Pigment",
-  "version": "2.0.10",
+  "version": "2.0.11",
   "minClientVersions": {
     "cursor": "3.19.0"
   },
@@ -20,20 +20,6 @@
     "analysis",
     "scenario"
   ],
-  "variables": {
-    "type": "object",
-    "additionalProperties": false,
-    "required": [
-      "PIGMENT_MCP_ID"
-    ],
-    "properties": {
-      "PIGMENT_MCP_ID": {
-        "type": "string",
-        "title": "Pigment MCP ID",
-        "description": "The last part of your MCP URL (https://pigment.app/api/mcp/public/<MCP ID>). Find it in Pigment under Settings > Integrations > MCP."
-      }
-    }
-  },
   "skills": "./skills/",
   "mcpServers": "./.cursor-plugin/mcp.json"
 }

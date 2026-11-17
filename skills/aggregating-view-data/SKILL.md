@@ -2,7 +2,7 @@
 name: aggregating-view-data
 description: "Execution skill. Use when a View needs totals or subtotals, when a value must roll up with something other than Sum (average, min, max, count, last), when a snapshot metric adds up across time instead of holding, or when a ratio, percentage, margin, growth or variance metric is added to a Table View or shows a wrong total (e.g. a row for margin as a percent of revenue). Covers metric default aggregators, pivot versus hidden-dimension aggregation, the aggregator reference per value type, and Advanced Aggregators on Table Views."
 metadata:
-  base_directory: /skills/aggregating-view-data
+  base_directory: "/skills/aggregating-view-data"
   includes:
     - "SKILL.md"
 ---

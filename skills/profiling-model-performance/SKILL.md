@@ -2,7 +2,7 @@
 name: profiling-model-performance
 description: "Execution skill. Use when investigating slow inputs, slow calculations, or timeouts with the Performance Insights tools (performance_profile_change, performance_profile_change_scope_details, performance_slowest_changes, performance_changes_statistics, get_top_blocks_by_performance). Covers which tool to call, the includeAllExecutions default, reading change profiles (X/Y scope, contention, impacted viewed data), drilling into the scoped dimensions of some executions, locating the bottleneck, and comparing timings before/after a fix. Always profile before formula changes; never optimize from assumptions."
 metadata:
-  base_directory: /skills/profiling-model-performance
+  base_directory: "/skills/profiling-model-performance"
   includes:
     - "SKILL.md"
 ---

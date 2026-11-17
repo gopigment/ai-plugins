@@ -2,7 +2,7 @@
 name: creating-metrics-and-tables
 description: "Execution skill. Load it before the first `create_metric` or `bulk_update_metrics` call; never create or change a metric without loading it first. Use when creating metrics or tables, selecting metric data types, or finalizing metric structure."
 metadata:
-  base_directory: /skills/creating-metrics-and-tables
+  base_directory: "/skills/creating-metrics-and-tables"
   includes:
     - "SKILL.md"
 ---
