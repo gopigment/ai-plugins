@@ -2,7 +2,7 @@
 name: solving-financial-planning
 description: "Planning skill. FP&A use cases: budget/expense planning, revenue forecasting, P&L reporting, multi-currency, financial consolidation. Each use case has inline guidance; load sub-files only for advanced patterns."
 metadata:
-  base_directory: /skills/solving-financial-planning
+  base_directory: "/skills/solving-financial-planning"
   includes:
     - "SKILL.md"
     - "*.md"

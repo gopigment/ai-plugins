@@ -2,7 +2,7 @@
 name: sharing-data-between-applications
 description: "Execution skill. Use when sharing metrics or lists between Pigment Applications via Libraries and cross-Application formula references."
 metadata:
-  base_directory: /skills/sharing-data-between-applications
+  base_directory: "/skills/sharing-data-between-applications"
   includes:
     - "SKILL.md"
 ---

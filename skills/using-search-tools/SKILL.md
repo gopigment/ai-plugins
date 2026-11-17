@@ -1,11 +1,8 @@
 ---
 name: using-search-tools
-description: >-
-  Execution skill. Choosing between the discovery tools and calling them cheaply: why
-  breadth is free but call count is not, and lineage versus full impact analysis. Load
-  before exploring an application, resolving block names, or checking what a change breaks.
+description: "Execution skill. Choosing between the discovery tools and calling them cheaply: why breadth is free but call count is not, and lineage versus full impact analysis. Load before exploring an application, resolving block names, or checking what a change breaks."
 metadata:
-  base_directory: /skills/using-search-tools
+  base_directory: "/skills/using-search-tools"
   includes:
     - "SKILL.md"
 ---

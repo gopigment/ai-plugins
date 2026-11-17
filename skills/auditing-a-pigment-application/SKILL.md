@@ -2,7 +2,7 @@
 name: auditing-a-pigment-application
 description: "Execution skill. Use when auditing, reviewing, or health-checking a Pigment application. Covers the structured audit checklist, severity classification, and output format. Also triggers on requests to clean up, find unused blocks, assess model quality, or find what is wrong with an application."
 metadata:
-  base_directory: /skills/auditing-a-pigment-application
+  base_directory: "/skills/auditing-a-pigment-application"
   includes:
     - "SKILL.md"
 ---

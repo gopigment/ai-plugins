@@ -2,7 +2,7 @@
 name: searching-documents
 description: "Use this skill with tool:search_documents to find and use the files stored in the user's applications (plans, assumptions, contracts, board decks, policies, exports), alongside the blocks and boards searches whenever you look for a business concept or topic: when to search files, and how to read, cite and name what it returns."
 metadata:
-  base_directory: /skills/searching-documents
+  base_directory: "/skills/searching-documents"
   includes:
     - "SKILL.md"
 ---

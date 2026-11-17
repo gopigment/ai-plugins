@@ -2,7 +2,7 @@
 name: diagnosing-performance-issues
 description: "Execution skill. Use when a Pigment application has slow calculations, timeouts, or when diagnosing performance bottlenecks. Covers profiler interpretation, scope chip reading, systematic troubleshooting workflow, and iterative calculation optimization."
 metadata:
-  base_directory: /skills/diagnosing-performance-issues
+  base_directory: "/skills/diagnosing-performance-issues"
   includes:
     - "SKILL.md"
 ---
