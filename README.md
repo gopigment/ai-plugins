@@ -2,7 +2,7 @@
 
 Connect your AI assistant to Pigment to query, analyze, and build business planning models.
 
-These plugins bundle the [Pigment MCP server](https://kb.pigment.com/docs/mcp-server-1) with domain-knowledge **Skills** that teach AI assistants how Pigment works — its proprietary formula language, modeling patterns, dashboard conventions, and performance best practices.
+These plugins provide domain-knowledge **Skills** for the [Pigment MCP server](https://kb.pigment.com/docs/mcp-server-1), which you connect separately. The Skills teach AI assistants how Pigment works — its proprietary formula language, modeling patterns, dashboard conventions, and performance best practices.
 
 ## Prerequisites
 
@@ -26,9 +26,11 @@ The plugin works in chat, Cowork and Claude Code. A plugin you install in Claude
 
 ### Configuration
 
-**Claude (chat, Cowork and Claude Code):** the Skills load automatically. Your Pigment MCP URL is specific to your workspace, so the plugin doesn't set it. To connect to Pigment, add your MCP URL as a custom connector in Claude under **Settings > Connectors**. Connectors you add there are also available in Claude Code when you sign in with your Claude account.
+The plugins contain the Skills only. Your Pigment MCP URL is specific to your workspace, so you connect the MCP server yourself.
 
-**Cursor:** the Skills load automatically. As in Claude, the plugin doesn't set your MCP URL: add it as an MCP server in Cursor's MCP settings. Requires Cursor 3.19 or later.
+**Claude (chat, Cowork and Claude Code):** the Skills load automatically. To connect to Pigment, add your MCP URL as a custom connector in Claude under **Settings > Connectors**. Connectors you add there are also available in Claude Code when you sign in with your Claude account.
+
+**Cursor:** the Skills load automatically. To connect to Pigment, add your MCP URL as an MCP server in Cursor's MCP settings.
 
 Your MCP URL can be found in your Pigment workspace under **Settings > Integrations > MCP**. See the [Pigment documentation](https://kb.pigment.com/docs/mcp-server-1) for detailed instructions.
 
@@ -36,7 +38,7 @@ Your MCP URL can be found in your Pigment workspace under **Settings > Integrati
 
 ### MCP Server
 
-The plugin connects your AI assistant to the Pigment MCP server, which has two modes.
+The Pigment MCP server gives your AI assistant access to your Pigment workspace. You connect it separately (see [Configuration](#configuration)). It has two modes.
 
 #### Default mode
 

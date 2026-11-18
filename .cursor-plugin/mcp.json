@@ -1,8 +1,0 @@
-{
-  "mcpServers": {
-    "pigment": {
-      "type": "http",
-      "url": ""
-    }
-  }
-}
