@@ -6,8 +6,6 @@ The target view is available in the UVC — a widget of the board the user has o
 
 ## Overriding page and scenario selections
 
-This section applies only when `tool:fetch_view_data` has the arguments `page_selection_overrides` and `scenario_overrides`. Otherwise skip it and plan every change as `tool:fetch_metric_data` filters, as the rest of this file describes.
-
 When the user asks for the same view with other page or scenario selections ("show this for France", "what about Budget?"), plan it as a call to `tool:fetch_view_data` with `page_selection_overrides` and `scenario_overrides`, not as `tool:fetch_metric_data` filters:
 
 - The selections you do not override stay as the user set them, so the rest of the board's constraints still hold.
@@ -26,7 +24,7 @@ For each active selector, look up its pivot type in the view's pivot configurati
 - **Grouping**: apply as a property filter on the source dimension using the property path from the pivot config.
 - **Mapped** (through a mapping metric): follow the mapped dimension procedure in SKILL.md.
 
-**User override**: if the user explicitly requests different filter values or asks to ignore a selector, their instruction takes precedence. Only override when explicit — never infer an override from absence of mention. When `tool:fetch_view_data` accepts `page_selection_overrides` and the new values are for a page or scenario selector, use those overrides (see *Overriding page and scenario selections*) rather than filters on `tool:fetch_metric_data`.
+**User override**: if the user explicitly requests different filter values or asks to ignore a selector, their instruction takes precedence. Only override when explicit — never infer an override from absence of mention. When the new values are for a page or scenario selector, use `tool:fetch_view_data` overrides (see *Overriding page and scenario selections*) rather than filters on `tool:fetch_metric_data`.
 
 **Multi-value selectors**: if the board selector has multiple selected values, make one `tool:fetch_metric_data` call per value, union the results, then aggregate. Never drop values to avoid splitting. Mapped selectors are the exception: the mapping procedure handles all their selected values in one pass.
 

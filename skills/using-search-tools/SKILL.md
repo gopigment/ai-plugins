@@ -40,7 +40,6 @@ So: name everything you need up front, put it in as few calls as possible, and f
 | Trace multi-hop formula lineage (what feeds a metric, or what consumes it)                                   | `tool:get_data_dependency_tree`                                                                    | Low per call— recursive graph traversal; no AI       |
 | Full impact analysis before deleting/renaming a metric (all consumers: formulas, views, boards, automations) | `tool:get_metric_dependencies`                                                                     | Low per call— flat inventory lookup; no AI           |
 | Complex searches combining OR / AND across many blocks, or no relevant filter exists in the `search_*` tools | several `tool:search_metrics_and_lists`, `tool:search_folders`, or `tool:search_tables` calls, then combine the results | Medium–high — quite long to run, but a chain of searches is longer |
-| Other approaches failed, or no other tool fits                                                               | `tool:search`                                                                                      | Highest — LLM expert reads blocks and produces prose |
 
 
 **Rule of thumb**: Always prefer `tool:search_metrics_and_lists`, `tool:search_folders`, or `tool:search_tables` when you can express the query as a concrete filter. Fall back to `tool:semantic_search` when you only have a concept. When a condition needs OR / AND across blocks, issue the `search_*` calls that cover each part and combine the results.
@@ -126,17 +125,6 @@ Use when the condition combines OR / AND across blocks (e.g. "metrics in folder 
 ## Query Formulation
 
 
-
-### tool:search
-
-- One short, focused sentence per call; ask about one thing at a time
-- Good: `"how are revenues computed?"` / `"what feeds into 2026 ARR?"`
-- Bad: `"tell me everything about the revenue model, its inputs, outputs, formulas, and boards"` (too broad)
-- Bad: `"ARR"` (too vague; needs a question)
-- Bad: `"list all metrics related to churn"` (that is a `tool:search_metrics_and_lists` job)
-
-
-
 ### tool:semantic_search
 
 - Short phrases of 2–4 words each; one concept per array element; multiple entries are OR-combined
@@ -204,8 +192,6 @@ Flat inventory of everywhere a metric is referenced. Grouped by consumer kind: f
 
 ### Wrong tool for the job
 
-- **Using** `tool:search` **to get a block list** — it returns prose reasoning, not structured lists.
-- **Using** `tool:search` **to trace dependencies** — use `tool:get_data_dependency_tree` for precise multi-hop chains.
 - **Using** `tool:get_data_dependency_tree` **for impact analysis** — it only shows formula references; use `tool:get_metric_dependencies` to see boards, views and automations too.
 - **Chaining many `search_*` calls when one filter list would do** — pass every name, folder, or formula pattern in one call instead of one call per value.
 
@@ -214,7 +200,7 @@ Flat inventory of everywhere a metric is referenced. Grouped by consumer kind: f
 ### Malformed queries
 
 - **Using** `tool:semantic_search` **with full sentences** — the embedding model works best on 2–4 word phrases.
-- **Bundling multiple questions** — one question per `tool:search` call, one concept per `tool:semantic_search` topic entry.
+- **Bundling multiple questions** — one concept per `tool:semantic_search` topic entry.
 - **Omitting** `kind` when you clearly know the block type — wastes ranking capacity on irrelevant types.
 
 

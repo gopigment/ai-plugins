@@ -22,7 +22,7 @@ Do **not** share when data is used in only one Application, or when a simple imp
 
 ## Share a Metric to Another Application
 
-1. **Share the block** using `tool:batch_share_blocks` to make it available to other Applications.
+1. **Share the block** using `tool:batch_share_blocks` to make it available to other Applications. If `tool:get_block_sharing_plan_for_batch_share` is available, call it first with the same metrics and lists, review the extra blocks and Libraries it lists, then pass the returned plan back unchanged as `reviewedBlockSharingPlan`; `tool:batch_share_blocks` rejects the call without it.
 2. In the consuming Application, **activate the source Library** using `tool:enable_application_library`.
 3. Reference the shared block in formulas using cross-Application syntax (see below).
 
@@ -42,14 +42,16 @@ Changes to shared blocks in the source Application propagate automatically to al
 
 ## Sharing Dimension Lists
 
-Dimension lists are shared using the `sharing_status` parameter, not `tool:batch_share_blocks`:
+To share dimension lists, two ways:
 
-- When creating a new dimension: `tool:create_list` with `sharing_status: "Shared"`
-- When sharing an existing dimension: `tool:bulk_update_lists` with `sharing_status: "Shared"`
+- When batching, same tool as metrics: `tool:batch_share_blocks`
+- Through the list's sharing status:
+  - When creating a new dimension: `tool:create_list` with its sharing status set to Shared
+  - When sharing an existing dimension: `tool:bulk_update_lists` with the sharing status set to Shared
 
-This applies to all dimension lists including calendar time dimensions (Month, Quarter, Year).
+This applies to all dimension lists including calendar time dimensions (Month, Quarter, Year). Changing a list's sharing status also changes its subsets (sublists).
 
-`tool:batch_share_blocks` is for sharing metrics, tables, and other non-dimension blocks.
+`tool:batch_share_blocks` shares metrics and lists only, not tables. It also shares the dimensions of the metrics you pass, so you do not need to share those lists first.
 
 ## Limitations
 

@@ -1,6 +1,6 @@
 ---
 name: designing-boards-and-views
-description: "Execution skill. Use when creating or editing a Board, a dashboard, or a View -- board sections and layout on the 12-column grid, widgets and their sizing (KPI, chart, grid, text, spacer, action button), board page selectors and their defaults, view pivots (rows / columns / pages), breaking down by or per a dimension, filters, sorts, totals, chart type and configuration, cell formatting, and draft views."
+description: "Execution skill. Use when creating or editing a Board, a dashboard, or a View -- board sections and layout on the 12-column grid, widgets and their sizing (KPI, chart, grid, text, spacer, action button), board page selectors and their defaults, view pivots (rows / columns / pages), breaking down by or per a dimension, filters, sorts, totals, chart type and configuration, cell formatting, colors (recoloring a Board or View, series and cell colors, the organization color palette), and draft views. Load it before asking the user about colors."
 metadata:
   base_directory: "/skills/designing-boards-and-views"
   includes:
@@ -45,7 +45,7 @@ Whenever you create or restyle a Grid View (`Table` or `List` display), load `sk
 | KPI options | `tool:update_view_kpi_config` |
 | Cell colors, bold, alignment | `tool:update_view_formatting` |
 | Tree vs tabular, row height, totals position, column widths | `tool:update_view_grid_layout` |
-| Name, description, template, `sharingStatus` | `tool:update_view` |
+| Name, description, template, `sharingStatus` | `tool:update_view_metadata` |
 | Grid templates | `tool:get_all_view_templates` |
 | Save draft Views | `tool:save_draft_views` |
 
@@ -98,6 +98,47 @@ Validate the View against the intended `display_type` **before** creating the wi
 To change the View already shown on a widget, call the `update_view_*` tools on that View id; if a Draft is auto-created, follow *Edit a Live View Safely* below.
 
 If the user asked for no new modeling blocks, a Table block is still fair game: it bundles existing metrics for display and is a layout container, not a structural object.
+
+## Coloring Boards and Views
+
+Call `tool:get_organization_color_palette` once at the start of any task that creates or updates a Board, Views or widgets, **even when the user doesn't mention colors**. Reuse the result for the rest of the conversation. If the tool fails or returns no usable color, say so explicitly and fall back to the Pigment palette.
+
+**Prefer the organization palette.** Use an `Organization_Custom` token whenever one fits. Use a Pigment color only when the organization palette has none close enough, or when the user names a Pigment color.
+
+### Color Basics
+
+**Two palettes fill the same color fields.** The color fields typed `McpGridColor` (cell and text colors, backgrounds, chart series overrides, KPI and widget colors) take a token from one of them. Two fields take something else:
+
+- A chart's `colors` field picks a whole palette for the series, not a token. Set it to `Organization` unless the user asks for another palette.
+- The Board icon color (`iconColor` in `tool:create_board`) takes a named color such as `Blue` or `LightBlue`, never a token. Pick the one closest to the organization's colors.
+
+The two palettes:
+
+- **The organization palette**: the `Organization_Custom{N}` tokens returned by `tool:get_organization_color_palette`, each with its hex.
+- **The Pigment palette**: Pigment's built-in colors, written `{Color}_{Value}` from the table below, plus `White`. Only these names exist; use their hex values when comparing colors:
+
+  | Color | 10 (lightest) | 20 | 30 | 50 | 80 | 100 (darkest) |
+  | --- | --- | --- | --- | --- | --- | --- |
+  | Grey | `#F3F3F5` | `#CDCED2` | `#9B9DA6` | `#696D79` | `#373C4D` | `#050B20` |
+  | Red | `#FFF5F6` | `#FFDEE1` | `#FA6B7D` | `#D0253C` | `#940014` | `#5A000C` |
+  | Fuchsia | `#FFF2F9` | `#FFDBED` | `#FFA3CD` | `#CF297C` | `#8C094B` | `#570037` |
+  | Orange | `#FFFAF7` | `#FFEDE0` | `#FFD8BD` | `#FFB17A` | `#C9814E` | `#A7673B` |
+  | Indigo | `#EFF7FC` | `#D7EBFA` | `#9EC2D9` | `#437799` | `#1F4963` | `#042133` |
+  | Teal | `#EDFAFA` | `#D0F1F1` | `#21B5B4` | `#00857F` | `#005753` | `#003732` |
+  | Purple | `#F2F4FF` | `#E5EAFF` | `#C7D0FF` | `#6371B8` | `#36427E` | `#14205C` |
+  | Blue | `#F0F5FF` | `#D6E6FF` | `#63B0FD` | `#0355F3` | `#0038A4` | `#00208D` |
+  | Yellow | `#FFF9E3` | `#FFF5BF` | `#FFE25E` | `#FAC800` | `#E5A502` | `#301601` |
+  | Green | `#EBFAED` | `#D4FAD4` | `#79E681` | `#088A15` | `#016311` | `#043301` |
+  | Cyan | `#E8FCFF` | `#C7F9FF` | `#7CE6F7` | `#008299` | `#005060` | `#00333D` |
+  | Violet | `#F6F2FC` | `#EDE0FF` | `#CDAAFF` | `#812BF8` | `#44079A` | `#21004F` |
+
+**Tint, Mid and Strong.** Sort the palette by how light each color is. Drop the `Disabled` colors, then compute each color's lightness from its hex: `L = (0.2126 R + 0.7152 G + 0.0722 B) / 255` (R, G, B from 0 to 255; L from 0 for black to 1 for white).
+
+| Role | Lightness | Use it for | Never for | Why |
+| --- | --- | --- | --- | --- |
+| **Tint** | `L >= 0.85` | Backgrounds: grid headers, bucket cells, a Filled text widget | Lines, bars, slices, text | Too pale to see as a mark, but dark text stays readable on it |
+| **Mid** | `0.5 <= L < 0.85` | Filled marks: bars, pie slices, areas | Lines, text, backgrounds behind text | A large filled shape shows well, a thin line or text fades into the white background |
+| **Strong** | `L < 0.5` | Any mark, lines included; button backgrounds with a `White` label | Backgrounds behind dark text | Dark enough to stand out even as a thin line |
 
 ## Lay It Out
 
@@ -152,7 +193,7 @@ When unclear, create. Convention for a new View: time dimensions in Columns, ent
 
 **Ids are server-assigned.** Omit `id` for a new pivot or value; echo back the id from a previous response to keep an existing one. Never invent a UUID.
 
-**Cross-application blocks:** a View lives in the same application as its block. For a block coming from an enabled library, create the View in the library app, then call `tool:update_view` with `sharingStatus: Dataviz` -- otherwise a widget in the consuming app renders "This View doesn't exist anymore." `sharingStatus` needs its **own** `tool:update_view` call: it cannot travel with name, description or template, and it applies only to the canonical View, not to a Draft.
+**Cross-application blocks:** a View lives in the same application as its block. For a block coming from an enabled library, create the View in the library app, then call `tool:update_view_metadata` with `sharingStatus: Dataviz` -- otherwise a widget in the consuming app renders "This View doesn't exist anymore." `sharingStatus` needs its **own** `tool:update_view_metadata` call: it cannot travel with name, description or template, and it applies only to the canonical View, not to a Draft.
 
 ## Place the Pivots
 

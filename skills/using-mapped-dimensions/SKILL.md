@@ -44,7 +44,6 @@ IF(Month >= 'Employee'.'Transfer Date', 'Employee'.'New Team', 'Employee'.'Origi
 ```
 
 - **Manual input**: use `tool:set_metric_input`.
-- **Import**: no public MCP bulk-import for metrics; ask the user to load mapping values in the Pigment UI, or use `tool:set_metric_input` for small datasets.
 
 ### Step 3 — Use Mapped Dimensions in Views
 

@@ -55,6 +55,7 @@ Some examples:
 
 The leaf dimension of a hierarchy MUST have a propery dimension for every level of the hierarchy, allowing for easy page filtering.
 
+
 ### Set Unique Properties for Imports and API
 
 Every dimension list requires **at least one unique property** for item identification.
@@ -143,5 +144,4 @@ Use `tool:create_list_property` to add a property to a dimension that already ex
 ## Step 4: Populate the list items
 
 Add list items in the dimension(s) (and each level if there are several) with `tool:add_list_items`. For a large CSV, ask the user to import it in the Pigment UI.
-
 

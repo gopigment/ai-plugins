@@ -1,6 +1,6 @@
 ---
 name: running-data-flows
-description: "Execution skill. Use when the user asks to run, trigger, launch or re-run a Data Flow, or to reload, resync or refresh data that an existing Data Flow already loads (imports and data copies), or asks which Data Flows an Application has, what they do, or which one to use. Covers finding the Data Flow with list_data_flows and triggering it with run_data_flow, including the approval, asynchronous execution and error handling. Do NOT use to create or edit a Data Flow or its steps, to import a CSV file (use Pigment's data import UI), or to copy metric data by creating a new copy config (see `skill:copying-metric-data`)."
+description: "Execution skill. Use when the user asks to run, trigger, launch or re-run a Data Flow, or to reload, resync or refresh data that an existing Data Flow already loads (imports and data copies), or asks which Data Flows an Application has, what they do, or which one to use. Covers finding the Data Flow with list_data_flows and triggering it with run_data_flow, including the approval, asynchronous execution and error handling. Do NOT use to create or edit a Data Flow or its steps, to import a CSV file, or to copy metric data by creating a new copy config (see `skill:copying-metric-data`)."
 metadata:
   base_directory: "/skills/running-data-flows"
   includes:

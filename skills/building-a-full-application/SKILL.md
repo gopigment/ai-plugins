@@ -63,7 +63,7 @@ Version is a dimension. Dimensions and Version can be created in either order; b
 - Place the Version dimension in the Hub when shared across apps.
 - Decide how completed versions are protected: snapshots freeze numbers but cannot serve as basis for replanning; keep a live version alongside for that purpose.
 - Decide how new versions are initialized (import from another version, bulk copy, clone data, re-import from scenario, or start from scratch).
-- Max ~10 live versions recommended; every live version carries ongoing calculation cost.
+- Aim for about 6 active versions; never more than about 10, because every live version adds calculation cost.
 
 #### Phase 5 — Metrics and Transaction Lists
 
@@ -157,7 +157,7 @@ Before telling the user the build is done:
 - [ ] **Formula health** — `tool:list_issues` reports no errors on the application
 - [ ] **No empty dimensions** — every dimension list created has items (`tool:get_list_items`)
 - [ ] **Version dimension** — it exists with at least an `Actual` item, and the metrics holding plan data carry it
-- [ ] **Values plausible** — spot-check the primary output metrics with `tool:fetch_metric_data`; a wrong order of magnitude means a wrong formula, not a display problem
+- [ ] **Values plausible** — spot-check the primary output metrics with `tool:fetch_metric_data` (or the `data_validator` subagent, whichever is available to you); a wrong order of magnitude means a wrong formula, not a display problem
 - [ ] **Folder placement** — no blocks left in "No Folder"
 - [ ] **Views and boards** — every planned View renders and every Board page shows the intended widgets
 - [ ] **Handover** — restate the UI-only steps from the spec so the user knows what is left to do by hand

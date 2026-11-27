@@ -14,7 +14,7 @@ metadata:
 A **transaction list** stores high-volume, row-based event data. Each row is one transaction or event.
 
 - Items **do not need to be unique** (many rows can share the same product or date).
-- Pigment auto-generates unique row IDs — source data does not need one.
+- Pigment auto-generates unique row IDs — source data does not need one. Set a uniqueness constraint only when the source has a confirmed stable key (a transaction or line ID), never inferred from a preview.
 - Represents granular events: orders, GL entries, bookings, movements, invoices.
 - **Cannot** be used in a metric's structure — only referenced in formulas.
 
