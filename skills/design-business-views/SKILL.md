@@ -108,7 +108,7 @@ Views have no number-formatting tool: the format lives on the **metric** and app
 
 1. Read each Integer / Decimal metric's current `defaultFormat` with `tool:search_metrics_and_lists` (`block_id_exact_match` + `show_details: true`).
 2. Leave alone any metric that already has a deliberate format (prefix, suffix, multiplier, or non-zero decimals the modeler chose).
-3. For the others, call `tool:update_metric` with `default_format.numberFormatOptions`:
+3. For the others, call `tool:bulk_update_metrics` with `default_format.numberFormatOptions`:
    - Plain number: `numFractionDigits: 0`, `noThousandSeparator: false`.
    - Percentage or Rates: `multiplier: 100`, `multiplierSuffix: "%"`, `numFractionDigits` as `skill:formatting-and-highlighting` says.
 

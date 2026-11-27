@@ -61,9 +61,8 @@ When copying or recreating a folder tree under a new parent, use this spec shape
 
 Then get the spec approved:
 
-1. Record the change sequence with `tool:track_todo_list`, one item per phase in scope.
-2. Present the spec and ask for approval with `tool:ask_user`. Silence is not approval — wait for an answer.
-3. If the user changes the scope, update the spec and the todo list before editing anything.
+1. Present the spec and ask for approval with `tool:ask_user`. Silence is not approval — wait for an answer.
+2. If the user changes the scope, update the spec before editing anything.
 
 ---
 

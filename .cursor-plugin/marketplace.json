@@ -7,7 +7,7 @@
     {
       "name": "pigment",
       "source": ".",
-      "version": "2.0.12",
+      "version": "2.0.13",
       "description": "Analyze business data and build planning models in your Pigment workspace",
       "author": {
         "name": "Pigment"
@@ -25,5 +25,5 @@
       "skills": "./skills/"
     }
   ],
-  "version": "2.0.12"
+  "version": "2.0.13"
 }

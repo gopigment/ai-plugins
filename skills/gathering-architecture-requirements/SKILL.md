@@ -64,7 +64,7 @@ Work through each area systematically, gathering requirements and making decisio
 ## Planning Cycles and Versions
 
 - What versions/scenarios are needed?
-- How many live versions concurrently (max ~10 recommended)?
+- How many active versions concurrently? Aim for about 6; never more than about 10, because every live version adds calculation cost.
 - How should completed plans be protected from changes?
 - Do users need to replan based on historical budgets?
 - When loading new data, should it impact historical plans?
@@ -83,5 +83,5 @@ Before finalizing architecture, validate:
 - Does data granularity match structural requirements?
 - Are governance and security requirements met?
 - Is version management adequate for the planning cycle?
-- Are there fewer than ~10 live versions?
+- Are there about 6 active versions, and never more than about 10?
 - Have all dimensions been challenged for necessity?

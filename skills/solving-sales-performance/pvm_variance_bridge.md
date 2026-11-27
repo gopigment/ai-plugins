@@ -104,6 +104,6 @@ Create a check metric:
 Revenue − Revenue[SELECT: Year - 1] − 'Price Effect' − 'Volume Effect' − 'Mix Effect'
 ```
 
-This must equal **0** (or near-0 for floating-point rounding). Verify with `tool:fetch_metric_data` at the granular level and at totals.
+This must equal **0** (or near-0 for floating-point rounding). Verify with `tool:fetch_metric_data` (or the `data_validator` subagent, whichever is available to you) at the granular level and at totals.
 
 If the check metric is non-zero beyond rounding tolerance, the decomposition has a bug. Debug by verifying each component at a single Product × Country × Month cell before looking at aggregates.

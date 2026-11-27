@@ -44,7 +44,7 @@ All three can coexist. A forecast Version can have Optimistic and Pessimistic Sc
 - Baseline for Data Slices (e.g., "Last year forecast") without maintaining extra versions
 - Data must not change after capture
 
-Limit active version items to ~6 for performance. Take Snapshots at cycle end or monthly for rolling forecasts.
+Aim for about 6 active versions; never more than about 10, because every live version adds calculation cost. Take Snapshots at cycle end or monthly for rolling forecasts.
 
 ## Build a Version Dimension Step by Step
 
